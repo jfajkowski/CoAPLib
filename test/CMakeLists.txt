@@ -1,7 +1,7 @@
 find_package(Boost REQUIRED unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(CoAPTest CoAPTest.cpp ../src/CoAP.h ../src/CoAP.cpp)
+add_executable(CoAPTest CoAPTest.cpp ../src/CoAP.h ../src/CoAP.cpp UdpEmulator.cpp UdpEmulator.h)
 target_link_libraries(CoAPTest
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
