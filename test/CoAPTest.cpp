@@ -55,6 +55,27 @@ BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     BOOST_ASSERT(expected.getCode() == actual.getCode());
     BOOST_ASSERT(expected.getMessageId() == actual.getMessageId());
 }
+
+BOOST_AUTO_TEST_CASE(SerializationTest) {
+    UdpEmulator emulator(64);
+    Frame expected;
+    expected.setVer(1);
+    expected.setT(0);
+    expected.setCode(CODE_GET);
+    expected.setMessageId(11);
+
+    unsigned char buffer[200];
+    expected.serialize(buffer);
+
+    emulator.write(&expected, sizeof(expected));
+
+    Frame actual;
+    size_t packetSize = emulator.parsePacket() - 8;
+    emulator.read(&actual, packetSize);
+
+
+}
+
 /*
 BOOST_AUTO_TEST_CASE(FrameSendingTest) {
     UdpEmulator emulator(64);

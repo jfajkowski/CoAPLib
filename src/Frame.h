@@ -28,6 +28,7 @@ public:
     Frame();
 
     void serialize(unsigned char* buffer);
+    std::ostream &serialize(std::ostream &stream);
 
     unsigned int getVer() const;
     void setVer(unsigned int Ver);
