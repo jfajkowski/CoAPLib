@@ -9,6 +9,4 @@ typedef struct {
     unsigned int MessageId : 16;
 } Header;
 
-
-
 #endif
