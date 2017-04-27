@@ -25,13 +25,21 @@ public:
     static const unsigned char PAYLOAD_MARKER = 0xFF;
 
     Frame();
-    Frame(Header header, ucArray token, ucArray options, ucArray payload);
 
-    Header getHeader();
-    ucArray getToken();
-    ucArray getOptions();
-    ucArray getPayload();
-
+    unsigned int getVer() const;
+    void setVer(unsigned int Ver);
+    unsigned int getT() const;
+    void setT(unsigned int T);
+    unsigned int getCode() const;
+    void setCode(unsigned int Code);
+    unsigned int getMessageId() const;
+    void setMessageId(unsigned int MessageId);
+    const ucArray &getToken_() const;
+    void setToken_(const ucArray &token_);
+    const ucArray &getOptions_() const;
+    void setOptions_(const ucArray &options_);
+    const ucArray &getPayload_() const;
+    void setPayload_(const ucArray &payload_);
 };
 
 #endif //ARDUINODEMO_FRAME_H
