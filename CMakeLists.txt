@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 find_package(Boost REQUIRED unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_library(ArduinoDemo src/CoAP.h src/CoAP.cpp)
+add_library(ArduinoDemo src/Frame.cpp src/Frame.h src/Array.hpp)
 
 add_subdirectory(test)
