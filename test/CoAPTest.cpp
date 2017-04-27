@@ -3,9 +3,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CoAPTest
 #include <boost/test/unit_test.hpp>
-#include <iostream>
 #include "../src/Frame.h"
 #include "UdpEmulator.h"
+#include "../src/Codes.h"
 
 BOOST_AUTO_TEST_CASE(HeaderStructureTest) {
     Header header = {1,2,3,4,5};
@@ -34,15 +34,14 @@ BOOST_AUTO_TEST_CASE(HeaderSendingTest) {
     BOOST_ASSERT(expected.Code == actual.Code);
     BOOST_ASSERT(expected.MessageId == actual.MessageId);
 }
-/*
+
 BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     UdpEmulator emulator(64);
-    Header header = {1,2,3,4,5};
     Frame expected;
-    expected.header = header;
-    expected.token = new unsigned char[0];
-    expected.options = new unsigned char[0];
-    expected.payload = new unsigned char[0];
+    expected.setVer(1);
+    expected.setT(0);
+    expected.setCode(CODE_GET);
+    expected.setMessageId(11);
 
     emulator.write(&expected, sizeof(expected));
 
@@ -50,15 +49,13 @@ BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     size_t packetSize = emulator.parsePacket() - 8;
     emulator.read(&actual, packetSize);
 
-    std::cout << "Expected: " << expected << std::endl;
-    std::cout << "Actual: " << actual << std::endl;
-    BOOST_ASSERT(expected.header.Ver == actual.header.Ver);
-    BOOST_ASSERT(expected.header.T == actual.header.T);
-    BOOST_ASSERT(expected.header.TKL == actual.header.TKL);
-    BOOST_ASSERT(expected.header.Code == actual.header.Code);
-    BOOST_ASSERT(expected.header.MessageId == actual.header.MessageId);
+    BOOST_ASSERT(expected.getVer() == actual.getVer());
+    BOOST_ASSERT(expected.getT() == actual.getT());
+    BOOST_ASSERT(expected.getTKL() == actual.getTKL());
+    BOOST_ASSERT(expected.getCode() == actual.getCode());
+    BOOST_ASSERT(expected.getMessageId() == actual.getMessageId());
 }
-
+/*
 BOOST_AUTO_TEST_CASE(FrameSendingTest) {
     UdpEmulator emulator(64);
     Header header = {1,2,3,4,5};
