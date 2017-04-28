@@ -58,6 +58,10 @@ BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(FrameDeserializationTest) {
+
+}
+
 BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
     UdpEmulator emulator(64);
     unsigned int expected = 1;
@@ -68,7 +72,7 @@ BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
     BOOST_CHECK_EQUAL(expected, actual);
 }
 
-BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
+/*BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     UdpEmulator emulator(64);
     Frame expected;
 
@@ -76,14 +80,15 @@ BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
 
     Frame actual;
     size_t packetSize = emulator.parsePacket() - 8;
-    emulator.read(&actual, packetSize);
+    unsigned char* buffer[64];
+    emulator.read(&buffer, packetSize);
 
     BOOST_ASSERT(expected.getVer() == actual.getVer());
     BOOST_ASSERT(expected.getT() == actual.getT());
     BOOST_ASSERT(expected.getTKL() == actual.getTKL());
     BOOST_ASSERT(expected.getCode() == actual.getCode());
     BOOST_ASSERT(expected.getMessageId() == actual.getMessageId());
-}
+}*/
 
 /*
 BOOST_AUTO_TEST_CASE(SerializationTest) {

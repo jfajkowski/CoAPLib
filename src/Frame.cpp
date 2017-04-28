@@ -5,7 +5,7 @@ Frame::Frame() {
     header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
 }
 
-unsigned int Frame::serialize(unsigned char *buffer_begin) {
+unsigned int Frame::serialize(unsigned char* buffer_begin) {
     unsigned char* buffer = buffer_begin;
     memcpy(buffer, &header_, sizeof(header_));
     buffer += sizeof(header_);
@@ -23,12 +23,31 @@ unsigned int Frame::serialize(unsigned char *buffer_begin) {
     return (unsigned int) (buffer - buffer_begin);
 }
 
-void Frame::insert(unsigned char *buffer, const ByteArray &array) {
+void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
     memcpy(buffer, array.begin(), array.size());
     buffer += array.size();
 }
 
-std::ostream& Frame::serialize(std::ostream& stream) {
+Frame Frame::deserialize(unsigned char *buffer_begin, unsigned int num) {
+    Frame frame;
+
+    unsigned char* buffer = buffer_begin;
+    memcpy(&frame.header_, buffer, sizeof(frame.header_));
+    buffer += sizeof(frame.header_);
+
+    extract(buffer, frame.header_.TKL);
+
+    //TODO: Extract options and payload.
+
+    return frame;
+}
+
+static ByteArray Frame::extract(unsigned char *&buffer, unsigned int num) {
+    //TODO Implementation.
+    return ByteArray();
+}
+
+std::ostream& Frame::serialize(std::ostream &stream) {
     stream.write((char*)&header_, 4);
     stream.write((char*) token_.begin(), token_.size());
     stream.write((char*) options_.begin(), options_.size());

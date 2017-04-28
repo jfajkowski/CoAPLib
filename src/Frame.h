@@ -23,14 +23,16 @@ private:
     ByteArray options_;
     ByteArray payload_;
 
-    void insert(unsigned char *buffer, const ByteArray &array);
+    static void insert(unsigned char* &buffer, const ByteArray &array);
+    static ByteArray extract(unsigned char *&buffer, unsigned int num);
 public:
     static const unsigned int DEFAULT_VERSION = 0x01;
     static const unsigned char PAYLOAD_MARKER = 0xFF;
 
     Frame();
 
-    unsigned int serialize(unsigned char *buffer_begin);
+    unsigned int serialize(unsigned char* buffer_begin);
+    static Frame deserialize(unsigned char *buffer_begin, unsigned int num);
     std::ostream &serialize(std::ostream &stream);
 
     unsigned int getVer() const;
