@@ -3,6 +3,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CoAPTest
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 #include "../src/Frame.h"
 #include "UdpEmulator.h"
 #include "../src/Codes.h"
@@ -67,6 +68,7 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     unsigned char buffer[200];
     expected.serialize(buffer);
 
+    std::cout << "Buffer: " << buffer << std::endl << "Size: " << sizeof(buffer) << std::endl;
     emulator.write(&expected, sizeof(expected));
 
     Frame actual;

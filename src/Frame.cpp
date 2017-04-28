@@ -8,13 +8,13 @@ Frame::Frame() {
 void Frame::serialize(unsigned char* buffer) {
     unsigned int* buff_begin_ = (unsigned int*)buffer;
 
-    memcpy (buff_begin_, header_, 4);
+    memcpy(buff_begin_, (unsigned char*)&header_, 4);
     buff_begin_++;
 
-    memcpy (buff_begin_, token_.getArray_begin_(), token_.size());
+    memcpy(buff_begin_, token_.getArray_begin_(), token_.size());
     buff_begin_++;
 
-    memcpy (buff_begin_, options_.getArray_begin_(), options_.size());
+    memcpy(buff_begin_, options_.getArray_begin_(), options_.size());
     buff_begin_++;
 
     if(payload_.size() > 0) {
@@ -22,7 +22,7 @@ void Frame::serialize(unsigned char* buffer) {
         buff_begin_++;
     }
 
-    memcpy (buff_begin_, payload_.getArray_begin_(), payload_.size());
+    memcpy(buff_begin_, payload_.getArray_begin_(), payload_.size());
 }
 
 std::ostream& Frame::serialize(std::ostream& stream) {
