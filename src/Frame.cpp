@@ -2,39 +2,41 @@
 #include "Frame.h"
 
 Frame::Frame() {
-    header_.Ver = DEFAULT_VERSION;
+    header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
 }
 
-void Frame::serialize(unsigned char* buffer) {
-    unsigned int* buff_begin_ = (unsigned int*)buffer;
+unsigned int Frame::serialize(unsigned char *buffer_begin) {
+    unsigned char* buffer = buffer_begin;
+    memcpy(buffer, &header_, sizeof(header_));
+    buffer += sizeof(header_);
 
-    memcpy(buff_begin_, (unsigned char*)&header_, 4);
-    buff_begin_++;
-
-    memcpy(buff_begin_, token_.getArray_begin_(), token_.size());
-    buff_begin_++;
-
-    memcpy(buff_begin_, options_.getArray_begin_(), options_.size());
-    buff_begin_++;
+    insert(buffer, token_);
+    insert(buffer, options_);
 
     if(payload_.size() > 0) {
-        *buff_begin_ = PAYLOAD_MARKER;
-        buff_begin_++;
+        memcpy(buffer, &PAYLOAD_MARKER, sizeof(PAYLOAD_MARKER));
+        buffer += sizeof(PAYLOAD_MARKER);
     }
 
-    memcpy(buff_begin_, payload_.getArray_begin_(), payload_.size());
+    insert(buffer, payload_);
+
+    return (unsigned int) (buffer - buffer_begin);
+}
+
+void Frame::insert(unsigned char *buffer, const ByteArray &array) {
+    memcpy(buffer, array.begin(), array.size());
+    buffer += array.size();
 }
 
 std::ostream& Frame::serialize(std::ostream& stream) {
     stream.write((char*)&header_, 4);
-    stream.write((char*)token_.getArray_begin_(), token_.size());
-    stream.write((char*)options_.getArray_begin_(), options_.size());
-    stream.write((char*)payload_.getArray_begin_(), payload_.size());
+    stream.write((char*) token_.begin(), token_.size());
+    stream.write((char*) options_.begin(), options_.size());
+    stream.write((char*) payload_.begin(), payload_.size());
     return stream;
 
     //TODO: Compare two serialization methods above, choose better one and test it.
 }
-
 
 unsigned int Frame::getVer() const {
     return header_.Ver;
@@ -68,27 +70,28 @@ void Frame::setMessageId(unsigned int MessageId) {
     header_.MessageId = MessageId;
 }
 
-const ByteArray &Frame::getToken_() const {
+const ByteArray &Frame::getToken() const {
     return token_;
 }
 
-void Frame::setToken_(const ByteArray &token_) {
-    Frame::token_ = token_;
+void Frame::setToken(const ByteArray &token) {
+    Frame::token_ = token;
+    Frame::header_.TKL = token.size();
 }
 
-const ByteArray &Frame::getOptions_() const {
+const ByteArray &Frame::getOptions() const {
     return options_;
 }
 
-void Frame::setOptions_(const ByteArray &options_) {
-    Frame::options_ = options_;
+void Frame::setOptions(const ByteArray &options) {
+    Frame::options_ = options;
 }
 
-const ByteArray &Frame::getPayload_() const {
+const ByteArray &Frame::getPayload() const {
     return payload_;
 }
 
-void Frame::setPayload_(const ByteArray &payload_) {
-    Frame::payload_ = payload_;
+void Frame::setPayload(const ByteArray &payload) {
+    Frame::payload_ = payload;
 }
 

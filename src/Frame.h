@@ -22,13 +22,15 @@ private:
     ByteArray token_;
     ByteArray options_;
     ByteArray payload_;
+
+    void insert(unsigned char *buffer, const ByteArray &array);
 public:
     static const unsigned int DEFAULT_VERSION = 0x01;
     static const unsigned char PAYLOAD_MARKER = 0xFF;
 
     Frame();
 
-    void serialize(unsigned char* buffer);
+    unsigned int serialize(unsigned char *buffer_begin);
     std::ostream &serialize(std::ostream &stream);
 
     unsigned int getVer() const;
@@ -44,14 +46,14 @@ public:
     unsigned int getMessageId() const;
     void setMessageId(unsigned int MessageId);
 
-    const ByteArray &getToken_() const;
-    void setToken_(const ByteArray &token_);
+    const ByteArray &getToken() const;
+    void setToken(const ByteArray &token);
 
-    const ByteArray &getOptions_() const;
-    void setOptions_(const ByteArray &options_);
+    const ByteArray &getOptions() const;
+    void setOptions(const ByteArray &options);
 
-    const ByteArray &getPayload_() const;
-    void setPayload_(const ByteArray &payload_);
+    const ByteArray &getPayload() const;
+    void setPayload(const ByteArray &payload);
 };
 
 #endif //ARDUINODEMO_FRAME_H

@@ -36,12 +36,41 @@ BOOST_AUTO_TEST_CASE(HeaderSendingTest) {
     BOOST_ASSERT(expected.MessageId == actual.MessageId);
 }
 
+BOOST_AUTO_TEST_CASE(ArrayTest) {
+    unsigned int expected_size = 10;
+    ByteArray array(expected_size);
+    unsigned int actual_size = array.size();
+    BOOST_CHECK_EQUAL(expected_size, actual_size);
+}
+
+BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
+    unsigned int buffer_size = 64;
+
+    Frame frame1;
+    unsigned char expected[buffer_size];
+    unsigned int bytes_written_expected = frame1.serialize(expected);
+    unsigned char actual[buffer_size];
+    unsigned int bytes_written_actual = frame1.serialize(actual);
+
+    BOOST_CHECK_EQUAL(bytes_written_expected, bytes_written_actual);
+    for (int i = 0; i < bytes_written_expected; ++i) {
+        BOOST_CHECK_EQUAL(expected[i], actual[i]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
+    UdpEmulator emulator(64);
+    unsigned int expected = 1;
+    emulator.write(&expected, sizeof(expected));
+    unsigned int actual;
+    emulator.read(&actual, sizeof(actual));
+
+    BOOST_CHECK_EQUAL(expected, actual);
+}
+
 BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     UdpEmulator emulator(64);
     Frame expected;
-    expected.setT(0);
-    expected.setCode(CODE_GET);
-    expected.setMessageId(11);
 
     emulator.write(&expected, sizeof(expected));
 
@@ -56,6 +85,7 @@ BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     BOOST_ASSERT(expected.getMessageId() == actual.getMessageId());
 }
 
+/*
 BOOST_AUTO_TEST_CASE(SerializationTest) {
     UdpEmulator emulator(64);
     Frame expected;
@@ -63,7 +93,7 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     expected.setCode(CODE_GET);
     expected.setMessageId(11);
 
-    unsigned char buffer[200];
+    unsigned char buffer[64];
     expected.serialize(buffer);
 
     std::cout << "Buffer: " << buffer << std::endl << "Size: " << sizeof(buffer) << std::endl;
@@ -72,9 +102,8 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     Frame actual;
     size_t packetSize = emulator.parsePacket() - 8;
     emulator.read(&actual, packetSize);
-
-
 }
+*/
 
 /*
 BOOST_AUTO_TEST_CASE(FrameSendingTest) {

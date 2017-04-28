@@ -4,22 +4,38 @@
 
 template <typename T>
 class Array {
-public:
-    unsigned int size();
 private:
     unsigned int size_;
     T* array_begin_;
 public:
-    T *getArray_begin_() const;
+    Array();
+    Array(unsigned int size_);
+    ~Array();
+
+    unsigned int size() const;
+    T *begin() const;
 };
 
 template <typename T>
-unsigned int Array<T>::size() {
+Array<T>::Array() : Array(1) {}
+
+template <typename T>
+Array<T>::Array(unsigned int size) : size_(size) {
+    array_begin_ = new T[size];
+}
+
+template <typename T>
+Array<T>::~Array() {
+    delete array_begin_;
+}
+
+template <typename T>
+unsigned int Array<T>::size() const {
     return size_;
 }
 
 template <typename T>
-T *Array<T>::getArray_begin_() const {
+T *Array<T>::begin() const {
     return array_begin_;
 }
 
