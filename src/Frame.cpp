@@ -2,7 +2,7 @@
 #include "Frame.h"
 
 Frame::Frame() {
-
+    header_.Ver = DEFAULT_VERSION;
 }
 
 void Frame::serialize(unsigned char* buffer) {
@@ -40,16 +40,16 @@ unsigned int Frame::getVer() const {
     return header_.Ver;
 }
 
-void Frame::setVer(unsigned int Ver) {
-    header_.Ver = Ver;
-}
-
 unsigned int Frame::getT() const {
     return header_.T;
 }
 
 void Frame::setT(unsigned int T) {
     header_.T = T;
+}
+
+unsigned int Frame::getTKL() const {
+    return header_.TKL;
 }
 
 unsigned int Frame::getCode() const {
@@ -90,9 +90,5 @@ const ByteArray &Frame::getPayload_() const {
 
 void Frame::setPayload_(const ByteArray &payload_) {
     Frame::payload_ = payload_;
-}
-
-unsigned int Frame::getTKL() const {
-    return Frame::header_.TKL;
 }
 

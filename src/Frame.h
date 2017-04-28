@@ -23,6 +23,7 @@ private:
     ByteArray options_;
     ByteArray payload_;
 public:
+    static const unsigned int DEFAULT_VERSION = 0x01;
     static const unsigned char PAYLOAD_MARKER = 0xFF;
 
     Frame();
@@ -31,7 +32,6 @@ public:
     std::ostream &serialize(std::ostream &stream);
 
     unsigned int getVer() const;
-    void setVer(unsigned int Ver);
 
     unsigned int getT() const;
     void setT(unsigned int T);

@@ -39,7 +39,6 @@ BOOST_AUTO_TEST_CASE(HeaderSendingTest) {
 BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     UdpEmulator emulator(64);
     Frame expected;
-    expected.setVer(1);
     expected.setT(0);
     expected.setCode(CODE_GET);
     expected.setMessageId(11);
@@ -60,7 +59,6 @@ BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
 BOOST_AUTO_TEST_CASE(SerializationTest) {
     UdpEmulator emulator(64);
     Frame expected;
-    expected.setVer(1);
     expected.setT(0);
     expected.setCode(CODE_GET);
     expected.setMessageId(11);
