@@ -10,6 +10,7 @@ class Option {
     unsigned char length : 4;
     ByteArray value;
 
+    ByteArray serialize() const;
 public:
     static ByteArray serialize(const OptionArray &options) const;
     static OptionArray deserialize(unsigned char* &buffer, unsigned int num);

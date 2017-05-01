@@ -5,6 +5,11 @@ ByteArray Option::serialize(const OptionArray &options) const {
     return ByteArray();
 }
 
+ByteArray Option::serialize() const {
+    //TODO implementation
+    return ByteArray();
+}
+
 OptionArray Option::deserialize(unsigned char* &buffer, unsigned int num) {
     //TODO implementation
     return OptionArray();
