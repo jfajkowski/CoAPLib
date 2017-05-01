@@ -1,6 +1,5 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CoAPTest
 #include <boost/test/unit_test.hpp>
 #include <iostream>

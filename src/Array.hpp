@@ -1,6 +1,8 @@
 #ifndef ARDUINODEMO_ARRAY_H
 #define ARDUINODEMO_ARRAY_H
 
+class Array;
+typedef Array<unsigned char> ByteArray;
 
 template <typename T>
 class Array {

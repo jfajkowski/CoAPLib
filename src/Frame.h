@@ -3,9 +3,7 @@
 
 #include <cstring>
 #include "Array.hpp"
-
-class Frame;
-typedef Array<unsigned char> ByteArray;
+#include "Option.h"
 
 struct Header {
     unsigned int Ver : 2;
@@ -20,9 +18,10 @@ class Frame {
 private:
     Header header_;
     ByteArray token_;
-    ByteArray options_;
+    OptionArray options_;
     ByteArray payload_;
 
+    static void insert(unsigned char* &buffer, const Header &header);
     static void insert(unsigned char* &buffer, const ByteArray &array);
     static ByteArray extract(unsigned char *&buffer, unsigned int num);
 public:
@@ -32,8 +31,7 @@ public:
     Frame();
 
     unsigned int serialize(unsigned char* buffer_begin);
-    static Frame deserialize(unsigned char *buffer_begin, unsigned int num);
-    std::ostream &serialize(std::ostream &stream);
+    static Frame deserialize(unsigned char* buffer_begin, unsigned int num);
 
     unsigned int getVer() const;
 
@@ -51,8 +49,8 @@ public:
     const ByteArray &getToken() const;
     void setToken(const ByteArray &token);
 
-    const ByteArray &getOptions() const;
-    void setOptions(const ByteArray &options);
+    const OptionArray &getOptions() const;
+    void setOptions(const OptionArray &options);
 
     const ByteArray &getPayload() const;
     void setPayload(const ByteArray &payload);

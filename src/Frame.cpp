@@ -7,20 +7,18 @@ Frame::Frame() {
 
 unsigned int Frame::serialize(unsigned char* buffer_begin) {
     unsigned char* buffer = buffer_begin;
-    memcpy(buffer, &header_, sizeof(header_));
-    buffer += sizeof(header_);
 
+    insert(buffer, header_);
     insert(buffer, token_);
-    insert(buffer, options_);
-
-    if(payload_.size() > 0) {
-        memcpy(buffer, &PAYLOAD_MARKER, sizeof(PAYLOAD_MARKER));
-        buffer += sizeof(PAYLOAD_MARKER);
-    }
-
+    insert(buffer, Option::serialize(options_));
     insert(buffer, payload_);
 
     return (unsigned int) (buffer - buffer_begin);
+}
+
+void Frame::insert(unsigned char *&buffer, const Header &header) {
+    memcpy(buffer, &header, sizeof(header));
+    buffer += sizeof(header);
 }
 
 void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
@@ -28,7 +26,7 @@ void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
     buffer += array.size();
 }
 
-Frame Frame::deserialize(unsigned char *buffer_begin, unsigned int num) {
+Frame Frame::deserialize(unsigned char* buffer_begin, unsigned int num) {
     Frame frame;
 
     unsigned char* buffer = buffer_begin;
@@ -42,19 +40,9 @@ Frame Frame::deserialize(unsigned char *buffer_begin, unsigned int num) {
     return frame;
 }
 
-static ByteArray Frame::extract(unsigned char *&buffer, unsigned int num) {
+ByteArray Frame::extract(unsigned char *&buffer, unsigned int num) {
     //TODO Implementation.
     return ByteArray();
-}
-
-std::ostream& Frame::serialize(std::ostream &stream) {
-    stream.write((char*)&header_, 4);
-    stream.write((char*) token_.begin(), token_.size());
-    stream.write((char*) options_.begin(), options_.size());
-    stream.write((char*) payload_.begin(), payload_.size());
-    return stream;
-
-    //TODO: Compare two serialization methods above, choose better one and test it.
 }
 
 unsigned int Frame::getVer() const {
@@ -98,11 +86,11 @@ void Frame::setToken(const ByteArray &token) {
     Frame::header_.TKL = token.size();
 }
 
-const ByteArray &Frame::getOptions() const {
+const OptionArray &Frame::getOptions() const {
     return options_;
 }
 
-void Frame::setOptions(const ByteArray &options) {
+void Frame::setOptions(const OptionArray &options) {
     Frame::options_ = options;
 }
 
@@ -113,4 +101,3 @@ const ByteArray &Frame::getPayload() const {
 void Frame::setPayload(const ByteArray &payload) {
     Frame::payload_ = payload;
 }
-
