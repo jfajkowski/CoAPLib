@@ -9,6 +9,6 @@ if(UNIX)
 endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_library(ArduinoDemo src/Frame.cpp src/Frame.h src/Array.hpp src/Codes.h src/Option.cpp src/Option.h)
+add_library(ArduinoDemo src/Frame.cpp src/Frame.h src/Array.hpp src/Constants.h src/Option.cpp src/Option.h)
 
 add_subdirectory(test)

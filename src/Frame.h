@@ -5,18 +5,16 @@
 #include "Array.hpp"
 #include "Option.h"
 
-struct Header {
-    unsigned int Ver : 2;
-    unsigned int T : 2;
-    unsigned int TKL : 4;
-    unsigned int Code : 8;
-    unsigned int MessageId : 16;
-};
-
-
 class Frame {
 private:
-    Header header_;
+    struct Header {
+        unsigned int Ver : 2;
+        unsigned int T : 2;
+        unsigned int TKL : 4;
+        unsigned int Code : 8;
+        unsigned int MessageId : 16;
+    } header_;
+
     ByteArray token_;
     OptionArray options_;
     ByteArray payload_;
@@ -26,7 +24,6 @@ private:
     static ByteArray extract(unsigned char *&buffer, unsigned int num);
 public:
     static const unsigned int DEFAULT_VERSION = 0x01;
-    static const unsigned char PAYLOAD_MARKER = 0xFF;
 
     Frame();
 

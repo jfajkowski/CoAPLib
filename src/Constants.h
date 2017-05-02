@@ -1,6 +1,8 @@
 #ifndef ARDUINODEMO_CODES_H
 #define ARDUINODEMO_CODES_H
 
+static const unsigned char PAYLOAD_MARKER = 0xFF;
+
 // Method codes:
 static const unsigned int CODE_GET = 1;
 static const unsigned int CODE_POST = 2;

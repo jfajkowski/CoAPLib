@@ -1,6 +1,7 @@
 #ifndef ARDUINODEMO_ARRAY_H
 #define ARDUINODEMO_ARRAY_H
 
+template <typename T>
 class Array;
 typedef Array<unsigned char> ByteArray;
 
@@ -18,7 +19,8 @@ public:
     void pushBack(const T &value);
     void reserve(unsigned int new_capacity);
 
-    const T& operator[] (int index) const;
+    const T &operator[] (int index) const;
+    Array &operator+=(const Array &array);
 
     unsigned int size() const;
 
@@ -45,7 +47,7 @@ void Array<T>::pushBack(const T &value) {
     if (size_ == capacity_) {
         reserve(size_ + 1);
     }
-    array_begin_[size_] = &value;
+    array_begin_[size_] = value;
     ++size_;
 }
 
@@ -67,6 +69,17 @@ void Array<T>::reserve(unsigned int new_capacity) {
 template <typename T>
 const T &Array<T>::operator[](int index) const {
     return array_begin_[index];
+}
+
+template <typename T>
+Array<T> &Array<T>::operator+=(const Array<T> &array) {
+    reserve(size_ + array.size_);
+
+    for (int i = 0; i < array.size_; ++i) {
+        pushBack(array[i]);
+    }
+
+    return *this;
 }
 
 template <typename T>
