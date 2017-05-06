@@ -14,11 +14,13 @@ private:
 public:
     Array();
     Array(unsigned int capacity);
+    Array(void* buffer, unsigned int num);
     ~Array();
 
     void pushBack(const T &value);
     void reserve(unsigned int new_capacity);
 
+    Array &operator=(const Array & array);
     const T &operator[] (int index) const;
     Array &operator+=(const Array &array);
 
@@ -30,11 +32,18 @@ public:
 };
 
 template <typename T>
-Array<T>::Array() : Array(1) {}
+Array<T>::Array() : Array(0) {}
 
 template <typename T>
-Array<T>::Array(unsigned int capacity) : capacity_(capacity), size_(0) {
-    array_begin_ = new T[capacity];
+Array<T>::Array(unsigned int capacity) : capacity_(capacity), size_(0), array_begin_(nullptr) {
+    if (capacity > 0)
+        reserve(capacity);
+}
+
+template <typename T>
+Array<T>::Array(void* buffer, unsigned int num) : size_(num/sizeof(T)), array_begin_(nullptr) {
+    reserve(size_);
+    memcpy(array_begin_, buffer, num);
 }
 
 template <typename T>
@@ -57,11 +66,11 @@ void Array<T>::reserve(unsigned int new_capacity) {
 
     T* new_array_begin = new T[new_capacity];
 
-    for (int i = 0; i < capacity; ++i) {
-        new_array_begin[i] = array_begin_[i];
+    if (array_begin_ != nullptr) {
+        memcpy(new_array_begin, array_begin_, capacity * sizeof(T));
+        delete[] array_begin_;
     }
 
-    delete[] array_begin_;
     array_begin_ = new_array_begin;
     capacity_ = new_capacity;
 }
@@ -95,6 +104,16 @@ unsigned int Array<T>::capacity() const {
 template <typename T>
 T *Array<T>::begin() const {
     return array_begin_;
+}
+
+template <typename T>
+Array<T> &Array<T>::operator=(const Array<T> &array) {
+    if(&array != this) {
+        size_ = array.size_;
+        reserve(array.capacity_);
+        memcpy(array_begin_, array.array_begin_, size_);
+    }
+    return *this;
 }
 
 #endif //ARDUINODEMO_ARRAY_H

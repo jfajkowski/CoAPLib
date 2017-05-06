@@ -26,7 +26,7 @@ void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
     buffer += array.size();
 }
 
-Frame Frame::deserialize(unsigned char* buffer_begin, unsigned int num) {
+Frame Frame::deserialize(unsigned char *buffer_begin) {
     Frame frame;
 
     unsigned char* buffer = buffer_begin;

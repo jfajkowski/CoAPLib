@@ -15,18 +15,36 @@ ByteArray Option::serialize(const OptionArray &options) {
 ByteArray Option::serialize() const {
     ByteArray result;
 
-    unsigned char buffer[1];
+    unsigned char buffer;
     memcpy(&buffer, &header_, sizeof(header_));
-    result.pushBack(buffer[0]);
+    result.pushBack(buffer);
 
     result += value_;
 
     return result;
 }
 
-OptionArray Option::deserialize(unsigned char* &buffer, unsigned int num) {
-    //TODO implementation
-    return OptionArray();
+OptionArray Option::deserialize(unsigned char *&buffer) {
+    OptionArray optionArray;
+    Header header;
+    ByteArray value;
+
+    while (*buffer != PAYLOAD_MARKER) {
+        memcpy(&header, buffer, sizeof(header));
+        buffer += sizeof(header);
+
+        value = ByteArray(buffer, header.length);
+        buffer += header.length;
+
+        Option option;
+        option.setDelta(header.delta);
+        option.setValue(value);
+
+        optionArray.pushBack(option);
+    }
+
+    ++buffer;
+    return optionArray;
 }
 
 Option &Option::operator=(const Option &option) {

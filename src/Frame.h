@@ -8,11 +8,11 @@
 class Frame {
 private:
     struct Header {
-        unsigned int Ver : 2;
-        unsigned int T : 2;
-        unsigned int TKL : 4;
-        unsigned int Code : 8;
         unsigned int MessageId : 16;
+        unsigned int Code : 8;
+        unsigned int TKL : 4;
+        unsigned int T : 2;
+        unsigned int Ver : 2;
     } header_;
 
     ByteArray token_;
@@ -28,7 +28,7 @@ public:
     Frame();
 
     unsigned int serialize(unsigned char* buffer_begin);
-    static Frame deserialize(unsigned char* buffer_begin, unsigned int num);
+    static Frame deserialize(unsigned char *buffer_begin);
 
     unsigned int getVer() const;
 

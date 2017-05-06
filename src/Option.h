@@ -9,16 +9,16 @@ class Option;
 typedef Array<Option> OptionArray;
 
 class Option {
-    struct {
-        unsigned char delta : 4;
+    struct Header {
         unsigned char length : 4;
+        unsigned char delta : 4;
     } header_;
     ByteArray value_;
 
     ByteArray serialize() const;
 public:
     static ByteArray serialize(const OptionArray &options);
-    static OptionArray deserialize(unsigned char* &buffer, unsigned int num);
+    static OptionArray deserialize(unsigned char *&buffer);
 
     Option &operator=(const Option & option);
 

@@ -9,8 +9,8 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     option1.setValue(ByteArray(1));
 
     Option option2;
-    option1.setDelta(2);
-    option1.setValue(ByteArray(2));
+    option2.setDelta(2);
+    option2.setValue(ByteArray(2));
 
     OptionArray optionArray(2);
     optionArray.pushBack(option1);
@@ -34,5 +34,67 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     BOOST_CHECK_EQUAL(result[result.size() - 1], PAYLOAD_MARKER);
 }
 
+BOOST_AUTO_TEST_CASE(NoOptionsDeserializationTest) {
+    ByteArray byteArray;
+    unsigned char* buffer;
+
+    OptionArray source;
+    byteArray = Option::serialize(source);
+    buffer = byteArray.begin();
+    OptionArray destination = Option::deserialize(buffer);
+
+    BOOST_CHECK_EQUAL(0, source.size());
+    BOOST_CHECK_EQUAL(0, destination.size());
+}
+
+BOOST_AUTO_TEST_CASE(NibbleSerializationTest) {
+    unsigned char buffer;
+    struct Nibble {
+        unsigned char lo : 4;
+        unsigned char hi : 4;
+    };
+
+    Nibble expected = {4, 1};
+    memcpy(&buffer, &expected, sizeof(expected));
+    Nibble actual;
+    memcpy(&actual, &buffer, sizeof(buffer));
+
+    BOOST_CHECK_EQUAL(expected.lo, actual.lo);
+    BOOST_CHECK_EQUAL(expected.hi, actual.hi);
+}
+
+BOOST_AUTO_TEST_CASE(DeserializationTest) {
+    unsigned char values1[] = {0, 1, 2, 3};
+    unsigned char values2[] = {3, 2, 1, 0};
+    unsigned int num = 4;
+    unsigned char* buffer;
+
+    Option expected1;
+    expected1.setDelta(1);
+    expected1.setValue(ByteArray(values1, num));
+
+    Option expected2;
+    expected2.setDelta(2);
+    expected2.setValue(ByteArray(values2, num));
+
+    OptionArray expected;
+    expected.pushBack(expected1);
+    expected.pushBack(expected2);
+
+    ByteArray byteArray = Option::serialize(expected);
+    buffer = byteArray.begin();
+
+    OptionArray actual = Option::deserialize(buffer);
+
+    BOOST_CHECK_EQUAL(expected[0].getDelta(), actual[0].getDelta());
+    BOOST_CHECK_EQUAL(expected[1].getDelta(), actual[1].getDelta());
+    BOOST_CHECK_EQUAL(expected[0].getLength(), actual[0].getLength());
+    BOOST_CHECK_EQUAL(expected[1].getLength(), actual[1].getLength());
+
+    for (int i = 0; i < num; ++i) {
+        BOOST_CHECK_EQUAL(expected[0].getValue()[i], actual[0].getValue()[i]);
+        BOOST_CHECK_EQUAL(expected[1].getValue()[i], actual[1].getValue()[i]);
+    }
+}
 
 #pragma clang diagnostic pop
