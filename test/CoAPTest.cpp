@@ -5,6 +5,7 @@
 #include "../src/Frame.h"
 #include "UdpEmulator.h"
 #include "../src/Constants.h"
+#include "../src/CoAPHandler.h"
 
 BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
     unsigned int buffer_size = 64;
@@ -98,5 +99,20 @@ BOOST_AUTO_TEST_CASE(FrameSendingTest) {
     BOOST_ASSERT(expected.header.Code == actual.header.Code);
     BOOST_ASSERT(expected.header.MessageId == actual.header.MessageId);
 }*/
+/*
+BOOST_AUTO_TEST_CASE(GetRequestTest){
+    Frame frame;
+    frame.setCode(1);
+    Option option1;
+    option1.setDelta(11);
+    option1.setValue((const ByteArray &) "temp");
+    OptionArray optionArray(1);
+    optionArray.pushBack(option1);
+    frame.setOptions(optionArray);
+    CoAPHandler coAPHandler;
+    coAPHandler.handleMessage(frame);
+}
+ */
+
 
 #pragma clang diagnostic pop
