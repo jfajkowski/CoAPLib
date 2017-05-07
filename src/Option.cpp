@@ -15,10 +15,7 @@ ByteArray Option::serialize(const OptionArray &options) {
 ByteArray Option::serialize() const {
     ByteArray result;
 
-    unsigned char buffer;
-    memcpy(&buffer, &header_, sizeof(header_));
-    result.pushBack(buffer);
-
+    result += serializeExtendables();
     result += value_;
 
     return result;
@@ -26,18 +23,15 @@ ByteArray Option::serialize() const {
 
 OptionArray Option::deserialize(unsigned char *&buffer) {
     OptionArray optionArray;
-    Header header;
     ByteArray value;
 
     while (*buffer != PAYLOAD_MARKER) {
-        memcpy(&header, buffer, sizeof(header));
-        buffer += sizeof(header);
-
-        value = ByteArray(buffer, header.length);
-        buffer += header.length;
-
         Option option;
-        option.setDelta(header.delta);
+        deserializeExtendables(buffer, option);
+        value = ByteArray(buffer, option.getLength());
+        buffer += option.getLength();
+
+        option.setDelta(option.getDelta());
         option.setValue(value);
 
         optionArray.pushBack(option);
@@ -56,16 +50,56 @@ Option &Option::operator=(const Option &option) {
     return *this;
 }
 
-unsigned char Option::getDelta() const {
-    return header_.delta;
+unsigned short Option::getDelta() const {
+    if (header_.delta < 13) {
+        return header_.delta;
+    }
+    else if (header_.delta == 13) {
+        return (unsigned short) (delta + 13);
+    }
+    else {
+        return (unsigned short) (delta + 269);
+    }
 }
 
-void Option::setDelta(unsigned char delta) {
-    Option::header_.delta = delta;
+void Option::setDelta(unsigned short delta) {
+    if (delta < 13) {
+        header_.delta = (unsigned char) delta;
+    }
+    else if (delta < 269) {
+        header_.delta = 13;
+        Option::delta = (unsigned short) (delta - 13);
+    }
+    else {
+        header_.delta = 14;
+        Option::delta = (unsigned short) (delta - 269);
+    }
 }
 
-unsigned char Option::getLength() const {
-    return header_.length;
+unsigned short Option::getLength() const {
+    if (header_.length < 13) {
+        return header_.length;
+    }
+    else if (header_.length == 13) {
+        return (unsigned short) (length + 13);
+    }
+    else {
+        return (unsigned short) (length + 269);
+    }
+}
+
+void Option::setLength(unsigned short length) {
+    if (length < 13) {
+        header_.length = (unsigned char) length;
+    }
+    else if (length < 269) {
+        header_.length = 13;
+        Option::length = (unsigned short) (length - 13);
+    }
+    else {
+        header_.length = 14;
+        Option::length = (unsigned short) (length - 269);
+    }
 }
 
 const ByteArray &Option::getValue() const {
@@ -74,5 +108,52 @@ const ByteArray &Option::getValue() const {
 
 void Option::setValue(const ByteArray &value) {
     Option::value_ = value;
-    Option::header_.length = (unsigned char) value.size();
+    setLength((unsigned short) value.size());
+}
+
+ByteArray Option::serializeExtendables() const {
+    ByteArray result;
+    unsigned char char_buffer;
+    unsigned char short_buffer[2];
+
+    memcpy(&char_buffer, &header_, sizeof(header_));
+    result.pushBack(char_buffer);
+
+    if (header_.length == 13) {
+        memcpy(&char_buffer, &length, sizeof(unsigned char));
+        result.pushBack(char_buffer);
+    }
+    else if (header_.length == 14) {
+        memcpy(&short_buffer, &length, sizeof(unsigned short));
+        result.pushBack(short_buffer[0]);
+        result.pushBack(short_buffer[1]);
+    }
+
+
+    if (header_.delta == 13) {
+        memcpy(&char_buffer, &delta, sizeof(unsigned char));
+        result.pushBack(char_buffer);
+    }
+    else if (header_.delta == 14) {
+        memcpy(&short_buffer, &delta, sizeof(unsigned short));
+        result.pushBack(short_buffer[0]);
+        result.pushBack(short_buffer[1]);
+    }
+
+    return result;
+}
+
+void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
+    memcpy(&option.header_, buffer, sizeof(option.header_));
+    buffer += sizeof(option.header_);
+
+    if (option.header_.length == 13)
+        memcpy(&option.length, buffer, sizeof(unsigned char));
+    else if (option.header_.length == 14)
+        memcpy(&option.length, buffer, sizeof(unsigned short));
+
+    if (option.header_.delta == 13)
+        memcpy(&option.delta, buffer, sizeof(unsigned char));
+    else if (option.header_.delta == 14)
+        memcpy(&option.delta, buffer, sizeof(unsigned short));
 }

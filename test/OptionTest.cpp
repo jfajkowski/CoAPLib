@@ -97,4 +97,30 @@ BOOST_AUTO_TEST_CASE(DeserializationTest) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(GetterAndSetterTest) {
+    Option option;
+
+    for (int i = 0; i <= 65535; i += 10) {
+        option.setDelta((unsigned short) i);
+        BOOST_CHECK_EQUAL((unsigned short) i, option.getDelta());
+    }
+
+    ByteArray ten_length;
+    ByteArray one_hundred_length;
+    ByteArray one_thousand_length;
+
+    for (int i = 0; i < 1000; ++i) {
+        if (i % 100 == 0) ten_length.pushBack(0);
+        if (i % 10 == 0) one_hundred_length.pushBack(0);
+        one_thousand_length.pushBack(0);
+    }
+
+    option.setValue(ten_length);
+    BOOST_CHECK_EQUAL(ten_length.size(), option.getLength());
+    option.setValue(one_hundred_length);
+    BOOST_CHECK_EQUAL(one_hundred_length.size(), option.getLength());
+    option.setValue(one_thousand_length);
+    BOOST_CHECK_EQUAL(one_thousand_length.size(), option.getLength());
+}
+
 #pragma clang diagnostic pop

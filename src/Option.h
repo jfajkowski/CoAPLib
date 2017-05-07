@@ -13,19 +13,25 @@ class Option {
         unsigned char length : 4;
         unsigned char delta : 4;
     } header_;
+    unsigned short length;
+    unsigned short delta;
     ByteArray value_;
 
     ByteArray serialize() const;
+    ByteArray serializeExtendables() const;
+    static void deserializeExtendables(unsigned char *&buffer, Option &option);
+
+    void setLength(unsigned short length);
 public:
     static ByteArray serialize(const OptionArray &options);
     static OptionArray deserialize(unsigned char *&buffer);
 
     Option &operator=(const Option & option);
 
-    unsigned char getDelta() const;
-    void setDelta(unsigned char delta);
+    unsigned short getDelta() const;
+    void setDelta(unsigned short delta);
 
-    unsigned char getLength() const;
+    unsigned short getLength() const;
 
     const ByteArray &getValue() const;
     void setValue(const ByteArray &value);
