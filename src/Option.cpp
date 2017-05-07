@@ -45,6 +45,8 @@ Option &Option::operator=(const Option &option) {
     if(&option != this) {
         header_.delta = option.header_.delta;
         header_.length = option.header_.length;
+        delta = option.delta;
+        length = option.length;
         value_ = option.value_;
     }
     return *this;
@@ -120,7 +122,7 @@ ByteArray Option::serializeExtendables() const {
     result.pushBack(char_buffer);
 
     if (header_.length == 13) {
-        memcpy(&char_buffer, &length, sizeof(unsigned char));
+        char_buffer = (unsigned char) length;
         result.pushBack(char_buffer);
     }
     else if (header_.length == 14) {
@@ -131,7 +133,7 @@ ByteArray Option::serializeExtendables() const {
 
 
     if (header_.delta == 13) {
-        memcpy(&char_buffer, &delta, sizeof(unsigned char));
+        char_buffer = (unsigned char) delta;
         result.pushBack(char_buffer);
     }
     else if (header_.delta == 14) {
@@ -147,13 +149,28 @@ void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
     memcpy(&option.header_, buffer, sizeof(option.header_));
     buffer += sizeof(option.header_);
 
-    if (option.header_.length == 13)
-        memcpy(&option.length, buffer, sizeof(unsigned char));
-    else if (option.header_.length == 14)
-        memcpy(&option.length, buffer, sizeof(unsigned short));
+    unsigned char char_buffer;
+    unsigned short short_buffer;
 
-    if (option.header_.delta == 13)
-        memcpy(&option.delta, buffer, sizeof(unsigned char));
-    else if (option.header_.delta == 14)
-        memcpy(&option.delta, buffer, sizeof(unsigned short));
+    if (option.header_.length == 13) {
+        memcpy(&char_buffer, buffer, sizeof(char_buffer));
+        buffer += sizeof(char_buffer);
+        option.length = char_buffer;
+    }
+    else if (option.header_.length == 14) {
+        memcpy(&short_buffer, buffer, sizeof(short_buffer));
+        buffer += sizeof(short_buffer);
+        option.length = short_buffer;
+    }
+
+    if (option.header_.delta == 13) {
+        memcpy(&char_buffer, buffer, sizeof(char_buffer));
+        buffer += sizeof(char_buffer);
+        option.delta = char_buffer;
+    }
+    else if (option.header_.delta == 14) {
+        memcpy(&short_buffer, buffer, sizeof(short_buffer));
+        buffer += sizeof(short_buffer);
+        option.delta = short_buffer;
+    }
 }

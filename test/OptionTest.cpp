@@ -1,6 +1,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 #include "../src/Option.h"
 
 BOOST_AUTO_TEST_CASE(SerializationTest) {
@@ -63,7 +64,7 @@ BOOST_AUTO_TEST_CASE(NibbleSerializationTest) {
     BOOST_CHECK_EQUAL(expected.hi, actual.hi);
 }
 
-BOOST_AUTO_TEST_CASE(DeserializationTest) {
+BOOST_AUTO_TEST_CASE(NoExtendedFieldsOptionsDeserializationTest) {
     unsigned char values1[] = {0, 1, 2, 3};
     unsigned char values2[] = {3, 2, 1, 0};
     unsigned int num = 4;
@@ -95,6 +96,43 @@ BOOST_AUTO_TEST_CASE(DeserializationTest) {
         BOOST_CHECK_EQUAL(expected[0].getValue()[i], actual[0].getValue()[i]);
         BOOST_CHECK_EQUAL(expected[1].getValue()[i], actual[1].getValue()[i]);
     }
+}
+
+BOOST_AUTO_TEST_CASE(ExtendedFieldsOptionsDeserializationTest) {
+    unsigned char* buffer;
+
+    ByteArray one_hundred_length;
+    ByteArray one_thousand_length;
+
+    for (int i = 0; i < 1000; ++i) {
+        if (i % 10 == 0) one_hundred_length.pushBack(0);
+        one_thousand_length.pushBack(0);
+    }
+
+    Option expected1;
+    expected1.setDelta(100);
+    expected1.setValue(one_hundred_length);
+
+    Option expected2;
+    expected2.setDelta(1000);
+    expected2.setValue(one_thousand_length);
+
+    OptionArray expected;
+    expected.pushBack(expected1);
+    expected.pushBack(expected2);
+
+    ByteArray byteArray = Option::serialize(expected);
+    buffer = byteArray.begin();
+
+    OptionArray actual = Option::deserialize(buffer);
+
+    BOOST_CHECK_EQUAL(expected[0].getDelta(), actual[0].getDelta());
+    BOOST_CHECK_EQUAL(expected[1].getDelta(), actual[1].getDelta());
+    BOOST_CHECK_EQUAL(expected[0].getLength(), actual[0].getLength());
+    BOOST_CHECK_EQUAL(expected[1].getLength(), actual[1].getLength());
+
+    BOOST_CHECK_EQUAL(expected[0].getValue().size(), actual[0].getValue().size());
+    BOOST_CHECK_EQUAL(expected[1].getValue().size(), actual[1].getValue().size());
 }
 
 BOOST_AUTO_TEST_CASE(GetterAndSetterTest) {
