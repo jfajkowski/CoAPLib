@@ -67,7 +67,9 @@ void Array<T>::reserve(unsigned int new_capacity) {
     T* new_array_begin = new T[new_capacity];
 
     if (array_begin_ != nullptr) {
-        memcpy(new_array_begin, array_begin_, capacity * sizeof(T));
+        for (int i = 0; i < capacity; ++i) {
+            new_array_begin[i] = array_begin_[i];
+        }
         delete[] array_begin_;
     }
 
