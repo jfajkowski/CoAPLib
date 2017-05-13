@@ -2,6 +2,7 @@
 #define ARDUINODEMO_OPTION_H
 
 #include <cstring>
+#include <string>
 #include "Array.hpp"
 #include "Constants.h"
 
@@ -22,6 +23,7 @@ class Option {
     static void deserializeExtendables(unsigned char *&buffer, Option &option);
 
     void setLength(unsigned short length);
+
 public:
     static ByteArray serialize(const OptionArray &options);
     static OptionArray deserialize(unsigned char *&buffer);
@@ -35,6 +37,8 @@ public:
 
     const ByteArray &getValue() const;
     void setValue(const ByteArray &value);
+
+    std::string toString();
 };
 
 #endif //ARDUINODEMO_OPTION_H
