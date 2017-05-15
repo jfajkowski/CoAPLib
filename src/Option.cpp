@@ -109,7 +109,7 @@ const ByteArray &Option::getValue() const {
 }
 
 void Option::setValue(const ByteArray &value) {
-    Option::value_ = value;
+    Option::value_= value;
     setLength((unsigned short) value.size());
 }
 

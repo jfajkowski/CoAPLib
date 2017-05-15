@@ -74,8 +74,12 @@ void CoAPHandler::handleGet(const Frame &frame)
             {
                 //TODO::try to format resource to specified content_format
             }
-            ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
-            Frame response=successResponse(frame, mockupPayload);
+            ByteArray payload_value(3);
+            payload_value.pushBack('p');
+            payload_value.pushBack('a');
+            payload_value.pushBack('y');
+
+            Frame response=successResponse(frame, payload_value);
             //TODO: send back/change methods to return response?
         }
         else{
@@ -148,8 +152,10 @@ Frame CoAPHandler::successResponse(const Frame &frame,ByteArray payload ){
     else if(frame.getCode()==3)
         response.setCode(68); //if put then code 2.04 -changed
     Option content_format;
+    ByteArray content_format_value(1);
+    content_format_value.pushBack(0);
     content_format.setDelta(12);
-    content_format.setValue(0); //For now we assume payload is text/plain
+    content_format.setValue(content_format_value); //For now we assume payload is text/plain
     OptionArray optionArray(1);
     optionArray.pushBack(content_format);
     response.setOptions(optionArray);

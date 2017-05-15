@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(AssignmentTest) {
     memcpy(&buffer, &values, num);
 
     Array<unsigned int> array(&buffer, num);
-    Array<unsigned int> copy = array;
+    Array<unsigned int> copy(array);
 
     for (int i = 0; i < 10; ++i) {
         BOOST_CHECK_EQUAL(array[i], copy[i]);

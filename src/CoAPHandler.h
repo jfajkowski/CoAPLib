@@ -27,11 +27,12 @@ private:
 
     //Responses
     Frame successResponse(const Frame &frame,ByteArray payload); //generally response for GET
-    Frame successResponse(const Frame &frame); //may be response for PUT, but i think we send back value anyway
     Frame badRequestResponse(const Frame &frame);
+    Frame successResponse(const Frame &frame); //may be response for PUT, but i think we send back value anyway
+
 public:
     void handleMessage(const Frame &frame);
-
+    Frame successWrapper(const Frame &frame,ByteArray payload){return successResponse(frame, payload);}
 
 };
 

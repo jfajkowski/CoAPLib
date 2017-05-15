@@ -15,6 +15,8 @@ public:
     Array();
     Array(unsigned int capacity);
     Array(void* buffer, unsigned int num);
+    Array(const Array & array);
+
     ~Array();
 
     void pushBack(const T &value);
@@ -44,6 +46,20 @@ template <typename T>
 Array<T>::Array(void* buffer, unsigned int num) : size_(num/sizeof(T)), array_begin_(nullptr) {
     reserve(size_);
     memcpy(array_begin_, buffer, num);
+}
+
+template <typename T>
+Array<T>::Array(const Array & array) {
+    T* new_array_begin = new T[array.capacity_];
+
+    if(array.array_begin_!= nullptr) {
+        for(int i = 0; i < array.capacity_; i++) {
+            new_array_begin[i] = array.array_begin_[i];
+        }
+    }
+    array_begin_ = new_array_begin;
+    capacity_ = array.capacity_;
+    size_=array.size_;
 }
 
 template <typename T>
@@ -113,7 +129,10 @@ Array<T> &Array<T>::operator=(const Array<T> &array) {
     if(&array != this) {
         size_ = array.size_;
         reserve(array.capacity_);
-        memcpy(array_begin_, array.array_begin_, size_);
+
+        for (int i = 0; i < size_; ++i) {
+            array_begin_[i] = array.array_begin_[i];
+        }
     }
     return *this;
 }
