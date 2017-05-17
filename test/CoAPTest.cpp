@@ -36,23 +36,70 @@ BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
     BOOST_CHECK_EQUAL(expected, actual);
 }
 
-/*BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
+BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
     UdpEmulator emulator(64);
+    unsigned char old_buffer[64];
+    unsigned char new_buffer[64];
     Frame expected;
 
-    emulator.write(&expected, sizeof(expected));
+    size_t size = expected.serialize(old_buffer);
 
-    Frame actual;
+    emulator.write(&old_buffer, size);
+
     size_t packetSize = emulator.parsePacket() - 8;
-    unsigned char* buffer[64];
-    emulator.read(&buffer, packetSize);
+    emulator.read(&new_buffer, packetSize);
 
-    BOOST_ASSERT(expected.getVer() == actual.getVer());
-    BOOST_ASSERT(expected.getT() == actual.getT());
-    BOOST_ASSERT(expected.getTKL() == actual.getTKL());
-    BOOST_ASSERT(expected.getCode() == actual.getCode());
-    BOOST_ASSERT(expected.getMessageId() == actual.getMessageId());
-}*/
+    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+
+    BOOST_ASSERT(expected.getVer() == actual->getVer());
+    BOOST_ASSERT(expected.getT() == actual->getT());
+    BOOST_ASSERT(expected.getTKL() == actual->getTKL());
+    BOOST_ASSERT(expected.getCode() == actual->getCode());
+    BOOST_ASSERT(expected.getMessageId() == actual->getMessageId());
+    BOOST_ASSERT(actual->getToken().size() == 0);
+    BOOST_ASSERT(actual->getOptions().size() == 0);
+    BOOST_ASSERT(actual->getPayload().size() == 0);
+
+    delete actual;
+}
+
+BOOST_AUTO_TEST_CASE(PayloadFrameSendingTest) {
+    UdpEmulator emulator(64);
+    unsigned char old_buffer[64];
+    unsigned char new_buffer[64];
+    Frame expected;
+    ByteArray byteArray(5);
+    byteArray.pushBack(1);
+    byteArray.pushBack(2);
+    byteArray.pushBack(3);
+    byteArray.pushBack(4);
+    byteArray.pushBack(5);
+    expected.setPayload(byteArray);
+
+    size_t size = expected.serialize(old_buffer);
+
+    emulator.write(&old_buffer, size);
+
+    size_t packetSize = emulator.parsePacket() - 8;
+    emulator.read(&new_buffer, packetSize);
+
+    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+
+    BOOST_ASSERT(expected.getVer() == actual->getVer());
+    BOOST_ASSERT(expected.getT() == actual->getT());
+    BOOST_ASSERT(expected.getTKL() == actual->getTKL());
+    BOOST_ASSERT(expected.getCode() == actual->getCode());
+    BOOST_ASSERT(expected.getMessageId() == actual->getMessageId());
+    BOOST_ASSERT(actual->getToken().size() == 0);
+    BOOST_ASSERT(actual->getOptions().size() == 0);
+    BOOST_ASSERT(actual->getPayload()[0] == 1);
+    BOOST_ASSERT(actual->getPayload()[1] == 2);
+    BOOST_ASSERT(actual->getPayload()[2] == 3);
+    BOOST_ASSERT(actual->getPayload()[3] == 4);
+    BOOST_ASSERT(actual->getPayload()[4] == 5);
+
+    delete actual;
+}
 
 /*
 BOOST_AUTO_TEST_CASE(SerializationTest) {

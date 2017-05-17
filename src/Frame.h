@@ -28,7 +28,7 @@ public:
     Frame();
 
     unsigned int serialize(unsigned char* buffer_begin);
-    static Frame deserialize(unsigned char *buffer_begin);
+    static Frame * deserialize(unsigned char *buffer_begin, unsigned int num);
 
     unsigned int getVer() const;
 

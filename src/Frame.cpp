@@ -26,23 +26,23 @@ void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
     buffer += array.size();
 }
 
-Frame Frame::deserialize(unsigned char *buffer_begin) {
-    Frame frame;
+Frame * Frame::deserialize(unsigned char *buffer_begin, unsigned int num) {
+    Frame* frame = new Frame;
 
     unsigned char* buffer = buffer_begin;
-    memcpy(&frame.header_, buffer, sizeof(frame.header_));
-    buffer += sizeof(frame.header_);
+    unsigned char* buffer_end = buffer_begin + num;
+    memcpy(&frame->header_, buffer, sizeof(frame->header_));
+    buffer += sizeof(frame->header_);
 
-    extract(buffer, frame.header_.TKL);
-
-    //TODO: Extract options and payload.
+    frame->setToken(extract(buffer, frame->header_.TKL));
+    Option::deserialize(buffer);
+    frame->setPayload(extract(buffer, buffer_end - buffer));
 
     return frame;
 }
 
 ByteArray Frame::extract(unsigned char *&buffer, unsigned int num) {
-    //TODO Implementation.
-    return ByteArray();
+    return ByteArray(buffer, num);
 }
 
 unsigned int Frame::getVer() const {
