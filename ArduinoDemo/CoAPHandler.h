@@ -1,7 +1,3 @@
-//
-// Created by welos on 06.05.17.
-//
-
 #ifndef ARDUINODEMO_COAPHANDLER_H
 #define ARDUINODEMO_COAPHANDLER_H
 

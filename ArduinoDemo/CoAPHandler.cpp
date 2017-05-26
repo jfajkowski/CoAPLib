@@ -1,9 +1,3 @@
-//
-// Created by welos on 06.05.17.
-//
-
-#include <iostream>
-#include <string>
 #include "CoAPHandler.h"
 
 void CoAPHandler::handleMessage(const Frame &frame) {
@@ -59,75 +53,63 @@ void CoAPHandler::handleServerError(const Frame &frame) {
 
 void CoAPHandler::handleGet(const Frame &frame)
 {
-    try{
-        int iterator=0;
-        int id=0;
+    int iterator=0;
+    int id=0;
+    id+=frame.getOptions()[iterator].getDelta();
+    if(id==11) //Uri-Path option
+    {
+        Option uri_path_option=frame.getOptions()[iterator];
+        String path=uri_path_option.toString();
+        //TODO: get resource specified by this path
+        iterator++;
         id+=frame.getOptions()[iterator].getDelta();
-        if(id==11) //Uri-Path option
+        if(id==17)//Accept option
         {
-            Option uri_path_option=frame.getOptions()[iterator];
-            std::string path=uri_path_option.toString();
-            //TODO: get resource specified by this path
-            iterator++;
-            id+=frame.getOptions()[iterator].getDelta();
-            if(id==17)//Accept option
-            {
-                //TODO::try to format resource to specified content_format
-            }
-            ByteArray payload_value(3);
-            payload_value.pushBack('p');
-            payload_value.pushBack('a');
-            payload_value.pushBack('y');
+            //TODO::try to format resource to specified content_format
+        }
+        ByteArray payload_value(3);
+        payload_value.pushBack('p');
+        payload_value.pushBack('a');
+        payload_value.pushBack('y');
 
-            Frame response=successResponse(frame, payload_value);
-            //TODO: send back/change methods to return response?
-        }
-        else{
-            throw std::logic_error("Bad option");
-        }
+        Frame response=successResponse(frame, payload_value);
+        //TODO: send back/change methods to return response?
     }
-    catch(const std::logic_error& e){
-        std::cout<<e.what();
-        //TODO: Send back "Bad option" response
+    else{
+        //throw logic_error("Bad option");
     }
 }
 
 void CoAPHandler::handlePut(const Frame &frame) {
-    try{
-        int iterator=0;
-        int id=0;
+    int iterator=0;
+    int id=0;
+    id+=frame.getOptions()[iterator].getDelta();
+    if(id==11) //Uri-Path option
+    {
+        Option uri_path_option=frame.getOptions()[iterator];
+        String path=uri_path_option.toString();
+        iterator++;
         id+=frame.getOptions()[iterator].getDelta();
-        if(id==11) //Uri-Path option
-        {
-            Option uri_path_option=frame.getOptions()[iterator];
-            std::string path=uri_path_option.toString();
-            iterator++;
-            id+=frame.getOptions()[iterator].getDelta();
-            if(id==12){ //Content-Format option
-                //TODO: Interpret payload accordingly to Content-Format and update resource
-            }
-            else{
-                //Try to deafault formating for this resource or...
-                throw std::logic_error("No content format option");
-            }
-            //get updated resource
-            iterator++;
-            id+=frame.getOptions()[iterator].getDelta();
-            if(id==17)//Accept option
-            {
-                //TODO::try to format resource to specified content_format
-            }
-            ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
-            Frame response=successResponse(frame, mockupPayload);
-            //TODO: send back/change methods to return response?
+        if(id==12){ //Content-Format option
+            //TODO: Interpret payload accordingly to Content-Format and update resource
         }
         else{
-            throw std::logic_error("Bad option");
+            //Try to deafault formating for this resource or...
+            //throw std::logic_error("No content format option");
         }
+        //get updated resource
+        iterator++;
+        id+=frame.getOptions()[iterator].getDelta();
+        if(id==17)//Accept option
+        {
+            //TODO::try to format resource to specified content_format
+        }
+        ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
+        Frame response=successResponse(frame, mockupPayload);
+        //TODO: send back/change methods to return response?
     }
-    catch(const std::logic_error& e){
-        std::cout<<e.what();
-        //TODO: Send back "Bad option" response
+    else{
+        //throw logic_error("Bad option");
     }
 }
 

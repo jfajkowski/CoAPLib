@@ -1,13 +1,11 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedMacroInspection"
-#include <boost/test/unit_test.hpp>
-#include <iostream>
-#include "../src/Frame.h"
-#include "UdpEmulator.h"
-#include "../src/Constants.h"
-#include "../src/CoAPHandler.h"
+#include <ArduinoUnit.h>
 
-BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
+#include "Frame.h"
+#include "UdpEmulator.h"
+#include "Constants.h"
+#include "CoAPHandler.h"
+
+test(FrameSerializationTest) {
     unsigned int buffer_size = 64;
 
     Frame frame1;
@@ -16,23 +14,23 @@ BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
     unsigned char actual[buffer_size];
     unsigned int bytes_written_actual = frame1.serialize(actual);
 
-    BOOST_CHECK_EQUAL(bytes_written_expected, bytes_written_actual);
+    assertEqual(bytes_written_expected, bytes_written_actual);
     for (int i = 0; i < bytes_written_expected; ++i) {
-        BOOST_CHECK_EQUAL(expected[i], actual[i]);
+        assertEqual(expected[i], actual[i]);
     }
 }
 
-BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
+test(UdpEmulatorTest) {
     UdpEmulator emulator(64);
     unsigned int expected = 1;
     emulator.write(&expected, sizeof(expected));
     unsigned int actual;
     emulator.read(&actual, sizeof(actual));
 
-    BOOST_CHECK_EQUAL(expected, actual);
+    assertEqual(expected, actual);
 }
 
-BOOST_AUTO_TEST_CASE(BasicFrameSendingTest) {
+test(BasicFrameSendingTest) {
     UdpEmulator emulator(64);
     unsigned char old_buffer[64];
     unsigned char new_buffer[64];
@@ -50,19 +48,19 @@ BOOST_AUTO_TEST_CASE(BasicFrameSendingTest) {
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);
 
-    BOOST_ASSERT(expected.getVer() == actual->getVer());
-    BOOST_ASSERT(expected.getT() == actual->getT());
-    BOOST_ASSERT(expected.getTKL() == actual->getTKL());
-    BOOST_ASSERT(expected.getCode() == actual->getCode());
-    BOOST_ASSERT(expected.getMessageId() == actual->getMessageId());
-    BOOST_ASSERT(actual->getToken().size() == 0);
-    BOOST_ASSERT(actual->getOptions().size() == 0);
-    BOOST_ASSERT(actual->getPayload().size() == 0);
+    assertTrue(expected.getVer() == actual->getVer());
+    assertTrue(expected.getT() == actual->getT());
+    assertTrue(expected.getTKL() == actual->getTKL());
+    assertTrue(expected.getCode() == actual->getCode());
+    assertTrue(expected.getMessageId() == actual->getMessageId());
+    assertTrue(actual->getToken().size() == 0);
+    assertTrue(actual->getOptions().size() == 0);
+    assertTrue(actual->getPayload().size() == 0);
 
     delete actual;
 }
 
-BOOST_AUTO_TEST_CASE(PayloadFrameSendingTest) {
+test(PayloadFrameSendingTest) {
     UdpEmulator emulator(64);
     unsigned char old_buffer[64];
     unsigned char new_buffer[64];
@@ -84,18 +82,18 @@ BOOST_AUTO_TEST_CASE(PayloadFrameSendingTest) {
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);
 
-    BOOST_ASSERT(actual->getToken().size() == 0);
-    BOOST_ASSERT(actual->getOptions().size() == 0);
-    BOOST_ASSERT(actual->getPayload()[0] == 1);
-    BOOST_ASSERT(actual->getPayload()[1] == 2);
-    BOOST_ASSERT(actual->getPayload()[2] == 3);
-    BOOST_ASSERT(actual->getPayload()[3] == 4);
-    BOOST_ASSERT(actual->getPayload()[4] == 5);
+    assertTrue(actual->getToken().size() == 0);
+    assertTrue(actual->getOptions().size() == 0);
+    assertTrue(actual->getPayload()[0] == 1);
+    assertTrue(actual->getPayload()[1] == 2);
+    assertTrue(actual->getPayload()[2] == 3);
+    assertTrue(actual->getPayload()[3] == 4);
+    assertTrue(actual->getPayload()[4] == 5);
 
     delete actual;
 }
 
-BOOST_AUTO_TEST_CASE(OptionsFrameSendingTest) {
+test(OptionsFrameSendingTest) {
     UdpEmulator emulator(4096);
     unsigned char old_buffer[4096];
     unsigned char new_buffer[4096];
@@ -126,7 +124,7 @@ BOOST_AUTO_TEST_CASE(OptionsFrameSendingTest) {
 
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 100 * i; ++j) {
-            BOOST_ASSERT(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
+            assertTrue(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
         }
     }
 
@@ -134,7 +132,7 @@ BOOST_AUTO_TEST_CASE(OptionsFrameSendingTest) {
 }
 
 /*
-BOOST_AUTO_TEST_CASE(SerializationTest) {
+test(SerializationTest) {
     UdpEmulator emulator(64);
     Frame expected;
     expected.setT(0);
@@ -154,7 +152,7 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
 */
 
 /*
-BOOST_AUTO_TEST_CASE(FrameSendingTest) {
+test(FrameSendingTest) {
     UdpEmulator emulator(64);
     Header header = {1,2,3,4,5};
     Frame expected;
@@ -172,14 +170,14 @@ BOOST_AUTO_TEST_CASE(FrameSendingTest) {
 
     std::cout << "Expected: " << expected << std::endl;
     std::cout << "Actual: " << actual << std::endl;
-    BOOST_ASSERT(expected.header.Ver == actual.header.Ver);
-    BOOST_ASSERT(expected.header.T == actual.header.T);
-    BOOST_ASSERT(expected.header.TKL == actual.header.TKL);
-    BOOST_ASSERT(expected.header.Code == actual.header.Code);
-    BOOST_ASSERT(expected.header.MessageId == actual.header.MessageId);
+    assertTrue(expected.header.Ver == actual.header.Ver);
+    assertTrue(expected.header.T == actual.header.T);
+    assertTrue(expected.header.TKL == actual.header.TKL);
+    assertTrue(expected.header.Code == actual.header.Code);
+    assertTrue(expected.header.MessageId == actual.header.MessageId);
 }*/
 
-BOOST_AUTO_TEST_CASE(SuccessResponseTest){
+test(SuccessResponseTest){
     Frame test_frame;
     test_frame.setCode(1);
     test_frame.setT(0);
@@ -201,12 +199,8 @@ BOOST_AUTO_TEST_CASE(SuccessResponseTest){
     payload_value.pushBack('y');
 
     Frame response1=coAPHandler.successWrapper(test_frame, payload_value);
-    BOOST_CHECK_EQUAL(response1.getT(),2);
-    BOOST_CHECK_EQUAL(response1.getCode(),69);
+    assertEqual(response1.getT(),2);
+    assertEqual(response1.getCode(),69);
     unsigned char value = response1.getOptions()[0].getValue()[0];
-    BOOST_CHECK_EQUAL(value,0);
+    assertEqual(value,0);
 }
-
-
-
-#pragma clang diagnostic pop

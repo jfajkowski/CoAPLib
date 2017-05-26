@@ -1,8 +1,8 @@
 #ifndef ARDUINODEMO_OPTION_H
 #define ARDUINODEMO_OPTION_H
 
-#include <cstring>
-#include <string>
+#include "WString.h"
+
 #include "Array.hpp"
 #include "Constants.h"
 
@@ -38,7 +38,7 @@ public:
     const ByteArray &getValue() const;
     void setValue(const ByteArray &value);
 
-    std::string toString();
+    const String toString();
 };
 
 #endif //ARDUINODEMO_OPTION_H

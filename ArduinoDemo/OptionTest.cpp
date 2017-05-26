@@ -1,10 +1,8 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedMacroInspection"
-#include <boost/test/unit_test.hpp>
-#include <iostream>
-#include "../src/Option.h"
+#include <ArduinoUnit.h>
 
-BOOST_AUTO_TEST_CASE(SerializationTest) {
+#include "Option.h"
+
+test(SerializationTest) {
     Option option1;
     option1.setDelta(1);
     option1.setValue(ByteArray(1));
@@ -19,7 +17,7 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
 
     ByteArray result = Option::serialize(optionArray);
 
-    BOOST_CHECK_EQUAL(result.size(), 3);
+    assertEqual(result.size(), 3);
 
     ByteArray val(3);
     val.pushBack(1);
@@ -31,11 +29,11 @@ BOOST_AUTO_TEST_CASE(SerializationTest) {
     optionArray.pushBack(option3);
 
     result = Option::serialize(optionArray);
-    BOOST_CHECK_EQUAL(result.size(), 7);
-    BOOST_CHECK_EQUAL(result[result.size() - 1], PAYLOAD_MARKER);
+    assertEqual(result.size(), 7);
+    assertEqual(result[result.size() - 1], PAYLOAD_MARKER);
 }
 
-BOOST_AUTO_TEST_CASE(NoOptionsDeserializationTest) {
+test(NoOptionsDeserializationTest) {
     ByteArray byteArray;
     unsigned char* buffer;
 
@@ -44,11 +42,11 @@ BOOST_AUTO_TEST_CASE(NoOptionsDeserializationTest) {
     buffer = byteArray.begin();
     OptionArray destination = Option::deserialize(buffer);
 
-    BOOST_CHECK_EQUAL(0, source.size());
-    BOOST_CHECK_EQUAL(0, destination.size());
+    assertEqual(0, source.size());
+    assertEqual(0, destination.size());
 }
 
-BOOST_AUTO_TEST_CASE(NibbleSerializationTest) {
+test(NibbleSerializationTest) {
     unsigned char buffer;
     struct Nibble {
         unsigned char lo : 4;
@@ -60,11 +58,11 @@ BOOST_AUTO_TEST_CASE(NibbleSerializationTest) {
     Nibble actual;
     memcpy(&actual, &buffer, sizeof(buffer));
 
-    BOOST_CHECK_EQUAL(expected.lo, actual.lo);
-    BOOST_CHECK_EQUAL(expected.hi, actual.hi);
+    assertEqual(expected.lo, actual.lo);
+    assertEqual(expected.hi, actual.hi);
 }
 
-BOOST_AUTO_TEST_CASE(NoExtendedFieldsOptionsDeserializationTest) {
+test(NoExtendedFieldsOptionsDeserializationTest) {
     unsigned char values1[] = {0, 1, 2, 3};
     unsigned char values2[] = {3, 2, 1, 0};
     unsigned int num = 4;
@@ -87,18 +85,18 @@ BOOST_AUTO_TEST_CASE(NoExtendedFieldsOptionsDeserializationTest) {
 
     OptionArray actual = Option::deserialize(buffer);
 
-    BOOST_CHECK_EQUAL(expected[0].getDelta(), actual[0].getDelta());
-    BOOST_CHECK_EQUAL(expected[1].getDelta(), actual[1].getDelta());
-    BOOST_CHECK_EQUAL(expected[0].getLength(), actual[0].getLength());
-    BOOST_CHECK_EQUAL(expected[1].getLength(), actual[1].getLength());
+    assertEqual(expected[0].getDelta(), actual[0].getDelta());
+    assertEqual(expected[1].getDelta(), actual[1].getDelta());
+    assertEqual(expected[0].getLength(), actual[0].getLength());
+    assertEqual(expected[1].getLength(), actual[1].getLength());
 
     for (int i = 0; i < num; ++i) {
-        BOOST_CHECK_EQUAL(expected[0].getValue()[i], actual[0].getValue()[i]);
-        BOOST_CHECK_EQUAL(expected[1].getValue()[i], actual[1].getValue()[i]);
+        assertEqual(expected[0].getValue()[i], actual[0].getValue()[i]);
+        assertEqual(expected[1].getValue()[i], actual[1].getValue()[i]);
     }
 }
 
-BOOST_AUTO_TEST_CASE(ExtendedFieldsOptionsDeserializationTest) {
+test(ExtendedFieldsOptionsDeserializationTest) {
     unsigned char* buffer;
 
     ByteArray one_hundred_length;
@@ -126,21 +124,21 @@ BOOST_AUTO_TEST_CASE(ExtendedFieldsOptionsDeserializationTest) {
 
     OptionArray actual = Option::deserialize(buffer);
 
-    BOOST_CHECK_EQUAL(expected[0].getDelta(), actual[0].getDelta());
-    BOOST_CHECK_EQUAL(expected[1].getDelta(), actual[1].getDelta());
-    BOOST_CHECK_EQUAL(expected[0].getLength(), actual[0].getLength());
-    BOOST_CHECK_EQUAL(expected[1].getLength(), actual[1].getLength());
+    assertEqual(expected[0].getDelta(), actual[0].getDelta());
+    assertEqual(expected[1].getDelta(), actual[1].getDelta());
+    assertEqual(expected[0].getLength(), actual[0].getLength());
+    assertEqual(expected[1].getLength(), actual[1].getLength());
 
-    BOOST_CHECK_EQUAL(expected[0].getValue().size(), actual[0].getValue().size());
-    BOOST_CHECK_EQUAL(expected[1].getValue().size(), actual[1].getValue().size());
+    assertEqual(expected[0].getValue().size(), actual[0].getValue().size());
+    assertEqual(expected[1].getValue().size(), actual[1].getValue().size());
 }
 
-BOOST_AUTO_TEST_CASE(GetterAndSetterTest) {
+test(GetterAndSetterTest) {
     Option option;
 
     for (int i = 0; i <= 65535; i += 10) {
         option.setDelta((unsigned short) i);
-        BOOST_CHECK_EQUAL((unsigned short) i, option.getDelta());
+        assertEqual((unsigned short) i, option.getDelta());
     }
 
     ByteArray ten_length;
@@ -154,11 +152,9 @@ BOOST_AUTO_TEST_CASE(GetterAndSetterTest) {
     }
 
     option.setValue(ten_length);
-    BOOST_CHECK_EQUAL(ten_length.size(), option.getLength());
+    assertEqual(ten_length.size(), option.getLength());
     option.setValue(one_hundred_length);
-    BOOST_CHECK_EQUAL(one_hundred_length.size(), option.getLength());
+    assertEqual(one_hundred_length.size(), option.getLength());
     option.setValue(one_thousand_length);
-    BOOST_CHECK_EQUAL(one_thousand_length.size(), option.getLength());
+    assertEqual(one_thousand_length.size(), option.getLength());
 }
-
-#pragma clang diagnostic pop

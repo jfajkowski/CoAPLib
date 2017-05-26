@@ -1,4 +1,3 @@
-#include <ostream>
 #include "Frame.h"
 
 Frame::Frame() {

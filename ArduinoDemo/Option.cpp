@@ -174,12 +174,14 @@ void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
         option.delta = short_buffer;
     }
 }
-std::string Option::toString() {
-    int length=getLength();
-    unsigned char val[getValue().size()];
-    for(int i=0;i < getValue().size();++i){
-        val[i]=getValue()[i];
-    }
-    std::string stringValue(reinterpret_cast<char const*>(val),length);
+
+const String Option::toString() {
+//    int length = getLength();
+//    unsigned char val[getValue().size()];
+//    for(int i=0;i < getValue().size();++i){
+//        val[i]=getValue()[i];
+//    }
+    String stringValue("OPCJA");
+
     return stringValue;
 }

@@ -1,7 +1,6 @@
 #ifndef ARDUINODEMO_FRAME_H
 #define ARDUINODEMO_FRAME_H
 
-#include <cstring>
 #include "Array.hpp"
 #include "Option.h"
 
