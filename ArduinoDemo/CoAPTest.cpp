@@ -20,15 +20,15 @@ test(FrameSerializationTest) {
     }
 }
 
-//test(UdpEmulatorTest) {
-//    UdpEmulator emulator(64);
-//    unsigned int expected = 1;
-//    emulator.write(&expected, sizeof(expected));
-//    unsigned int actual;
-//    emulator.read(&actual, sizeof(actual));
-//
-//    assertEqual(expected, actual);
-//}
+test(UdpEmulatorTest) {
+    UdpEmulator emulator(64);
+    unsigned int expected = 1;
+    emulator.write(&expected, sizeof(expected));
+    unsigned int actual;
+    emulator.read(&actual, sizeof(actual));
+
+    assertEqual(expected, actual);
+}
 
 test(BasicFrameSendingTest) {
     UdpEmulator emulator(64);
@@ -39,11 +39,11 @@ test(BasicFrameSendingTest) {
     expected.setCode(CODE_PROXYING_NOT_SUPPORTED);
     expected.setMessageId(65535);
 
-    size_t size = expected.serialize(old_buffer);
+    unsigned int size = expected.serialize(old_buffer);
 
     emulator.write(&old_buffer, size);
 
-    size_t packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket() - 8;
     emulator.read(&new_buffer, packetSize);
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);
@@ -73,11 +73,11 @@ test(PayloadFrameSendingTest) {
     byteArray.pushBack(5);
     expected.setPayload(byteArray);
 
-    size_t size = expected.serialize(old_buffer);
+    unsigned int size = expected.serialize(old_buffer);
 
     emulator.write(&old_buffer, size);
 
-    size_t packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket() - 8;
     emulator.read(&new_buffer, packetSize);
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);
@@ -93,43 +93,43 @@ test(PayloadFrameSendingTest) {
     delete actual;
 }
 
-//test(OptionsFrameSendingTest) {
-//    UdpEmulator emulator(4096);
-//    unsigned char old_buffer[4096];
-//    unsigned char new_buffer[4096];
-//    Frame expected;
-//    OptionArray optionArray(5);
-//
-//    for (int i = 0; i < 5; ++i) {
-//        Option option;
-//        option.setDelta((unsigned short) (100 * i));
-//
-//        ByteArray byteArray((unsigned int) (100 * i));
-//        for (int j = 0; j < 100 * i; ++j) {
-//            byteArray.pushBack((unsigned char) j);
-//        }
-//        option.setValue(byteArray);
-//        optionArray.pushBack(option);
-//    }
-//    expected.setOptions(optionArray);
-//
-//    size_t size = expected.serialize(old_buffer);
-//
-//    emulator.write(&old_buffer, size);
-//
-//    size_t packetSize = emulator.parsePacket() - 8;
-//    emulator.read(&new_buffer, packetSize);
-//
-//    Frame* actual = Frame::deserialize(new_buffer, packetSize);
-//
-//    for (int i = 0; i < 5; ++i) {
-//        for (int j = 0; j < 100 * i; ++j) {
-//            assertTrue(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
-//        }
-//    }
-//
-//    delete actual;
-//}
+test(OptionsFrameSendingTest) {
+    UdpEmulator emulator(128);
+    unsigned char old_buffer[128];
+    unsigned char new_buffer[128];
+    Frame expected;
+    OptionArray optionArray(2);
+
+    for (int i = 0; i < 2; ++i) {
+        Option option;
+        option.setDelta((unsigned short) (10 * i));
+
+        ByteArray byteArray((unsigned int) (10 * i));
+        for (int j = 0; j < 10 * i; ++j) {
+            byteArray.pushBack((unsigned char) j);
+        }
+        option.setValue(byteArray);
+        optionArray.pushBack(option);
+    }
+    expected.setOptions(optionArray);
+
+    size_t size = expected.serialize(old_buffer);
+
+    emulator.write(&old_buffer, size);
+
+    size_t packetSize = emulator.parsePacket() - 8;
+    emulator.read(&new_buffer, packetSize);
+
+    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 10 * i; ++j) {
+            assertTrue(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
+        }
+    }
+
+    delete actual;
+}
 
 test(SuccessResponseTest){
     Frame test_frame;
