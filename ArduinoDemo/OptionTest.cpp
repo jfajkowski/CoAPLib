@@ -99,19 +99,19 @@ test(NoExtendedFieldsOptionsDeserializationTest) {
 test(ExtendedFieldsOptionsDeserializationTest) {
     unsigned char* buffer;
 
-    ByteArray one_hundred_length;
+    ByteArray ten_length;
 
-    for (int i = 0; i < 100; ++i) {
-        if (i % 10 == 0) one_hundred_length.pushBack(i);
+    for (int i = 0; i < 10; ++i) {
+        ten_length.pushBack('a' + i);
     }
 
     Option expected1;
     expected1.setDelta(100);
-    expected1.setValue(one_hundred_length);
+    expected1.setValue(ten_length);
 
     Option expected2;
     expected2.setDelta(300);
-    expected2.setValue(one_hundred_length);
+    expected2.setValue(ten_length);
 
     OptionArray expected;
     expected.pushBack(expected1);
@@ -160,4 +160,13 @@ test(GetterAndSetterTest) {
     assertEqual(one_hundred_length.size(), option.getLength());
     option.setValue(three_hundred_length);
     assertEqual(three_hundred_length.size(), option.getLength());
+}
+
+test(SingleOptionStringConversionTest) {
+    String expected("Test value!");
+  
+    Option o(0, expected);
+    String actual = o.toString();
+
+    assertEqual(expected, actual);
 }

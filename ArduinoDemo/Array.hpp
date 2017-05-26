@@ -27,7 +27,6 @@ public:
     Array &operator+=(const Array &array);
 
     unsigned int size() const;
-
     unsigned int capacity() const;
 
     T *begin() const;

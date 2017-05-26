@@ -1,7 +1,7 @@
 #include "Frame.h"
 
 Frame::Frame() {
-    header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
+    header_ = {0, 0, 0, 0, DEFAULT_VERSION};
 }
 
 unsigned int Frame::serialize(unsigned char* buffer_begin) {
@@ -99,4 +99,54 @@ const ByteArray &Frame::getPayload() const {
 
 void Frame::setPayload(const ByteArray &payload) {
     Frame::payload_ = payload;
+}
+
+void Frame::print() {
+    Serial.print("Version: ");
+    Serial.println(header_.Ver);
+    Serial.print("Type: ");
+    Serial.println(header_.T);
+    Serial.print("Token length: ");
+    Serial.println(header_.TKL);
+    Serial.print("Code: ");
+    Serial.println(header_.Code);
+    Serial.print("Message ID: ");
+    Serial.println(header_.MessageId);
+
+    if (token_.size() != 0) {
+        Serial.print("Token:");
+        Serial.println(Frame::toString(payload_));
+    }
+
+    if (options_.size() != 0) {
+        Serial.print("Options:\n");
+        print(options_);
+    }
+
+    if (payload_.size() != 0) {
+        Serial.print("Payload: \n\t");
+        Serial.println(Frame::toString(payload_));
+    }
+}
+
+const String Frame::toString(const ByteArray &byte_array) {
+    String s;
+  
+    for(int i = 0; i < byte_array.size(); ++i){
+        s += char(byte_array[i]);
+    }
+
+    return s;
+}
+
+void Frame::print(const OptionArray &options) {
+    unsigned int option_code = 0; 
+    for (int i = 0; i < options.size(); ++i) {
+        option_code += options[i].getDelta();
+        Serial.print("\t");
+        Serial.print(option_code);
+        Serial.print(": ");
+        Serial.print(options[i].toString());
+        Serial.print("\n");
+    }
 }

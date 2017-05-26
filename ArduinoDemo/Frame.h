@@ -1,6 +1,7 @@
 #ifndef ARDUINODEMO_FRAME_H
 #define ARDUINODEMO_FRAME_H
 
+#include "Arduino.h"
 #include "Array.hpp"
 #include "Option.h"
 
@@ -21,6 +22,9 @@ private:
     static void insert(unsigned char* &buffer, const Header &header);
     static void insert(unsigned char* &buffer, const ByteArray &array);
     static ByteArray extract(unsigned char *&buffer, unsigned int num);
+    
+    static const String toString(const ByteArray &byte_array);
+    void print(const OptionArray &options);
 public:
     static const unsigned int DEFAULT_VERSION = 0x01;
 
@@ -50,6 +54,8 @@ public:
 
     const ByteArray &getPayload() const;
     void setPayload(const ByteArray &payload);
+
+    void print();
 };
 
 #endif //ARDUINODEMO_FRAME_H

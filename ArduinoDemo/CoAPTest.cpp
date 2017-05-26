@@ -65,12 +65,11 @@ test(PayloadFrameSendingTest) {
     unsigned char old_buffer[64];
     unsigned char new_buffer[64];
     Frame expected;
-    ByteArray byteArray(5);
-    byteArray.pushBack(1);
-    byteArray.pushBack(2);
-    byteArray.pushBack(3);
-    byteArray.pushBack(4);
-    byteArray.pushBack(5);
+    ByteArray byteArray(4);
+    byteArray.pushBack('T');
+    byteArray.pushBack('E');
+    byteArray.pushBack('S');
+    byteArray.pushBack('T');
     expected.setPayload(byteArray);
 
     unsigned int size = expected.serialize(old_buffer);
@@ -84,11 +83,10 @@ test(PayloadFrameSendingTest) {
 
     assertTrue(actual->getToken().size() == 0);
     assertTrue(actual->getOptions().size() == 0);
-    assertTrue(actual->getPayload()[0] == 1);
-    assertTrue(actual->getPayload()[1] == 2);
-    assertTrue(actual->getPayload()[2] == 3);
-    assertTrue(actual->getPayload()[3] == 4);
-    assertTrue(actual->getPayload()[4] == 5);
+    assertTrue(actual->getPayload()[0] == 'T');
+    assertTrue(actual->getPayload()[1] == 'E');
+    assertTrue(actual->getPayload()[2] == 'S');
+    assertTrue(actual->getPayload()[3] == 'T');
 
     delete actual;
 }
@@ -113,11 +111,11 @@ test(OptionsFrameSendingTest) {
     }
     expected.setOptions(optionArray);
 
-    size_t size = expected.serialize(old_buffer);
+    unsigned int size = expected.serialize(old_buffer);
 
     emulator.write(&old_buffer, size);
 
-    size_t packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket() - 8;
     emulator.read(&new_buffer, packetSize);
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);

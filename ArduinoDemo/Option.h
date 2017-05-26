@@ -26,6 +26,7 @@ class Option {
 
 public:
     Option();
+    Option(unsigned int delta, String value);
 
     static ByteArray serialize(const OptionArray &options);
     static OptionArray deserialize(unsigned char *&buffer);
@@ -40,7 +41,8 @@ public:
     const ByteArray &getValue() const;
     void setValue(const ByteArray &value);
 
-    const String toString();
+    const String toString() const;
+    static void print(const OptionArray &options);
 };
 
 #endif //ARDUINODEMO_OPTION_H

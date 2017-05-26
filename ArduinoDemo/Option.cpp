@@ -5,6 +5,16 @@
 
 Option::Option() : header_({0, 0}), length(0), delta(0) {}
 
+Option::Option(unsigned int delta, String value) : Option() {
+    ByteArray byte_array(value.length());
+    for (int i = 0; i < value.length(); ++i) {
+        byte_array.pushBack(value.charAt(i));
+    }
+
+    setDelta(delta);
+    setValue(byte_array);
+}
+
 ByteArray Option::serialize(const OptionArray &options) {
     ByteArray byteArray;
 
@@ -180,13 +190,12 @@ void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
     }
 }
 
-const String Option::toString() {
-//    int length = getLength();
-//    unsigned char val[getValue().size()];
-//    for(int i=0;i < getValue().size();++i){
-//        val[i]=getValue()[i];
-//    }
-    String stringValue("OPCJA");
+const String Option::toString() const {
+    String s;
+  
+    for(int i = 0; i < value_.size(); ++i){
+        s += char(value_[i]);
+    }
 
-    return stringValue;
+    return s;
 }
