@@ -96,42 +96,42 @@ test(NoExtendedFieldsOptionsDeserializationTest) {
     }
 }
 
-test(ExtendedFieldsOptionsDeserializationTest) {
-    unsigned char* buffer;
-
-    ByteArray one_hundred_length;
-    ByteArray one_thousand_length;
-
-    for (int i = 0; i < 1000; ++i) {
-        if (i % 10 == 0) one_hundred_length.pushBack(0);
-        one_thousand_length.pushBack(0);
-    }
-
-    Option expected1;
-    expected1.setDelta(100);
-    expected1.setValue(one_hundred_length);
-
-    Option expected2;
-    expected2.setDelta(1000);
-    expected2.setValue(one_thousand_length);
-
-    OptionArray expected;
-    expected.pushBack(expected1);
-    expected.pushBack(expected2);
-
-    ByteArray byteArray = Option::serialize(expected);
-    buffer = byteArray.begin();
-
-    OptionArray actual = Option::deserialize(buffer);
-
-    assertEqual(expected[0].getDelta(), actual[0].getDelta());
-    assertEqual(expected[1].getDelta(), actual[1].getDelta());
-    assertEqual(expected[0].getLength(), actual[0].getLength());
-    assertEqual(expected[1].getLength(), actual[1].getLength());
-
-    assertEqual(expected[0].getValue().size(), actual[0].getValue().size());
-    assertEqual(expected[1].getValue().size(), actual[1].getValue().size());
-}
+//test(ExtendedFieldsOptionsDeserializationTest) {
+//    unsigned char* buffer;
+//
+//    ByteArray one_hundred_length;
+//    ByteArray one_thousand_length;
+//
+//    for (int i = 0; i < 1000; ++i) {
+//        if (i % 10 == 0) one_hundred_length.pushBack(0);
+//        one_thousand_length.pushBack(0);
+//    }
+//
+//    Option expected1;
+//    expected1.setDelta(100);
+//    expected1.setValue(one_hundred_length);
+//
+//    Option expected2;
+//    expected2.setDelta(1000);
+//    expected2.setValue(one_thousand_length);
+//
+//    OptionArray expected;
+//    expected.pushBack(expected1);
+//    expected.pushBack(expected2);
+//
+//    ByteArray byteArray = Option::serialize(expected);
+//    buffer = byteArray.begin();
+//
+//    OptionArray actual = Option::deserialize(buffer);
+//
+//    assertEqual(expected[0].getDelta(), actual[0].getDelta());
+//    assertEqual(expected[1].getDelta(), actual[1].getDelta());
+//    assertEqual(expected[0].getLength(), actual[0].getLength());
+//    assertEqual(expected[1].getLength(), actual[1].getLength());
+//
+//    assertEqual(expected[0].getValue().size(), actual[0].getValue().size());
+//    assertEqual(expected[1].getValue().size(), actual[1].getValue().size());
+//}
 
 test(GetterAndSetterTest) {
     Option option;
