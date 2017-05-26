@@ -22,10 +22,6 @@ BOOST_AUTO_TEST_CASE(FrameSerializationTest) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(FrameDeserializationTest) {
-
-}
-
 BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
     UdpEmulator emulator(64);
     unsigned int expected = 1;
@@ -36,11 +32,14 @@ BOOST_AUTO_TEST_CASE(UdpEmulatorTest) {
     BOOST_CHECK_EQUAL(expected, actual);
 }
 
-BOOST_AUTO_TEST_CASE(EmptyFrameSendingTest) {
+BOOST_AUTO_TEST_CASE(BasicFrameSendingTest) {
     UdpEmulator emulator(64);
     unsigned char old_buffer[64];
     unsigned char new_buffer[64];
     Frame expected;
+    expected.setT(3);
+    expected.setCode(CODE_PROXYING_NOT_SUPPORTED);
+    expected.setMessageId(65535);
 
     size_t size = expected.serialize(old_buffer);
 
@@ -85,11 +84,6 @@ BOOST_AUTO_TEST_CASE(PayloadFrameSendingTest) {
 
     Frame* actual = Frame::deserialize(new_buffer, packetSize);
 
-    BOOST_ASSERT(expected.getVer() == actual->getVer());
-    BOOST_ASSERT(expected.getT() == actual->getT());
-    BOOST_ASSERT(expected.getTKL() == actual->getTKL());
-    BOOST_ASSERT(expected.getCode() == actual->getCode());
-    BOOST_ASSERT(expected.getMessageId() == actual->getMessageId());
     BOOST_ASSERT(actual->getToken().size() == 0);
     BOOST_ASSERT(actual->getOptions().size() == 0);
     BOOST_ASSERT(actual->getPayload()[0] == 1);
@@ -97,6 +91,44 @@ BOOST_AUTO_TEST_CASE(PayloadFrameSendingTest) {
     BOOST_ASSERT(actual->getPayload()[2] == 3);
     BOOST_ASSERT(actual->getPayload()[3] == 4);
     BOOST_ASSERT(actual->getPayload()[4] == 5);
+
+    delete actual;
+}
+
+BOOST_AUTO_TEST_CASE(OptionsFrameSendingTest) {
+    UdpEmulator emulator(4096);
+    unsigned char old_buffer[4096];
+    unsigned char new_buffer[4096];
+    Frame expected;
+    OptionArray optionArray(5);
+
+    for (int i = 0; i < 5; ++i) {
+        Option option;
+        option.setDelta((unsigned short) (100 * i));
+
+        ByteArray byteArray((unsigned int) (100 * i));
+        for (int j = 0; j < 100 * i; ++j) {
+            byteArray.pushBack((unsigned char) j);
+        }
+        option.setValue(byteArray);
+        optionArray.pushBack(option);
+    }
+    expected.setOptions(optionArray);
+
+    size_t size = expected.serialize(old_buffer);
+
+    emulator.write(&old_buffer, size);
+
+    size_t packetSize = emulator.parsePacket() - 8;
+    emulator.read(&new_buffer, packetSize);
+
+    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 100 * i; ++j) {
+            BOOST_ASSERT(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
+        }
+    }
 
     delete actual;
 }
@@ -173,7 +205,6 @@ BOOST_AUTO_TEST_CASE(SuccessResponseTest){
     BOOST_CHECK_EQUAL(response1.getCode(),69);
     unsigned char value = response1.getOptions()[0].getValue()[0];
     BOOST_CHECK_EQUAL(value,0);
-    std::cout<<"kupa";
 }
 
 
