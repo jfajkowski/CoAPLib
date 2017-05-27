@@ -1,5 +1,5 @@
 #include <ArduinoUnit.h>
-#include "Array.hpp"
+#include <CoAPLib.h>
 
 test(PushBackTest) {
     unsigned int expected_size = 0;
@@ -23,7 +23,7 @@ test(CapacityTest) {
     assertEqual(expected_capacity, actual_capacity);
 }
 
-test(ConstructorFromUnsignedCharBuffer) {
+test(ConstructorFromUnsignedCharBufferTest) {
     unsigned int values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     unsigned int num = 10 * sizeof(unsigned int);
     unsigned char buffer[num];

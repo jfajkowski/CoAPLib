@@ -1,6 +1,5 @@
 #include <ArduinoUnit.h>
-
-#include "Option.h"
+#include <CoAPLib.h>
 
 test(SerializationTest) {
     Option option1;

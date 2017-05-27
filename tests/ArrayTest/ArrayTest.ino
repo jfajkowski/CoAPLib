@@ -1,11 +1,9 @@
 #include <ArduinoUnit.h>
 
-void setup()
-{
+void setup() {
   Serial.begin(9600);
 }
 
-void loop()
-{
+void loop() {
   Test::run();
 }
