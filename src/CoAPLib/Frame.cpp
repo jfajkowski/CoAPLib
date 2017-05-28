@@ -1,7 +1,7 @@
 #include "Frame.h"
 
 Frame::Frame() {
-    header_ = {0, 0, 0, 0, DEFAULT_VERSION};
+    header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
 }
 
 unsigned int Frame::serialize(unsigned char* buffer_begin) {
@@ -16,8 +16,10 @@ unsigned int Frame::serialize(unsigned char* buffer_begin) {
 }
 
 void Frame::insert(unsigned char *&buffer, const Header &header) {
-    memcpy(buffer, &header, sizeof(header));
-    buffer += sizeof(header);
+    *buffer = (header.Ver << OFFSET_VER) | (header.T << OFFSET_T) | header.TKL;
+	*++buffer = header.Code;
+	*++buffer = (unsigned char) (header.MessageId >> OFFSET_MESSAGE_ID);
+	*++buffer = (unsigned char) (header.MessageId & MASK_MESSAGE_ID);
 }
 
 void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
@@ -25,19 +27,23 @@ void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
     buffer += array.size();
 }
 
-Frame * Frame::deserialize(unsigned char *buffer_begin, unsigned int num) {
-    Frame* frame = new Frame;
-
+void Frame::deserialize(Frame* frame, unsigned char *buffer_begin, unsigned int num) {
     unsigned char* buffer = buffer_begin;
     unsigned char* buffer_end = buffer_begin + num;
-    memcpy(&frame->header_, buffer, sizeof(frame->header_));
-    buffer += sizeof(frame->header_);
-
+	
+    extract(&frame->header_, buffer, sizeof(frame->header_));
     frame->setToken(extract(buffer, frame->header_.TKL));
-    frame->setOptions(Option::deserialize(buffer));
-    frame->setPayload(extract(buffer, buffer_end - buffer));
+	// TODO Change deserialization method.
+    //frame->setOptions(Option::deserialize(buffer));
+    //frame->setPayload(extract(buffer, buffer_end - buffer));
+}
 
-    return frame;
+void Frame::extract(Header* header, unsigned char* buffer, unsigned int num) {
+    header->Ver = (*buffer & MASK_VER) >> OFFSET_VER;    
+    header->T = (*buffer & MASK_T) >> OFFSET_T;
+    header->TKL = (*buffer & MASK_TKL);
+    header->Code = (*++buffer);
+    header->MessageId = ((*++buffer) << OFFSET_MESSAGE_ID) | (*++buffer);
 }
 
 ByteArray Frame::extract(unsigned char *&buffer, unsigned int num) {

@@ -3,6 +3,7 @@
 
 #define COAP_CODE(N) (((N)/100 << 5) | (N)%100)
 
+static const unsigned int DEFAULT_VERSION = 0x01;
 static const unsigned char PAYLOAD_MARKER = 0xFF;
 
 // Method codes:
@@ -33,5 +34,16 @@ static const unsigned int CODE_BAD_GATEWAY = COAP_CODE(502);
 static const unsigned int CODE_SERVICE_UNAVAILABLE = COAP_CODE(503);
 static const unsigned int CODE_GATEWAY_TIMEOUT = COAP_CODE(504);
 static const unsigned int CODE_PROXYING_NOT_SUPPORTED = COAP_CODE(505);
+
+// Header constants:
+static const unsigned char MASK_VER = 0xC0;
+static const unsigned char MASK_T = 0x30;
+static const unsigned char MASK_TKL = 0x0F;
+static const unsigned short MASK_MESSAGE_ID = 0x00FF;
+
+static const unsigned char OFFSET_VER = 6;
+static const unsigned char OFFSET_T = 4;
+static const unsigned char OFFSET_MESSAGE_ID = 8;
+
 
 #endif //CODES_H
