@@ -30,7 +30,7 @@ void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
 void Frame::deserialize(Frame* frame, unsigned char *buffer_begin, unsigned int num) {
     unsigned char* buffer = buffer_begin;
     unsigned char* buffer_end = buffer_begin + num;
-	
+
     extract(&frame->header_, buffer, sizeof(frame->header_));
     frame->setToken(extract(buffer, frame->header_.TKL));
 	// TODO Change deserialization method.
@@ -39,7 +39,7 @@ void Frame::deserialize(Frame* frame, unsigned char *buffer_begin, unsigned int 
 }
 
 void Frame::extract(Header* header, unsigned char* buffer, unsigned int num) {
-    header->Ver = (*buffer & MASK_VER) >> OFFSET_VER;    
+    header->Ver = (*buffer & MASK_VER) >> OFFSET_VER;
     header->T = (*buffer & MASK_T) >> OFFSET_T;
     header->TKL = (*buffer & MASK_TKL);
     header->Code = (*++buffer);
