@@ -140,7 +140,7 @@ Frame CoAPHandler::successResponse(const Frame &frame,ByteArray payload ){
     content_format.setValue(content_format_value); //For now we assume payload is text/plain
     OptionArray optionArray(1);
     optionArray.pushBack(content_format);
-    response.setOptions(optionArray);
+    response.addOption(optionArray);
     response.setPayload(payload);
     return response;
 

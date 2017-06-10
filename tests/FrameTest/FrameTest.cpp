@@ -6,11 +6,11 @@
 test(FrameSerializationTest) {
     unsigned int buffer_size = 64;
 
-    Frame frame1;
+    Frame frame;
     unsigned char expected[buffer_size];
-    unsigned int bytes_written_expected = frame1.serialize(expected);
+    unsigned int bytes_written_expected = frame.serialize(expected);
     unsigned char actual[buffer_size];
-    unsigned int bytes_written_actual = frame1.serialize(actual);
+    unsigned int bytes_written_actual = frame.serialize(actual);
 
     assertEqual(bytes_written_expected, bytes_written_actual);
     for (int i = 0; i < bytes_written_expected; ++i) {
@@ -31,21 +31,20 @@ test(BasicFrameSendingTest) {
 
     emulator.write(&old_buffer, size);
 
-    unsigned int packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket();
     emulator.read(&new_buffer, packetSize);
 
-    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+    Frame actual;
+    Frame::deserialize(&actual, new_buffer, packetSize);
 
-    assertTrue(expected.getVer() == actual->getVer());
-    assertTrue(expected.getT() == actual->getT());
-    assertTrue(expected.getTKL() == actual->getTKL());
-    assertTrue(expected.getCode() == actual->getCode());
-    assertTrue(expected.getMessageId() == actual->getMessageId());
-    assertTrue(actual->getToken().size() == 0);
-    assertTrue(actual->getOptions().size() == 0);
-    assertTrue(actual->getPayload().size() == 0);
-
-    delete actual;
+    assertEqual(expected.getVer(), actual.getVer());
+    assertEqual(expected.getT(), actual.getT());
+    assertEqual(expected.getTKL(), actual.getTKL());
+    assertEqual(expected.getCode(), actual.getCode());
+    assertEqual(expected.getMessageId(), actual.getMessageId());
+    assertEqual(actual.getToken().size(), 0);
+    assertEqual(actual.getOptions().size(), 0);
+    assertEqual(actual.getPayload().size(), 0);
 }
 
 test(PayloadFrameSendingTest) {
@@ -64,19 +63,18 @@ test(PayloadFrameSendingTest) {
 
     emulator.write(&old_buffer, size);
 
-    unsigned int packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket();
     emulator.read(&new_buffer, packetSize);
 
-    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+    Frame actual;
+    Frame::deserialize(&actual, new_buffer, packetSize);
 
-    assertTrue(actual->getToken().size() == 0);
-    assertTrue(actual->getOptions().size() == 0);
-    assertTrue(actual->getPayload()[0] == 'T');
-    assertTrue(actual->getPayload()[1] == 'E');
-    assertTrue(actual->getPayload()[2] == 'S');
-    assertTrue(actual->getPayload()[3] == 'T');
-
-    delete actual;
+    assertEqual(actual.getToken().size(), 0);
+    assertEqual(actual.getOptions().size(), 0);
+    assertEqual(actual.getPayload()[0], 'T');
+    assertEqual(actual.getPayload()[1], 'E');
+    assertEqual(actual.getPayload()[2], 'S');
+    assertEqual(actual.getPayload()[3], 'T');
 }
 
 test(OptionsFrameSendingTest) {
@@ -103,16 +101,30 @@ test(OptionsFrameSendingTest) {
 
     emulator.write(&old_buffer, size);
 
-    unsigned int packetSize = emulator.parsePacket() - 8;
+    unsigned int packetSize = emulator.parsePacket();
     emulator.read(&new_buffer, packetSize);
 
-    Frame* actual = Frame::deserialize(new_buffer, packetSize);
+    Frame actual;
+    Frame::deserialize(&actual, new_buffer, packetSize);
 
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 10 * i; ++j) {
-            assertTrue(expected.getOptions()[i].getValue()[j] == actual->getOptions()[i].getValue()[j]);
+            assertEqual(expected.getOptions()[i].getValue()[j], actual.getOptions()[i].getValue()[j]);
         }
     }
-
-    delete actual;
 }
+
+test(PingDeserialization) {
+	unsigned int buffer_size = 4;
+	unsigned char buffer[] = {64, 1, 0, 1};
+	
+	Frame frame;
+	Frame::deserialize(&frame, buffer, buffer_size);
+	
+	assertEqual(frame.getVer(), 1);
+	assertEqual(frame.getT(), 0);
+	assertEqual(frame.getTKL(), 0);
+	assertEqual(frame.getCode(), 1);
+	assertEqual(frame.getMessageId(), 1);
+}
+

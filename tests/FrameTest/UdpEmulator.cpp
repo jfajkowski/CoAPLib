@@ -20,5 +20,5 @@ void UdpEmulator::read(void* destination, unsigned int num) {
 }
 
 unsigned int UdpEmulator::parsePacket() const {
-    return packet_size_ + 8;
+    return packet_size_;
 }
