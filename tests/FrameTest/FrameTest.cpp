@@ -77,54 +77,33 @@ test(PayloadFrameSendingTest) {
     assertEqual(actual.getPayload()[3], 'T');
 }
 
-test(OptionsFrameSendingTest) {
-    UdpEmulator emulator(128);
-    unsigned char old_buffer[128];
-    unsigned char new_buffer[128];
-    Frame expected;
-    OptionArray optionArray(2);
-
-    for (int i = 0; i < 2; ++i) {
-        Option option;
-        option.setDelta((unsigned short) (10 * i));
-
-        ByteArray byteArray((unsigned int) (10 * i));
-        for (int j = 0; j < 10 * i; ++j) {
-            byteArray.pushBack((unsigned char) j);
-        }
-        option.setValue(byteArray);
-        optionArray.pushBack(option);
-    }
-    expected.setOptions(optionArray);
-
-    unsigned int size = expected.serialize(old_buffer);
-
-    emulator.write(&old_buffer, size);
-
-    unsigned int packetSize = emulator.parsePacket();
-    emulator.read(&new_buffer, packetSize);
-
-    Frame actual;
-    Frame::deserialize(&actual, new_buffer, packetSize);
-
-    for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 10 * i; ++j) {
-            assertEqual(expected.getOptions()[i].getValue()[j], actual.getOptions()[i].getValue()[j]);
-        }
-    }
-}
-
 test(PingDeserialization) {
 	unsigned int buffer_size = 4;
-	unsigned char buffer[] = {64, 1, 0, 1};
+	unsigned char buffer[] = {0x40, 0x00, 0x5e, 0xb7};
 	
 	Frame frame;
 	Frame::deserialize(&frame, buffer, buffer_size);
 	
-	assertEqual(frame.getVer(), 1);
-	assertEqual(frame.getT(), 0);
+	assertEqual(frame.getVer(), DEFAULT_VERSION);
+	assertEqual(frame.getT(), TYPE_CON);
 	assertEqual(frame.getTKL(), 0);
-	assertEqual(frame.getCode(), 1);
-	assertEqual(frame.getMessageId(), 1);
+	assertEqual(frame.getCode(), CODE_EMPTY);
+	assertEqual(frame.getMessageId(), 24247);
+}
+
+test(OptionDeserialization) {
+    unsigned int buffer_size = 57;
+    unsigned char buffer[] = {0x40, 0x01, 0x24, 0x63, 0xb8, 0x73,
+                0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e, 0xc1, 0x02};
+
+    Frame frame;
+    Frame::deserialize(&frame, buffer, buffer_size);
+
+    assertEqual(frame.getVer(), DEFAULT_VERSION);
+    assertEqual(frame.getT(), TYPE_CON);
+    assertEqual(frame.getTKL(), 0);
+    assertEqual(frame.getCode(), CODE_GET);
+    assertEqual(frame.getMessageId(), 9315);
+    assertEqual(frame.getOptions().size(), 2);
 }
 

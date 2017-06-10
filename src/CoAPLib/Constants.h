@@ -6,7 +6,14 @@
 static const unsigned int DEFAULT_VERSION = 0x01;
 static const unsigned char PAYLOAD_MARKER = 0xFF;
 
+// Message types:
+static const unsigned int TYPE_CON = 0;
+static const unsigned int TYPE_NON = 1;
+static const unsigned int TYPE_ACK = 2;
+static const unsigned int TYPE_RST = 3;
+
 // Method codes:
+static const unsigned int CODE_EMPTY = COAP_CODE(0);
 static const unsigned int CODE_GET = COAP_CODE(1);
 static const unsigned int CODE_POST = COAP_CODE(2);
 static const unsigned int CODE_PUT = COAP_CODE(3);

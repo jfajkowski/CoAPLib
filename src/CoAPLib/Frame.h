@@ -20,7 +20,8 @@ private:
     ByteArray payload_;
 
     static void insert(unsigned char* &buffer, const Header &header);
-    static void insert(unsigned char* &buffer, const ByteArray &array);
+    static void insert(unsigned char* &buffer, const ByteArray &bytes);
+    static void insert(unsigned char* &buffer, const OptionArray &options);
 	static void extract(Header* header, unsigned char* buffer, unsigned int num);
     static ByteArray extract(unsigned char *&buffer, unsigned int num);
     

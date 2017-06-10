@@ -9,7 +9,7 @@ unsigned int Frame::serialize(unsigned char* buffer_begin) {
 
     insert(buffer, header_);
     insert(buffer, token_);
-    insert(buffer, Option::serialize(options_));
+    insert(buffer, options_);
     insert(buffer, payload_);
 
     return (unsigned int) (buffer - buffer_begin);
@@ -22,9 +22,13 @@ void Frame::insert(unsigned char *&buffer, const Header &header) {
 	*++buffer = (unsigned char) (header.MessageId & MASK_MESSAGE_ID);
 }
 
-void Frame::insert(unsigned char* &buffer, const ByteArray &array) {
-    memcpy(buffer, array.begin(), array.size());
-    buffer += array.size();
+void Frame::insert(unsigned char* &buffer, const OptionArray &options) {
+    insert(buffer, Option::serialize(options));
+}
+
+void Frame::insert(unsigned char* &buffer, const ByteArray &bytes) {
+    memcpy(buffer, bytes.begin(), bytes.size());
+    buffer += bytes.size();
 }
 
 void Frame::deserialize(Frame* frame, unsigned char *buffer_begin, unsigned int num) {
@@ -96,7 +100,7 @@ const OptionArray &Frame::getOptions() const {
 }
 
 void Frame::addOption(unsigned int option_number, ByteArray option_value) {
-    options_ = option;
+    // TODO
 }
 
 const ByteArray &Frame::getPayload() const {
