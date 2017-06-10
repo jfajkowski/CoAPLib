@@ -1,15 +1,13 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-#include "WString.h"
-
 #include "Array.hpp"
 #include "Constants.h"
 
-class Option;
-typedef Array<Option> OptionArray;
+class CoAPOption;
+typedef Array<CoAPOption> OptionArray;
 
-class Option {
+class CoAPOption {
     struct Header {
         unsigned char length : 4;
         unsigned char delta : 4;
@@ -20,18 +18,18 @@ class Option {
 
     ByteArray serialize() const;
     ByteArray serializeExtendables() const;
-    static void deserializeExtendables(unsigned char *&buffer, Option &option);
+    static void deserializeExtendables(unsigned char *&buffer, CoAPOption &option);
 
     void setLength(unsigned int length);
 
 public:
-    Option();
-    Option(unsigned int delta, String value);
+    CoAPOption();
+    CoAPOption(unsigned int delta, String value);
 
     static ByteArray serialize(const OptionArray &options);
-    static OptionArray deserialize(unsigned char *&buffer);
+    static OptionArray deserialize(unsigned char* &buffer, unsigned char* &buffer_end);
 
-    Option &operator=(const Option & option);
+    CoAPOption &operator=(const CoAPOption & option);
 
     unsigned int getDelta() const;
     void setDelta(unsigned int delta);
@@ -42,7 +40,6 @@ public:
     void setValue(const ByteArray &value);
 
     const String toString() const;
-    static void print(const OptionArray &options);
 };
 
 #endif //OPTION_H

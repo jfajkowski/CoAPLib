@@ -1,6 +1,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#include "Environment.h"
+
 template <typename T>
 class Array;
 typedef Array<unsigned char> ByteArray;

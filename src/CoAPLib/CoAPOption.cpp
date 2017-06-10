@@ -1,21 +1,18 @@
-#include "Option.h"
+#include "CoAPOption.h"
 
-#include "Arduino.h"
+CoAPOption::CoAPOption() : header_({0, 0}), length(0), delta(0) {}
 
-
-Option::Option() : header_({0, 0}), length(0), delta(0) {}
-
-Option::Option(unsigned int delta, String value) : Option() {
+CoAPOption::CoAPOption(unsigned int delta, String value) : CoAPOption() {
     ByteArray byte_array(value.length());
     for (int i = 0; i < value.length(); ++i) {
-        byte_array.pushBack(value.charAt(i));
+        byte_array.pushBack((const unsigned char &) value[i]);
     }
 
     setDelta(delta);
     setValue(byte_array);
 }
 
-ByteArray Option::serialize(const OptionArray &options) {
+ByteArray CoAPOption::serialize(const OptionArray &options) {
     ByteArray byteArray;
 
     for (int i = 0; i < options.size(); ++i) {
@@ -27,7 +24,7 @@ ByteArray Option::serialize(const OptionArray &options) {
     return byteArray;
 }
 
-ByteArray Option::serialize() const {
+ByteArray CoAPOption::serialize() const {
     ByteArray result;
 
     result += serializeExtendables();
@@ -36,12 +33,12 @@ ByteArray Option::serialize() const {
     return result;
 }
 
-OptionArray Option::deserialize(unsigned char *&buffer) {
+OptionArray CoAPOption::deserialize(unsigned char *&buffer, unsigned char* &buffer_end) {
     OptionArray optionArray;
     ByteArray value;
 
-    while (*buffer != PAYLOAD_MARKER) {
-        Option option;
+    while (buffer != buffer_end && *buffer != PAYLOAD_MARKER) {
+        CoAPOption option;
         deserializeExtendables(buffer, option);
         value = ByteArray(buffer, option.getLength());
         buffer += option.getLength();
@@ -52,11 +49,13 @@ OptionArray Option::deserialize(unsigned char *&buffer) {
         optionArray.pushBack(option);
     }
 
-    ++buffer;
+    if (buffer != buffer_end)
+        ++buffer;
+
     return optionArray;
 }
 
-Option &Option::operator=(const Option &option) {
+CoAPOption &CoAPOption::operator=(const CoAPOption &option) {
     if(&option != this) {
         header_.delta = option.header_.delta;
         header_.length = option.header_.length;
@@ -67,7 +66,7 @@ Option &Option::operator=(const Option &option) {
     return *this;
 }
 
-unsigned int Option::getDelta() const {
+unsigned int CoAPOption::getDelta() const {
     if (header_.delta < 13) {
         return header_.delta;
     }
@@ -79,21 +78,21 @@ unsigned int Option::getDelta() const {
     }
 }
 
-void Option::setDelta(unsigned int delta) {
+void CoAPOption::setDelta(unsigned int delta) {
     if (delta < 13) {
         header_.delta = (unsigned char) delta;
     }
     else if (delta < 269) {
         header_.delta = 13;
-        Option::delta = (unsigned int) (delta - 13);
+        CoAPOption::delta = (unsigned int) (delta - 13);
     }
     else {
         header_.delta = 14;
-        Option::delta = (unsigned int) (delta - 269);
+        CoAPOption::delta = (unsigned int) (delta - 269);
     }
 }
 
-unsigned int Option::getLength() const {
+unsigned int CoAPOption::getLength() const {
     if (header_.length < 13) {
         return header_.length;
     }
@@ -105,30 +104,30 @@ unsigned int Option::getLength() const {
     }
 }
 
-void Option::setLength(unsigned int length) {
+void CoAPOption::setLength(unsigned int length) {
     if (length < 13) {
         header_.length = (unsigned char) length;
     }
     else if (length < 269) {
         header_.length = 13;
-        Option::length = (unsigned int) (length - 13);
+        CoAPOption::length = (unsigned int) (length - 13);
     }
     else {
         header_.length = 14;
-        Option::length = (unsigned int) (length - 269);
+        CoAPOption::length = (unsigned int) (length - 269);
     }
 }
 
-const ByteArray &Option::getValue() const {
+const ByteArray &CoAPOption::getValue() const {
     return value_;
 }
 
-void Option::setValue(const ByteArray &value) {
-    Option::value_= value;
+void CoAPOption::setValue(const ByteArray &value) {
+    CoAPOption::value_= value;
     setLength((unsigned int) value.size());
 }
 
-ByteArray Option::serializeExtendables() const {
+ByteArray CoAPOption::serializeExtendables() const {
     ByteArray result;
     unsigned char char_buffer;
     unsigned char int_buffer[2];
@@ -160,7 +159,7 @@ ByteArray Option::serializeExtendables() const {
     return result;
 }
 
-void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
+void CoAPOption::deserializeExtendables(unsigned char *&buffer, CoAPOption &option) {
     memcpy(&option.header_, buffer, sizeof(option.header_));
     buffer += sizeof(option.header_);
 
@@ -190,7 +189,7 @@ void Option::deserializeExtendables(unsigned char *&buffer, Option &option) {
     }
 }
 
-const String Option::toString() const {
+const String CoAPOption::toString() const {
     String s;
   
     for(int i = 0; i < value_.size(); ++i){

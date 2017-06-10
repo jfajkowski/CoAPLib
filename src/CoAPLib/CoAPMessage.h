@@ -1,11 +1,10 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "Arduino.h"
 #include "Array.hpp"
-#include "Option.h"
+#include "CoAPOption.h"
 
-class Frame {
+class CoAPMessage {
 private:
     struct Header {
         unsigned int Ver : 2;
@@ -22,16 +21,17 @@ private:
     static void insert(unsigned char* &buffer, const Header &header);
     static void insert(unsigned char* &buffer, const ByteArray &bytes);
     static void insert(unsigned char* &buffer, const OptionArray &options);
-	static void extract(Header* header, unsigned char* buffer, unsigned int num);
+    static void extract(Header* header, unsigned char* &buffer, unsigned int num);
+    static OptionArray extract(unsigned char* &buffer, unsigned char* &buffer_end);
     static ByteArray extract(unsigned char *&buffer, unsigned int num);
     
     static const String toString(const ByteArray &byte_array);
     void print(const OptionArray &options);
 public:
-    Frame();
+    CoAPMessage();
 
     unsigned int serialize(unsigned char* buffer_begin);
-    static void deserialize(Frame* frame, unsigned char *buffer_begin, unsigned int num);
+    static void deserialize(CoAPMessage* frame, unsigned char *buffer_begin, unsigned int num);
 
     unsigned int getVer() const;
 

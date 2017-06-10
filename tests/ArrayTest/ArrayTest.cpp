@@ -1,5 +1,6 @@
-#include <ArduinoUnit.h>
-#include <CoAPLib.h>
+#include "Test.hpp"
+
+beginTest
 
 test(PushBackTest) {
     unsigned int expected_size = 0;
@@ -73,3 +74,5 @@ test(ConcatenateTest) {
         assertEqual(a[i], b[i - 10]);
     }
 }
+
+endTest

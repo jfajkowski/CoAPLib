@@ -1,6 +1,6 @@
 #include "CoAPHandler.h"
 
-void CoAPHandler::handleMessage(const Frame &frame) {
+void CoAPHandler::handleMessage(const CoAPMessage &frame) {
     switch (frame.getCode()){
         case 0 ... 4:
             handleRequest(frame);
@@ -21,7 +21,7 @@ void CoAPHandler::handleMessage(const Frame &frame) {
     }
 }
 
-void CoAPHandler::handleRequest(const Frame &frame) {
+void CoAPHandler::handleRequest(const CoAPMessage &frame) {
     switch (frame.getCode()){
         case 0:
             //if ack ping back (Do we need this?)
@@ -38,27 +38,27 @@ void CoAPHandler::handleRequest(const Frame &frame) {
     }
 }
 
-void CoAPHandler::handleSuccess(const Frame &frame) {
+void CoAPHandler::handleSuccess(const CoAPMessage &frame) {
 
 }
 
-void CoAPHandler::handleClientError(const Frame &frame) {
+void CoAPHandler::handleClientError(const CoAPMessage &frame) {
 
 }
 
-void CoAPHandler::handleServerError(const Frame &frame) {
+void CoAPHandler::handleServerError(const CoAPMessage &frame) {
 
 }
 
 
-void CoAPHandler::handleGet(const Frame &frame)
+void CoAPHandler::handleGet(const CoAPMessage &frame)
 {
     int iterator=0;
     int id=0;
     id+=frame.getOptions()[iterator].getDelta();
     if(id==11) //Uri-Path option
     {
-        Option uri_path_option=frame.getOptions()[iterator];
+        CoAPOption uri_path_option=frame.getOptions()[iterator];
         String path=uri_path_option.toString();
         //TODO: get resource specified by this path
         iterator++;
@@ -72,7 +72,7 @@ void CoAPHandler::handleGet(const Frame &frame)
         payload_value.pushBack('a');
         payload_value.pushBack('y');
 
-        Frame response=successResponse(frame, payload_value);
+        CoAPMessage response=successResponse(frame, payload_value);
         //TODO: send back/change methods to return response?
     }
     else{
@@ -80,13 +80,13 @@ void CoAPHandler::handleGet(const Frame &frame)
     }
 }
 
-void CoAPHandler::handlePut(const Frame &frame) {
+void CoAPHandler::handlePut(const CoAPMessage &frame) {
     int iterator=0;
     int id=0;
     id+=frame.getOptions()[iterator].getDelta();
     if(id==11) //Uri-Path option
     {
-        Option uri_path_option=frame.getOptions()[iterator];
+        CoAPOption uri_path_option=frame.getOptions()[iterator];
         String path=uri_path_option.toString();
         iterator++;
         id+=frame.getOptions()[iterator].getDelta();
@@ -105,7 +105,7 @@ void CoAPHandler::handlePut(const Frame &frame) {
             //TODO::try to format resource to specified content_format
         }
         ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
-        Frame response=successResponse(frame, mockupPayload);
+        CoAPMessage response=successResponse(frame, mockupPayload);
         //TODO: send back/change methods to return response?
     }
     else{
@@ -116,8 +116,8 @@ void CoAPHandler::handlePut(const Frame &frame) {
 
 
 
-Frame CoAPHandler::successResponse(const Frame &frame,ByteArray payload ){
-    Frame response;
+CoAPMessage CoAPHandler::successResponse(const CoAPMessage &frame,ByteArray payload ){
+    CoAPMessage response;
     response.setToken(frame.getToken());
     if (frame.getT()==0) //if CON
     {
@@ -133,7 +133,7 @@ Frame CoAPHandler::successResponse(const Frame &frame,ByteArray payload ){
         response.setCode(69); //if get then code: 2.05-content
     else if(frame.getCode()==3)
         response.setCode(68); //if put then code 2.04 -changed
-    Option content_format;
+    CoAPOption content_format;
     ByteArray content_format_value(1);
     content_format_value.pushBack(0);
     content_format.setDelta(12);
@@ -146,12 +146,12 @@ Frame CoAPHandler::successResponse(const Frame &frame,ByteArray payload ){
 
 }
 
-Frame CoAPHandler::successResponse(const Frame &frame){
+CoAPMessage CoAPHandler::successResponse(const CoAPMessage &frame){
     //TODO: request for comment-do we need this?
 }
 
-Frame CoAPHandler::badRequestResponse(const Frame &frame) {
-    Frame response;
+CoAPMessage CoAPHandler::badRequestResponse(const CoAPMessage &frame) {
+    CoAPMessage response;
     response.setToken(frame.getToken());
     if (frame.getT()==0) //if CON
     {

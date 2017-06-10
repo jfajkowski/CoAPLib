@@ -3,8 +3,9 @@
 
 #include "CoAPLib/Array.hpp"
 #include "CoAPLib/CoAPHandler.h"
+#include "CoAPLib/CoAPMessage.h"
+#include "CoAPLib/CoAPOption.h"
 #include "CoAPLib/Constants.h"
-#include "CoAPLib/Frame.h"
-#include "CoAPLib/Option.h"
+#include "CoAPLib/Environment.h"
 
 #endif //CoAPLib_h
