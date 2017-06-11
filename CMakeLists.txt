@@ -16,6 +16,7 @@ set(SOURCE_FILES
         src/CoAPLib/Environment.h)
 
 add_library(CoAPLib SHARED ${SOURCE_FILES})
+set_target_properties(CoAPLib PROPERTIES PREFIX "")
 
 enable_testing()
 

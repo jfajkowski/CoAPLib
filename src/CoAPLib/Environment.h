@@ -24,8 +24,17 @@
     #include <cstring>
     #include <string>
     #include <iostream>
+    #include <chrono>
 
     using namespace std;
+
+    static chrono::steady_clock::time_point begin_time = chrono::steady_clock::now();
+
+    static unsigned long millis() {
+        chrono::steady_clock::time_point now = chrono::steady_clock::now();
+
+        return (unsigned long) chrono::duration_cast<chrono::milliseconds>(now-begin_time).count();
+    }
 #endif
 
 #endif //ENVIRONMENT_H
