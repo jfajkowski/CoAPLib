@@ -109,8 +109,15 @@ const OptionArray &CoAPMessage::getOptions() const {
     return options_;
 }
 
-void CoAPMessage::addOption(unsigned int option_number, ByteArray option_value) {
-    // TODO
+void CoAPMessage::addOption(const CoAPOption &option) {
+    for (unsigned int i = 0; i < options_.size(); ++i) {
+        if (option.getNumber() < options_[i].getNumber()) {
+            options_.insert(option, i);
+            return;
+        }
+    }
+
+    options_.pushBack(option);
 }
 
 const ByteArray &CoAPMessage::getPayload() const {

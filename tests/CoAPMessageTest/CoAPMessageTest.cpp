@@ -84,4 +84,26 @@ test(FancyMessageDeserialization) {
     }
 }
 
+test(AddOptionTest) {
+    CoAPMessage message;
+    CoAPOption first(1, "FIRST");
+    CoAPOption second(100, "SECOND");
+    CoAPOption third(1000, "THIRD");
+    CoAPOption fourth(10000, "FOURTH");
+
+    message.addOption(second);
+    message.addOption(fourth);
+    message.addOption(third);
+    message.addOption(first);
+
+    assertEqual(message.getOptions()[0].getNumber(), first.getNumber());
+    assertEqual(message.getOptions()[0].getValue().size(), first.getValue().size());
+    assertEqual(message.getOptions()[1].getNumber(), second.getNumber());
+    assertEqual(message.getOptions()[1].getValue().size(), second.getValue().size());
+    assertEqual(message.getOptions()[2].getNumber(), third.getNumber());
+    assertEqual(message.getOptions()[2].getValue().size(), third.getValue().size());
+    assertEqual(message.getOptions()[3].getNumber(), fourth.getNumber());
+    assertEqual(message.getOptions()[3].getValue().size(), fourth.getValue().size());
+}
+
 endTest

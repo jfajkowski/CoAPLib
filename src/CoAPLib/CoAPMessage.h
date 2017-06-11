@@ -51,7 +51,7 @@ public:
     void setToken(const ByteArray &token);
 
     const OptionArray &getOptions() const;
-    void addOption(unsigned int option_number, ByteArray option_value);
+    void addOption(const CoAPOption &option);
 
     const ByteArray &getPayload() const;
     void setPayload(const ByteArray &payload);
