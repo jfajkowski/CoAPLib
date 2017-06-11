@@ -17,6 +17,32 @@ test(PushBackTest) {
     assertEqual(array[1], 2);
 }
 
+test(InsertIntoEmptyTest) {
+    unsigned int expected_size = 6;
+    ByteArray array;
+    array.insert(1,5);
+    unsigned int actual_size = array.size();
+    assertEqual(expected_size, actual_size);
+    assertEqual(array[5], 1);
+}
+
+test(InsertIntoFullTest) {
+    unsigned int expected_size = 5;
+    ByteArray array;
+    array.pushBack(0);
+    array.pushBack(0);
+    array.insert(1, 0);
+    array.insert(1, 2);
+    array.insert(1, 4);
+    unsigned int actual_size = array.size();
+    assertEqual(expected_size, actual_size);
+    assertEqual(array[0], 1);
+    assertEqual(array[1], 0);
+    assertEqual(array[2], 1);
+    assertEqual(array[3], 0);
+    assertEqual(array[4], 1);
+}
+
 test(CapacityTest) {
     unsigned int expected_capacity = 10;
     ByteArray array(expected_capacity);
@@ -24,14 +50,16 @@ test(CapacityTest) {
     assertEqual(expected_capacity, actual_capacity);
 }
 
-test(ConstructorFromUnsignedCharBufferTest) {
+test(DeserializeBufferTest) {
     unsigned int values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     unsigned int num = 10 * sizeof(unsigned int);
     unsigned char buffer[num];
+    unsigned char *buffer_begin = buffer;
 
     memcpy(&buffer, &values, num);
 
-    Array<unsigned int> array(&buffer, num);
+    Array<unsigned int> array;
+    array.deserialize(buffer_begin, num);
 
     for (int i = 0; i < 10; ++i) {
         assertEqual(i, array[i]);
@@ -42,10 +70,12 @@ test(AssignmentTest) {
     unsigned int values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     unsigned int num = 10 * sizeof(unsigned int);
     unsigned char buffer[num];
+    unsigned char *buffer_begin = buffer;
 
     memcpy(&buffer, &values, num);
 
-    Array<unsigned int> array(&buffer, num);
+    Array<unsigned int> array;
+    array.deserialize(buffer_begin, num);
     Array<unsigned int> copy(array);
 
     for (int i = 0; i < 10; ++i) {

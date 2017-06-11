@@ -16,12 +16,15 @@ private:
 public:
     Array();
     Array(unsigned int capacity);
-    Array(void* buffer, unsigned int num);
     Array(const Array & array);
 
     ~Array();
 
+    void serialize(unsigned char *cursor) const;
+    void deserialize(unsigned char *cursor, unsigned int num);
+
     void pushBack(const T &value);
+    void insert(const T &value, unsigned int index);
     void reserve(unsigned int new_capacity);
 
     Array &operator=(const Array & array);
@@ -44,13 +47,7 @@ Array<T>::Array(unsigned int capacity) : capacity_(capacity), size_(0), array_be
 }
 
 template <typename T>
-Array<T>::Array(void* buffer, unsigned int num) : size_(num/sizeof(T)), array_begin_(nullptr) {
-    reserve(size_);
-    memcpy(array_begin_, buffer, num);
-}
-
-template <typename T>
-Array<T>::Array(const Array & array) {
+Array<T>::Array(const Array &array) {
     T* new_array_begin = new T[array.capacity_];
 
     if(array.array_begin_!= nullptr) {
@@ -75,6 +72,36 @@ void Array<T>::pushBack(const T &value) {
     }
     array_begin_[size_] = value;
     ++size_;
+}
+
+template <typename T>
+void Array<T>::insert(const T &value, unsigned int index) {
+    unsigned int old_capacity = capacity_;
+    if (index + 1 > size_) {
+        if (index + 1 > capacity_)
+            capacity_ = index + 1;
+        size_ = index + 1;
+    }
+    else if (size_ == capacity_) {
+        ++capacity_;
+        ++size_;
+    }
+
+    T* new_array_begin = new T[capacity_];
+
+    if (array_begin_ != nullptr) {
+        for (int i = 0; i < index; ++i) {
+            new_array_begin[i] = array_begin_[i];
+        }
+
+        for (int i = index; i < old_capacity; ++i) {
+            new_array_begin[i + 1] = array_begin_[i];
+        }
+        delete[] array_begin_;
+    }
+
+    array_begin_ = new_array_begin;
+    array_begin_[index] = value;
 }
 
 template <typename T>
@@ -136,6 +163,18 @@ Array<T> &Array<T>::operator=(const Array<T> &array) {
         }
     }
     return *this;
+}
+
+template <typename T>
+void Array<T>::serialize(unsigned char *cursor) const {
+    memcpy(cursor, array_begin_, size_);
+}
+
+template <typename T>
+void Array<T>::deserialize(unsigned char *cursor, unsigned int num) {
+    reserve(num);
+    size_ = capacity_;
+    memcpy(array_begin_, cursor, num);
 }
 
 #endif //ARRAY_H

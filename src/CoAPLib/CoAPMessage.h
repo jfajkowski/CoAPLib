@@ -18,12 +18,13 @@ private:
     OptionArray options_;
     ByteArray payload_;
 
-    static void insert(unsigned char* &buffer, const Header &header);
-    static void insert(unsigned char* &buffer, const ByteArray &bytes);
-    static void insert(unsigned char* &buffer, const OptionArray &options);
-    static void extract(Header* header, unsigned char* &buffer, unsigned int num);
-    static OptionArray extract(unsigned char* &buffer, unsigned char* &buffer_end);
-    static ByteArray extract(unsigned char *&buffer, unsigned int num);
+    void insert(unsigned char* &cursor, const Header &header);
+    void insert(unsigned char* &cursor, const ByteArray &bytes);
+    void insert(unsigned char* &cursor, const OptionArray &options);
+    void extractHeader(unsigned char* &cursor, unsigned char* buffer_end);
+    void extractToken(unsigned char* &cursor, unsigned char* buffer_end);
+    void extractOptions(unsigned char* &cursor, unsigned char* buffer_end);
+    void extractPayload(unsigned char *&cursor, unsigned char* buffer_end);
     
     static const String toString(const ByteArray &byte_array);
     void print(const OptionArray &options);
@@ -31,7 +32,7 @@ public:
     CoAPMessage();
 
     unsigned int serialize(unsigned char* buffer_begin);
-    static void deserialize(CoAPMessage* frame, unsigned char *buffer_begin, unsigned int num);
+    void deserialize(unsigned char* buffer_begin, unsigned int num);
 
     unsigned int getVer() const;
 

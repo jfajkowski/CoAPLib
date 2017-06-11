@@ -42,7 +42,7 @@ static const unsigned int CODE_SERVICE_UNAVAILABLE = COAP_CODE(503);
 static const unsigned int CODE_GATEWAY_TIMEOUT = COAP_CODE(504);
 static const unsigned int CODE_PROXYING_NOT_SUPPORTED = COAP_CODE(505);
 
-// Header constants:
+// Message header constants:
 static const unsigned char MASK_VER = 0xC0;
 static const unsigned char MASK_T = 0x30;
 static const unsigned char MASK_TKL = 0x0F;
@@ -52,5 +52,12 @@ static const unsigned char OFFSET_VER = 6;
 static const unsigned char OFFSET_T = 4;
 static const unsigned char OFFSET_MESSAGE_ID = 8;
 
+// Option header constants:
+static const unsigned char MASK_DELTA = 0xF0;
+static const unsigned char MASK_LENGTH = 0x0F;
+static const unsigned char MASK_EXTENDABLE = 0x00FF;
+
+static const unsigned char OFFSET_DELTA = 4;
+static const unsigned char OFFSET_EXTENDABLE = 8;
 
 #endif //CODES_H

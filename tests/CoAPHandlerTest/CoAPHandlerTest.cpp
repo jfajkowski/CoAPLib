@@ -10,9 +10,7 @@ test(SuccessResponseTest){
     option_value.pushBack(1);
     option_value.pushBack(2);
     option_value.pushBack(3);
-    CoAPOption option1;
-    option1.setDelta(3);
-    option1.setValue(option_value);
+    CoAPOption option1(3, option_value);
     OptionArray optionArray(1);
     optionArray.pushBack(option1);
     //test_frame.setOptions(optionArray);

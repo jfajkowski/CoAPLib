@@ -5,59 +5,63 @@ CoAPMessage::CoAPMessage() {
 }
 
 unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) {
-    unsigned char* buffer = buffer_begin;
+    unsigned char* cursor = buffer_begin;
 
-    insert(buffer, header_);
-    insert(buffer, token_);
-    insert(buffer, options_);
-    insert(buffer, payload_);
+    insert(cursor, header_);
+    insert(cursor, token_);
+    insert(cursor, options_);
+    insert(cursor, payload_);
 
-    return (unsigned int) (buffer - buffer_begin);
+    return cursor - buffer_begin;
 }
 
-void CoAPMessage::insert(unsigned char *&buffer, const Header &header) {
-    *buffer = (header.Ver << OFFSET_VER) | (header.T << OFFSET_T) | header.TKL;
-	*++buffer = header.Code;
-	*++buffer = (unsigned char) (header.MessageId >> OFFSET_MESSAGE_ID);
-	*++buffer = (unsigned char) (header.MessageId & MASK_MESSAGE_ID);
+void CoAPMessage::insert(unsigned char* &cursor, const Header &header) {
+    *cursor = (header.Ver << OFFSET_VER) | (header.T << OFFSET_T) | header.TKL;
+	*++cursor = header.Code;
+	*++cursor = (unsigned char) (header.MessageId >> OFFSET_MESSAGE_ID);
+	*++cursor = (unsigned char) (header.MessageId & MASK_MESSAGE_ID);
 }
 
-void CoAPMessage::insert(unsigned char* &buffer, const OptionArray &options) {
-    insert(buffer, CoAPOption::serialize(options));
+void CoAPMessage::insert(unsigned char* &cursor, const ByteArray &bytes) {
+    bytes.serialize(cursor);
+    cursor += bytes.size();
 }
 
-void CoAPMessage::insert(unsigned char* &buffer, const ByteArray &bytes) {
-    memcpy(buffer, bytes.begin(), bytes.size());
-    buffer += bytes.size();
+void CoAPMessage::insert(unsigned char* &cursor, const OptionArray &options) {
+    options.serialize(cursor);
 }
 
-void CoAPMessage::deserialize(CoAPMessage* frame, unsigned char *buffer_begin, unsigned int num) {
-    unsigned char* buffer = buffer_begin;
+void CoAPMessage::deserialize(unsigned char *buffer_begin, unsigned int num) {
+    unsigned char* cursor = buffer_begin;
     unsigned char* buffer_end = buffer_begin + num;
 
-    extract(&frame->header_, buffer, sizeof(frame->header_));
-    frame->token_ = extract(buffer, frame->header_.TKL);
-    frame->options_ = extract(buffer, buffer_end);
-    frame->setPayload(extract(buffer, buffer_end - buffer));
+    extractHeader(cursor, buffer_end);
+    extractToken(cursor, buffer_end);
+    extractOptions(cursor, buffer_end);
+    extractPayload(cursor, buffer_end);
 }
 
-void CoAPMessage::extract(Header* header, unsigned char* &buffer, unsigned int num) {
-    header->Ver = (*buffer & MASK_VER) >> OFFSET_VER;
-    header->T = (*buffer & MASK_T) >> OFFSET_T;
-    header->TKL = (*buffer & MASK_TKL);
-    header->Code = (*++buffer);
-    header->MessageId = ((*++buffer) << OFFSET_MESSAGE_ID) | (*++buffer);
-    ++buffer;
+void CoAPMessage::extractHeader(unsigned char *&cursor, unsigned char* buffer_end) {
+    header_.Ver = (*cursor & MASK_VER) >> OFFSET_VER;
+    header_.T = (*cursor & MASK_T) >> OFFSET_T;
+    header_.TKL = (*cursor & MASK_TKL);
+    header_.Code = (*++cursor);
+    header_.MessageId = ((*++cursor) << OFFSET_MESSAGE_ID) | (*++cursor);
+    ++cursor;
 }
 
-OptionArray CoAPMessage::extract(unsigned char* &buffer, unsigned char* &buffer_end) {
-    return CoAPOption::deserialize(buffer, buffer_end);;
+void CoAPMessage::extractToken(unsigned char *&cursor, unsigned char* buffer_end) {
+    token_.deserialize(cursor, header_.TKL);
+    cursor += header_.TKL;
 }
 
-ByteArray CoAPMessage::extract(unsigned char* &buffer, unsigned int num) {
-    ByteArray result(buffer, num);
-    buffer += num;
-    return result;
+void CoAPMessage::extractOptions(unsigned char* &cursor, unsigned char* buffer_end) {
+    CoAPOption::deserialize(cursor, buffer_end, options_);
+}
+
+void CoAPMessage::extractPayload(unsigned char *&cursor, unsigned char* buffer_end) {
+    payload_.deserialize(cursor, buffer_end - cursor);
+    cursor += buffer_end - cursor;
 }
 
 unsigned int CoAPMessage::getVer() const {
@@ -158,7 +162,7 @@ const String CoAPMessage::toString(const ByteArray &byte_array) {
 void CoAPMessage::print(const OptionArray &options) {
     unsigned int option_code = 0; 
     for (int i = 0; i < options.size(); ++i) {
-        option_code += options[i].getDelta();
+        option_code += options[i].getNumber();
         PRINT("\t");
         PRINT(option_code);
         PRINT(": ");

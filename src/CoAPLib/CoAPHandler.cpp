@@ -55,14 +55,14 @@ void CoAPHandler::handleGet(const CoAPMessage &frame)
 {
     int iterator=0;
     int id=0;
-    id+=frame.getOptions()[iterator].getDelta();
+    id+= frame.getOptions()[iterator].getNumber();
     if(id==11) //Uri-Path option
     {
         CoAPOption uri_path_option=frame.getOptions()[iterator];
         String path=uri_path_option.toString();
         //TODO: get resource specified by this path
         iterator++;
-        id+=frame.getOptions()[iterator].getDelta();
+        id+= frame.getOptions()[iterator].getNumber();
         if(id==17)//Accept option
         {
             //TODO::try to format resource to specified content_format
@@ -83,13 +83,13 @@ void CoAPHandler::handleGet(const CoAPMessage &frame)
 void CoAPHandler::handlePut(const CoAPMessage &frame) {
     int iterator=0;
     int id=0;
-    id+=frame.getOptions()[iterator].getDelta();
+    id+= frame.getOptions()[iterator].getNumber();
     if(id==11) //Uri-Path option
     {
         CoAPOption uri_path_option=frame.getOptions()[iterator];
         String path=uri_path_option.toString();
         iterator++;
-        id+=frame.getOptions()[iterator].getDelta();
+        id+= frame.getOptions()[iterator].getNumber();
         if(id==12){ //Content-Format option
             //TODO: Interpret payload accordingly to Content-Format and update resource
         }
@@ -99,7 +99,7 @@ void CoAPHandler::handlePut(const CoAPMessage &frame) {
         }
         //get updated resource
         iterator++;
-        id+=frame.getOptions()[iterator].getDelta();
+        id+= frame.getOptions()[iterator].getNumber();
         if(id==17)//Accept option
         {
             //TODO::try to format resource to specified content_format
@@ -133,11 +133,9 @@ CoAPMessage CoAPHandler::successResponse(const CoAPMessage &frame,ByteArray payl
         response.setCode(69); //if get then code: 2.05-content
     else if(frame.getCode()==3)
         response.setCode(68); //if put then code 2.04 -changed
-    CoAPOption content_format;
     ByteArray content_format_value(1);
     content_format_value.pushBack(0);
-    content_format.setDelta(12);
-    content_format.setValue(content_format_value); //For now we assume payload is text/plain
+    CoAPOption content_format(12, content_format_value); //For now we assume payload is text/plain
     OptionArray optionArray(1);
     optionArray.pushBack(content_format);
     //response.addOption(optionArray);

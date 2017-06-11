@@ -8,36 +8,33 @@ class CoAPOption;
 typedef Array<CoAPOption> OptionArray;
 
 class CoAPOption {
-    struct Header {
-        unsigned char length : 4;
-        unsigned char delta : 4;
-    } header_;
-    unsigned int length;
-    unsigned int delta;
+    unsigned int number_;
     ByteArray value_;
 
-    ByteArray serialize() const;
-    ByteArray serializeExtendables() const;
-    static void deserializeExtendables(unsigned char *&buffer, CoAPOption &option);
+    void insert(unsigned char* &cursor, unsigned int delta, unsigned int length) const;
+    void insert(unsigned char* &cursor, const ByteArray &bytes) const;
+    void extractExtendables(unsigned char* &cursor, unsigned int &delta, unsigned int &length);
+    void extractValue(unsigned char* &cursor, unsigned int num);
 
-    void setLength(unsigned int length);
-
+    void prepareExtendable(unsigned char &header_value, unsigned int &extendable_value) const;
+    void insertHeaderValues(unsigned char* &cursor, unsigned char &header_delta, unsigned char &header_length) const;
+    void insertExtendableValue(unsigned char* &cursor, unsigned char header_value, unsigned int extendable_value) const;
+    void extractHeaderValues(unsigned char* &cursor, unsigned char &header_delta, unsigned char &header_length) const;
+    void extractExtendableValue(unsigned char* &cursor, unsigned char header_value, unsigned int &extendable_value);
 public:
     CoAPOption();
-    CoAPOption(unsigned int delta, String value);
+    CoAPOption(unsigned int number, String value);
+    CoAPOption(unsigned int number, ByteArray value);
 
-    static ByteArray serialize(const OptionArray &options);
-    static OptionArray deserialize(unsigned char* &buffer, unsigned char* &buffer_end);
+    static void serialize(unsigned char *&cursor, const OptionArray &options);
+    static void deserialize(unsigned char *&cursor, unsigned char *buffer_end, OptionArray &options);
+    void serialize(unsigned char* &cursor, unsigned int delta) const;
+    void deserialize(unsigned char* &cursor, unsigned char* &buffer_end, unsigned int delta_sum);
 
     CoAPOption &operator=(const CoAPOption & option);
 
-    unsigned int getDelta() const;
-    void setDelta(unsigned int delta);
-
-    unsigned int getLength() const;
-
+    unsigned int getNumber() const;
     const ByteArray &getValue() const;
-    void setValue(const ByteArray &value);
 
     const String toString() const;
 };

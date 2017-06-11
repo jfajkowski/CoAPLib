@@ -1,192 +1,157 @@
 #include "CoAPOption.h"
 
-CoAPOption::CoAPOption() : header_({0, 0}), length(0), delta(0) {}
+CoAPOption::CoAPOption() : number_(0), value_() {}
 
-CoAPOption::CoAPOption(unsigned int delta, String value) : CoAPOption() {
-    ByteArray byte_array(value.length());
+CoAPOption::CoAPOption(unsigned int number, String value) : CoAPOption() {
+    ByteArray value_bytes(value.length());
     for (int i = 0; i < value.length(); ++i) {
-        byte_array.pushBack((const unsigned char &) value[i]);
+        value_bytes.pushBack((const unsigned char &) value[i]);
     }
 
-    setDelta(delta);
-    setValue(byte_array);
+    number_ = number;
+    value_ = value_bytes;
 }
 
-ByteArray CoAPOption::serialize(const OptionArray &options) {
-    ByteArray byteArray;
+CoAPOption::CoAPOption(unsigned int number, ByteArray value) : number_(number), value_(value) {}
 
-    for (int i = 0; i < options.size(); ++i) {
-        byteArray += options[i].serialize();
+void CoAPOption::serialize(unsigned char *&cursor, const OptionArray &options) {
+    if (options.size() > 0) {
+        unsigned int delta = options[0].getNumber();
+        options[0].serialize(cursor, delta);
+
+        for (unsigned int i = 1; i < options.size(); ++i) {
+            delta = options[i].getNumber() - options[i - 1].getNumber();
+            options[i].serialize(cursor, delta);
+        }
     }
-
-    byteArray.pushBack(PAYLOAD_MARKER);
-
-    return byteArray;
 }
 
-ByteArray CoAPOption::serialize() const {
-    ByteArray result;
+void CoAPOption::deserialize(unsigned char *&cursor, unsigned char *buffer_end, OptionArray &options)  {
+    unsigned int delta_sum = 0;
 
-    result += serializeExtendables();
-    result += value_;
-
-    return result;
-}
-
-OptionArray CoAPOption::deserialize(unsigned char *&buffer, unsigned char* &buffer_end) {
-    OptionArray optionArray;
-    ByteArray value;
-
-    while (buffer != buffer_end && *buffer != PAYLOAD_MARKER) {
+    while (cursor != buffer_end && *cursor != PAYLOAD_MARKER) {
         CoAPOption option;
-        deserializeExtendables(buffer, option);
-        value = ByteArray(buffer, option.getLength());
-        buffer += option.getLength();
+        option.deserialize(cursor, buffer_end, delta_sum);
+        options.pushBack(option);
 
-        option.setDelta(option.getDelta());
-        option.setValue(value);
-
-        optionArray.pushBack(option);
+        delta_sum = option.getNumber();
     }
 
-    if (buffer != buffer_end)
-        ++buffer;
+    if (cursor != buffer_end)
+        ++cursor;
+}
 
-    return optionArray;
+void CoAPOption::serialize(unsigned char* &cursor, unsigned int delta) const {
+    insert(cursor, delta, value_.size());
+    insert(cursor, value_);
+}
+
+void CoAPOption::insert(unsigned char* &cursor, unsigned int delta, unsigned int length) const {
+    unsigned char header_delta = 0;
+    unsigned char header_length = 0;
+
+    prepareExtendable(header_delta, delta);
+    prepareExtendable(header_length, length);
+
+    insertHeaderValues(cursor, header_delta, header_length);
+    insertExtendableValue(cursor, header_delta, delta);
+    insertExtendableValue(cursor, header_length, length);
+}
+
+void CoAPOption::prepareExtendable(unsigned char &header_value, unsigned int &extendable_value) const {
+    if (extendable_value < 13) {
+        header_value = (unsigned char) extendable_value;
+        extendable_value = 0;
+    }
+    else if (extendable_value < 269) {
+        header_value = 13;
+        extendable_value -= 13;
+    }
+    else {
+        header_value = 14;
+        extendable_value -= 269;
+    }
+}
+
+void CoAPOption::insertHeaderValues(unsigned char* &cursor, unsigned char &header_delta, unsigned char &header_length) const {
+    *cursor = (header_delta << OFFSET_DELTA) & MASK_DELTA | (header_length & MASK_LENGTH);
+    ++cursor;
+}
+
+void CoAPOption::insertExtendableValue(unsigned char* &cursor, unsigned char header_value, unsigned int extendable_value) const {
+    if (header_value == 13) {
+        return;
+    }
+    else if (header_value == 14) {
+        *cursor = extendable_value;
+    }
+    else {
+        *cursor = (extendable_value >> OFFSET_EXTENDABLE) & MASK_EXTENDABLE;
+        *++cursor = extendable_value & MASK_EXTENDABLE;
+    }
+    ++cursor;
+}
+
+void CoAPOption::insert(unsigned char* &cursor, const ByteArray &bytes) const {
+    bytes.serialize(cursor);
+}
+
+void CoAPOption::deserialize(unsigned char* &cursor, unsigned char* &buffer_end, unsigned int delta_sum) {
+    unsigned int delta = 0;
+    unsigned int length = 0;
+    
+    extractExtendables(cursor, delta, length);
+    extractValue(cursor, length);
+    number_ = delta_sum + delta;
+}
+
+void CoAPOption::extractExtendables(unsigned char *&cursor, unsigned int &delta, unsigned int &length) {
+    unsigned char header_delta = 0;
+    unsigned char header_length = 0;
+
+    extractHeaderValues(cursor, header_delta, header_length);
+    extractExtendableValue(cursor, header_delta, delta);
+    extractExtendableValue(cursor, header_length, length);
+}
+
+void CoAPOption::extractHeaderValues(unsigned char* &cursor, unsigned char &header_delta, unsigned char &header_length) const {
+    header_delta = (*cursor & MASK_DELTA) >> OFFSET_DELTA;
+    header_length = *cursor & MASK_LENGTH;
+    ++cursor;
+}
+
+void CoAPOption::extractExtendableValue(unsigned char *&cursor, unsigned char header_value, unsigned int &extendable_value) {
+    if (header_value < 13) {
+        extendable_value = header_value;
+    }
+    else if (header_value == 13) {
+        extendable_value += 13;
+    }
+    else if (header_value == 14) {
+        extendable_value += 269;
+    }
+}
+
+
+void CoAPOption::extractValue(unsigned char *&cursor, unsigned int num) {
+    value_.deserialize(cursor, num);
+    cursor += num;
 }
 
 CoAPOption &CoAPOption::operator=(const CoAPOption &option) {
     if(&option != this) {
-        header_.delta = option.header_.delta;
-        header_.length = option.header_.length;
-        delta = option.delta;
-        length = option.length;
+        number_ = option.number_;
         value_ = option.value_;
     }
     return *this;
 }
 
-unsigned int CoAPOption::getDelta() const {
-    if (header_.delta < 13) {
-        return header_.delta;
-    }
-    else if (header_.delta == 13) {
-        return (unsigned int) (delta + 13);
-    }
-    else {
-        return (unsigned int) (delta + 269);
-    }
-}
-
-void CoAPOption::setDelta(unsigned int delta) {
-    if (delta < 13) {
-        header_.delta = (unsigned char) delta;
-    }
-    else if (delta < 269) {
-        header_.delta = 13;
-        CoAPOption::delta = (unsigned int) (delta - 13);
-    }
-    else {
-        header_.delta = 14;
-        CoAPOption::delta = (unsigned int) (delta - 269);
-    }
-}
-
-unsigned int CoAPOption::getLength() const {
-    if (header_.length < 13) {
-        return header_.length;
-    }
-    else if (header_.length == 13) {
-        return (unsigned int) (length + 13);
-    }
-    else {
-        return (unsigned int) (length + 269);
-    }
-}
-
-void CoAPOption::setLength(unsigned int length) {
-    if (length < 13) {
-        header_.length = (unsigned char) length;
-    }
-    else if (length < 269) {
-        header_.length = 13;
-        CoAPOption::length = (unsigned int) (length - 13);
-    }
-    else {
-        header_.length = 14;
-        CoAPOption::length = (unsigned int) (length - 269);
-    }
+unsigned int CoAPOption::getNumber() const {
+    return number_;
 }
 
 const ByteArray &CoAPOption::getValue() const {
     return value_;
-}
-
-void CoAPOption::setValue(const ByteArray &value) {
-    CoAPOption::value_= value;
-    setLength((unsigned int) value.size());
-}
-
-ByteArray CoAPOption::serializeExtendables() const {
-    ByteArray result;
-    unsigned char char_buffer;
-    unsigned char int_buffer[2];
-
-    memcpy(&char_buffer, &header_, sizeof(header_));
-    result.pushBack(char_buffer);
-
-    if (header_.length == 13) {
-        char_buffer = (unsigned char) length;
-        result.pushBack(char_buffer);
-    }
-    else if (header_.length == 14) {
-        memcpy(&int_buffer, &length, sizeof(unsigned int));
-        result.pushBack(int_buffer[0]);
-        result.pushBack(int_buffer[1]);
-    }
-
-
-    if (header_.delta == 13) {
-        char_buffer = (unsigned char) delta;
-        result.pushBack(char_buffer);
-    }
-    else if (header_.delta == 14) {
-        memcpy(&int_buffer, &delta, sizeof(unsigned int));
-        result.pushBack(int_buffer[0]);
-        result.pushBack(int_buffer[1]);
-    }
-
-    return result;
-}
-
-void CoAPOption::deserializeExtendables(unsigned char *&buffer, CoAPOption &option) {
-    memcpy(&option.header_, buffer, sizeof(option.header_));
-    buffer += sizeof(option.header_);
-
-    unsigned char char_buffer;
-    unsigned int int_buffer;
-
-    if (option.header_.length == 13) {
-        memcpy(&char_buffer, buffer, sizeof(char_buffer));
-        buffer += sizeof(char_buffer);
-        option.length = char_buffer;
-    }
-    else if (option.header_.length == 14) {
-        memcpy(&int_buffer, buffer, sizeof(int_buffer));
-        buffer += sizeof(int_buffer);
-        option.length = int_buffer;
-    }
-
-    if (option.header_.delta == 13) {
-        memcpy(&char_buffer, buffer, sizeof(char_buffer));
-        buffer += sizeof(char_buffer);
-        option.delta = char_buffer;
-    }
-    else if (option.header_.delta == 14) {
-        memcpy(&int_buffer, buffer, sizeof(int_buffer));
-        buffer += sizeof(int_buffer);
-        option.delta = int_buffer;
-    }
 }
 
 const String CoAPOption::toString() const {
