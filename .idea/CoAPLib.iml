@@ -2,7 +2,7 @@
 <module classpath="CMake" type="CPP_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python facet">
-      <configuration sdkName="Python 3.6.0 (C:\Users\Jakub\AppData\Local\Programs\Python\Python36\python.exe)" />
+      <configuration sdkName="" />
     </facet>
   </component>
 </module>
