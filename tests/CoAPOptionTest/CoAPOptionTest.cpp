@@ -48,37 +48,6 @@ test(MultipleOptionsWithPayloadMarkerDeserializationTest) {
     assertEqual(option_array[1].getValue().size(), 1);
 }
 
-/*test(GetterAndSetterTest) {
-    CoAPOption option;
-
-    int expected_ten = 10;
-        option.setNumber(expected_ten);
-    assertEqual(expected_ten, option.getNumber());
-    int expected_hundred = 100;
-        option.setNumber(expected_hundred);
-    assertEqual(expected_hundred, option.getNumber());
-    int expected_thousand = 1000;
-        option.setNumber(expected_thousand);
-    assertEqual(expected_thousand, option.getNumber());
-
-    ByteArray ten_length;
-    ByteArray one_hundred_length;
-    ByteArray three_hundred_length;
-
-    for (int i = 0; i < 300; ++i) {
-        if (i % 100 == 0) ten_length.pushBack(i);
-        if (i % 10 == 0) one_hundred_length.pushBack(i);
-        three_hundred_length.pushBack(i);
-    }
-
-    option.setValue(ten_length);
-    assertEqual(ten_length.size(), option.getLength());
-    option.setValue(one_hundred_length);
-    assertEqual(one_hundred_length.size(), option.getLength());
-    option.setValue(three_hundred_length);
-    assertEqual(three_hundred_length.size(), option.getLength());
-}*/
-
 test(SingleOptionStringConversionTest) {
     String expected("Test value!");
   
