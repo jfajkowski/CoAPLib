@@ -1,8 +1,19 @@
 #include "Test.hpp"
 
+static void assertProperlySerialized(const CoAPMessage &message, const unsigned char *buffer,
+                                     const unsigned int buffer_size) {
+    unsigned char actual_buffer[buffer_size];
+    unsigned char* actual_buffer_begin = actual_buffer;
+    message.serialize(actual_buffer_begin);
+
+    for (unsigned int i = 0; i < buffer_size; ++i) {
+        assertEqual(buffer[i], actual_buffer[i]);
+    }
+}
+
 beginTest
 
-test(PingMessageDeserialization) {
+test(PingMessage) {
 	unsigned int buffer_size = 4;
 	unsigned char buffer[] = {0x40, 0x00, 0x5e, 0xb7};
 	
@@ -14,9 +25,11 @@ test(PingMessageDeserialization) {
 	assertEqual(message.getTKL(), 0);
 	assertEqual(message.getCode(), CODE_EMPTY);
 	assertEqual(message.getMessageId(), 24247);
+
+    assertProperlySerialized(message, buffer, buffer_size);
 }
 
-test(OptionsMessageDeserialization) {
+test(OptionsMessage) {
     unsigned int buffer_size = 15;
     unsigned char buffer[] = {0x40, 0x01, 0x24, 0x63, 0xb8, 0x73,
                 0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e, 0xc1, 0x02};
@@ -34,9 +47,11 @@ test(OptionsMessageDeserialization) {
     assertEqual(message.getOptions()[0].getValue().size(), 8);
     assertEqual(message.getOptions()[1].getNumber(), 23);
     assertEqual(message.getOptions()[1].getValue().size(), 1);
+
+    assertProperlySerialized(message, buffer, buffer_size);
 }
 
-test(FancyMessageDeserialization) {
+test(OptionsAndPayloadMessage) {
     unsigned int buffer_size = 82;
     unsigned char buffer[] = {0x60, 0x45, 0x61, 0x91, 0x48, 0xde, 0xea, 0x9a, 0x3e,
                               0x0e, 0xda, 0xc4, 0x9b, 0x81, 0x28, 0xb1, 0xaa, 0xff,
@@ -82,9 +97,11 @@ test(FancyMessageDeserialization) {
     for (int i = 0; i < message.getPayload().size(); ++i) {
         assertEqual(message.getPayload()[i], expected_payload[i]);
     }
+
+    assertProperlySerialized(message, buffer, buffer_size);
 }
 
-test(AddOptionTest) {
+test(OptionsAdding) {
     CoAPMessage message;
     CoAPOption first(1, "FIRST");
     CoAPOption second(100, "SECOND");

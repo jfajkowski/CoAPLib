@@ -4,31 +4,38 @@ CoAPMessage::CoAPMessage() {
     header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
 }
 
-unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) {
+unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) const {
     unsigned char* cursor = buffer_begin;
 
     insert(cursor, header_);
     insert(cursor, token_);
     insert(cursor, options_);
+    insert(cursor, PAYLOAD_MARKER);
     insert(cursor, payload_);
 
     return cursor - buffer_begin;
 }
 
-void CoAPMessage::insert(unsigned char* &cursor, const Header &header) {
+void CoAPMessage::insert(unsigned char* &cursor, const Header &header) const {
     *cursor = (header.Ver << OFFSET_VER) | (header.T << OFFSET_T) | header.TKL;
 	*++cursor = header.Code;
-	*++cursor = (unsigned char) (header.MessageId >> OFFSET_MESSAGE_ID);
-	*++cursor = (unsigned char) (header.MessageId & MASK_MESSAGE_ID);
+	*++cursor = header.MessageId >> OFFSET_MESSAGE_ID;
+	*++cursor = header.MessageId & MASK_MESSAGE_ID;
+    ++cursor;
 }
 
-void CoAPMessage::insert(unsigned char* &cursor, const ByteArray &bytes) {
+void CoAPMessage::insert(unsigned char* &cursor, const ByteArray &bytes) const {
     bytes.serialize(cursor);
     cursor += bytes.size();
 }
 
-void CoAPMessage::insert(unsigned char* &cursor, const OptionArray &options) {
-    options.serialize(cursor);
+void CoAPMessage::insert(unsigned char* &cursor, const OptionArray &options) const {
+    CoAPOption::serialize(cursor, options);
+}
+
+void CoAPMessage::insert(unsigned char *&cursor, unsigned char value) const {
+    *cursor = value;
+    ++cursor;
 }
 
 void CoAPMessage::deserialize(unsigned char *buffer_begin, unsigned int num) {

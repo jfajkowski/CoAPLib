@@ -18,9 +18,10 @@ private:
     OptionArray options_;
     ByteArray payload_;
 
-    void insert(unsigned char* &cursor, const Header &header);
-    void insert(unsigned char* &cursor, const ByteArray &bytes);
-    void insert(unsigned char* &cursor, const OptionArray &options);
+    void insert(unsigned char* &cursor, const Header &header) const;
+    void insert(unsigned char* &cursor, const ByteArray &bytes) const;
+    void insert(unsigned char* &cursor, const OptionArray &options) const;
+    void insert(unsigned char* &cursor, unsigned char value) const;
     void extractHeader(unsigned char* &cursor, unsigned char* buffer_end);
     void extractToken(unsigned char* &cursor, unsigned char* buffer_end);
     void extractOptions(unsigned char* &cursor, unsigned char* buffer_end);
@@ -31,7 +32,7 @@ private:
 public:
     CoAPMessage();
 
-    unsigned int serialize(unsigned char* buffer_begin);
+    unsigned int serialize(unsigned char* buffer_begin) const;
     void deserialize(unsigned char* buffer_begin, unsigned int num);
 
     unsigned int getVer() const;

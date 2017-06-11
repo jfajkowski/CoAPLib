@@ -79,21 +79,23 @@ void CoAPOption::insertHeaderValues(unsigned char* &cursor, unsigned char &heade
 }
 
 void CoAPOption::insertExtendableValue(unsigned char* &cursor, unsigned char header_value, unsigned int extendable_value) const {
-    if (header_value == 13) {
+    if (header_value < 13) {
         return;
     }
-    else if (header_value == 14) {
+    else if (header_value == 13) {
         *cursor = extendable_value;
     }
-    else {
+    else if (header_value == 14) {
         *cursor = (extendable_value >> OFFSET_EXTENDABLE) & MASK_EXTENDABLE;
         *++cursor = extendable_value & MASK_EXTENDABLE;
     }
+
     ++cursor;
 }
 
 void CoAPOption::insert(unsigned char* &cursor, const ByteArray &bytes) const {
     bytes.serialize(cursor);
+    cursor += bytes.size();
 }
 
 void CoAPOption::deserialize(unsigned char* &cursor, unsigned char* &buffer_end, unsigned int delta_sum) {
