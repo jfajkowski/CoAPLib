@@ -17,7 +17,7 @@ private:
     void handlePut(CoAPMessage &message);
     void handleBadRequest(CoAPMessage &message);
 
-    RadioMessage* createRadioMessage(unsigned int message_id, int code, String uri) const;
+    RadioMessage* createRadioMessage(unsigned short message_id, int code, String uri) const;
 
 public:
     ServerCoAPHandler() : coAP_message_to_send_(nullptr), radio_message_to_send_(nullptr) {}

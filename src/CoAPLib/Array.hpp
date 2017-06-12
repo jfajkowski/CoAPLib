@@ -26,7 +26,7 @@ public:
     void pushBack(const T &value);
     const T popBack();
     void insert(const T &value, unsigned int index);
-    const T erase(unsigned int index);
+    const T pop(unsigned int index);
     void reserve(unsigned int new_capacity);
 
     Array &operator=(const Array & array);
@@ -37,7 +37,7 @@ public:
     unsigned int capacity() const;
 
     T *begin() const;
-    T *end(); //TODO: if size=capacity iterator will point at memory that does not belong to array, but reallocating can lead to unexpected behaviour when end() is called
+    T *end() const;
 };
 
 template <typename T>
@@ -78,16 +78,26 @@ void Array<T>::pushBack(const T &value) {
 }
 
 template<typename T>
-const T Array<T>::popBack() {
+const T Array<T>::popBack() { //TODO: add resizing when size is less than half of the capacity
     T element = array_begin_[size_ - 1];
     --size_;
     return element;
 }
 
 template<typename T>
-const T Array<T>::erase(unsigned int index) {
-    //TODO:implement
-    return T();
+const T Array<T>::pop(unsigned int index) { //TODO: add resizing when size is less than half of the capacity
+    T element = array_begin_[index];
+    T* iterator1 = array_begin_ + index;
+    T* iterator2 = array_begin_ + index + 1;
+    T* end = Array<T>::end();
+
+    while(iterator2 != end) {
+        *iterator1 = *iterator2;
+        iterator1++;
+        iterator2++;
+    }
+    --size_;
+    return element;
 }
 
 template <typename T>
@@ -169,7 +179,7 @@ T *Array<T>::begin() const {
 }
 
 template <typename T>
-T *Array<T>::end() {
+T *Array<T>::end() const {
     return &array_begin_[size_];
 }
 

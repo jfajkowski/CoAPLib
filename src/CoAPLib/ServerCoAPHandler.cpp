@@ -62,7 +62,7 @@ void ServerCoAPHandler::handleGet(CoAPMessage &message) {
     //TODO: what if there are no options?
 }
 
-RadioMessage* ServerCoAPHandler::createRadioMessage(unsigned int message_id, int code, String uri) const {
+RadioMessage* ServerCoAPHandler::createRadioMessage(unsigned short message_id, int code, String uri) const {
     RadioMessage* message = new RadioMessage();
     message->message_id = message_id;
     //TODO: translate uri to resource code and change message.resource = 0
@@ -86,9 +86,9 @@ RadioMessage* ServerCoAPHandler::createRadioMessage(unsigned int message_id, int
 
 void ServerCoAPHandler::createResponse(RadioMessage &radioMessage) {
     CoAPMessage message;
-    for(int i = 0; i < pending_messages_.size(); ++i) {
+    for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].getMessageId() == radioMessage.message_id)
-            message = pending_messages_[i]; //TODO: delete from Array
+            message = pending_messages_.pop(i);
     }
 
     CoAPMessage* response = new CoAPMessage();
@@ -113,7 +113,7 @@ void ServerCoAPHandler::createResponse(RadioMessage &radioMessage) {
     response->addOption(content_format);
 
     ByteArray payload;
-    payload.pushBack(radioMessage.value); //TODO: fix for strings
+    payload.pushBack(radioMessage.value);
     response->setPayload(payload);
     coAP_message_to_send_ = response;
 }
