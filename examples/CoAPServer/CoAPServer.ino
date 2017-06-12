@@ -39,52 +39,67 @@ static struct OnRadioMessageToSend : public RadioMessageListener {
 CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
 unsigned short local_port = 10000;
 
+unsigned short lamp_value = 1;
+unsigned short speaker_value = 1;
+
 void setup() {
-    Serial.begin(9600);
     Ethernet.begin(mac, ip);
     Serial.println(Ethernet.localIP());
     Udp.begin(local_port);
     radio.begin();
     network.begin(channel, this_node_id);
+
+    Serial.begin(9600);
+    Serial.println("Rise and shine...");
 }
 
 void loop() {
+    Serial.print("LAMP: ");
+    Serial.println(lamp_value);
+    onRadioMessageToSend({0, PUT, LAMP, lamp_value++});
     Serial.println("Loop beginning");
     network.update();
     while (network.available()) {
-        RadioMessage receivedMessage;
-        network.read(header, &receivedMessage, sizeof(receivedMessage));
-        Serial.print("Radio message read");
-        coAPHandler.createResponse(receivedMessage);
-        Serial.print("Created response to radio message");
-    }
+       }
 
-    unsigned int packet_size = Udp.parsePacket();
-    if (packet_size) {
-        CoAPMessage message;
-        message.deserialize(packet_buffer, packet_size);
-        coAPHandler.handleMessage(message);
+    delay(1000);
 
-        //mocking radio response
-        RadioMessage radioMessageMock;
-        radioMessageMock.message_id = (unsigned short)message.getMessageId();
-        radioMessageMock.code = message.getCode();
-        radioMessageMock.resource = 0;
-        radioMessageMock.value = 20;
-        Serial.println("Mocking radio message");
-        coAPHandler.createResponse(radioMessageMock);
-        Serial.println("Mocking radio message");
+    Serial.print("SPEAKER: ");
+    Serial.println(speaker_value);
+    onRadioMessageToSend({0, PUT, SPEAKER, speaker_value++});
 
-        Serial.print("Received: ");
-        Serial.print(packet_size);
-        Serial.println(" bytes.");
-        Udp.read(packet_buffer, MAX_BUFFER);
+    delay(1000);
 
-        for (int i = 0; i < packet_size; ++i) {
-            Serial.print(packet_buffer[i]);
-            Serial.print(" ");
-        }
+    if (lamp_value == 255)
+        lamp_value = 1;
+    if (speaker_value == 255)
+        speaker_value = 1;
 
-        Serial.println();
-    }
+//    network.update();
+//    while (network.available()) {
+//         RadioMessage receivedMessage;
+//    network.read(header, &receivedMessage, sizeof(receivedMessage));
+//    Serial.print("Radio message read");
+//    coAPHandler.createResponse(receivedMessage);
+//    Serial.print("Created response to radio message");
+//    }
+//
+//    unsigned int packet_size = Udp.parsePacket();
+//    if (packet_size) {
+//        CoAPMessage message;
+//        message.deserialize(packet_buffer, packet_size);
+//        coAPHandler.handleMessage(message);
+//
+//        Serial.print("Received: ");
+//        Serial.print(packet_size);
+//        Serial.println(" bytes.");
+//        Udp.read(packet_buffer, MAX_BUFFER);
+//
+//        for (int i = 0; i < packet_size; ++i) {
+//            Serial.print(packet_buffer[i]);
+//            Serial.print(" ");
+//        }
+//
+//        Serial.println();
+//    }
 }
