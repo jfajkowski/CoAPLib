@@ -120,9 +120,8 @@ test(ConcatenateTest) {
         assertEqual(begin, end);
     }
 
-    test(PopTest) {
+    test(PopBackTest) {
         OptionArray array(2);
-        assertEqual(array.capacity(), 2);
         array.pushBack(CoAPOption(1, "1st"));
         array.pushBack(CoAPOption(2, "2nd"));
         assertEqual(array.size(), 2);
@@ -134,6 +133,31 @@ test(ConcatenateTest) {
         assertEqual(option.getNumber(), 1);
         assertEqual(array.size(), 0);
         assertEqual(array.capacity(), 2);
+    }
+
+    test(PopTest) {
+        OptionArray array(2);
+        array.pushBack(CoAPOption(1, "1st"));
+        array.pushBack(CoAPOption(2, "2nd"));
+        assertEqual(array.size(), 2);
+        assertEqual(array.capacity(), 2);
+        CoAPOption option = array.pop(0);
+        assertEqual(option.getNumber(), 1);
+        assertEqual(array.begin()->getNumber(), 2);
+        assertEqual(array.capacity(), 2);
+        assertEqual(array.size(), 1);
+
+        array.pushBack(CoAPOption(3, "3rd"));
+        array.pushBack(CoAPOption(4, "4th"));
+        // now array is {2, 3, 4}
+        assertEqual(array.capacity(), 3);
+        assertEqual(array.size(), 3);
+        option = array.pop(1);
+        // should be {2, 4}
+        assertEqual(option.getNumber(), 3);
+        assertEqual(array.begin()->getNumber(), 2);
+        assertEqual(array.capacity(), 3);
+        assertEqual(array.size(), 2);
     }
 
 endTest
