@@ -1,4 +1,5 @@
 #include <CoAPLib.h>
+#include <RadioLib.h>
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -18,7 +19,7 @@ RF24NetworkHeader header(peer_node_id);
 EthernetUDP Udp;
 RF24 radio(7, 8);
 RF24Network network(radio);
-ServerCoAPHandler coAPHandler;
+CoAPHandler coAPHandler;
 unsigned short local_port = 10000;
 
 void setup() {
@@ -37,20 +38,6 @@ void loop() {
         network.read(header, &receivedMessage, sizeof(receivedMessage));
         coAPHandler.createResponse(receivedMessage);
     }
-
-
-    CoAPMessage* coAPMessage = coAPHandler.popCoAPMessageToSend();
-    RadioMessage* radioMessage = coAPHandler.popRadioMessageToSend();
-
-    if(coAPMessage != nullptr) {
-        sendCoAPMessage(*coAPMessage);
-        delete coAPMessage;
-    }
-    if(radioMessage != nullptr) {
-        sendRadioMessage(*radioMessage);
-        delete radioMessage; //TODO: will it prevent from memory leaks and seg faults?
-    }
-
 
     unsigned int packet_size = Udp.parsePacket();
     if (packet_size) {
@@ -72,7 +59,7 @@ void loop() {
     }
 }
 
-void sendCoAPMessage(CoAPMessage &message) { //TODO: test
+void sendCoAPMessage(const CoAPMessage &message) { //TODO: test
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     unsigned char buffer[MAX_BUFFER];
     unsigned int size = message.serialize(buffer);
@@ -80,6 +67,6 @@ void sendCoAPMessage(CoAPMessage &message) { //TODO: test
     Udp.endPacket();
 }
 
-void sendRadioMessage(RadioMessage &message) { //TODO: test
+void sendRadioMessage(const RadioMessage &message) { //TODO: test
     network.write(header, &message, sizeof(message));
 }

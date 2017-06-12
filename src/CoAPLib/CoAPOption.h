@@ -2,7 +2,7 @@
 #define OPTION_H
 
 #include "Array.hpp"
-#include "Constants.h"
+#include "CoAPConstants.h"
 
 class CoAPOption;
 typedef Array<CoAPOption> OptionArray;

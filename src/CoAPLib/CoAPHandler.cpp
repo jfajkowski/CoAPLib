@@ -1,6 +1,6 @@
-#include "ServerCoAPHandler.h"
+#include "CoAPHandler.h"
 
-void ServerCoAPHandler::handleMessage(CoAPMessage &message) {
+void CoAPHandler::handleMessage(CoAPMessage &message) {
     switch (message.getCode()){
         case CODE_EMPTY ... CODE_DELETE:
             handleRequest(message);
@@ -20,7 +20,7 @@ void ServerCoAPHandler::handleMessage(CoAPMessage &message) {
     }
 }
 
-void ServerCoAPHandler::handleRequest(CoAPMessage &message) {
+void CoAPHandler::handleRequest(CoAPMessage &message) {
     switch (message.getCode()) {
         case CODE_EMPTY:
             //PING
@@ -37,7 +37,7 @@ void ServerCoAPHandler::handleRequest(CoAPMessage &message) {
     }
 }
 
-void ServerCoAPHandler::handleGet(CoAPMessage &message) {
+void CoAPHandler::handleGet(CoAPMessage &message) {
 
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
@@ -48,9 +48,9 @@ void ServerCoAPHandler::handleGet(CoAPMessage &message) {
 
         switch(option_id) {
             case 11: //Uri-Path option
-                radio_message_to_send_ = createRadioMessage(message.getMessageId(),
-                                                            message.getCode(),
-                                                            iterator->toString());
+                sendRadioMessage(prepareRadioMessage(message.getMessageId(),
+                                                     message.getCode(),
+                                                     iterator->toString()));
                 pending_messages_.pushBack(message); //TODO: pushing back a copy, what about original?
                 break;
             default:
@@ -62,19 +62,19 @@ void ServerCoAPHandler::handleGet(CoAPMessage &message) {
     //TODO: what if there are no options?
 }
 
-RadioMessage* ServerCoAPHandler::createRadioMessage(unsigned int message_id, int code, String uri) const {
-    RadioMessage* message = new RadioMessage();
-    message->message_id = message_id;
+RadioMessage CoAPHandler::prepareRadioMessage(unsigned short message_id, unsigned short code, String uri) const {
+    RadioMessage message;
+    message.message_id = message_id;
     //TODO: translate uri to resource code and change message.resource = 0
 
     switch(code) {
         case CODE_GET:
-            message->code = 1; //GET
-            message->resource = 0; //lamp
+            message.code = 1; //GET
+            message.resource = 0; //lamp
             break;
         case CODE_PUT:
-            message->code = 0; //PUT
-            message->resource = 0; //lamp
+            message.code = 0; //PUT
+            message.resource = 0; //lamp
             //message.value = ?
             break;
         default:
@@ -84,41 +84,41 @@ RadioMessage* ServerCoAPHandler::createRadioMessage(unsigned int message_id, int
     return message;
 }
 
-void ServerCoAPHandler::createResponse(RadioMessage &radioMessage) {
+void CoAPHandler::createResponse(RadioMessage &radioMessage) {
     CoAPMessage message;
     for(int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].getMessageId() == radioMessage.message_id)
             message = pending_messages_[i]; //TODO: delete from Array
     }
 
-    CoAPMessage* response = new CoAPMessage();
-    response->setToken(message.getToken());
+    CoAPMessage response;
+    response.setToken(message.getToken());
 
     if (message.getT() == TYPE_CON) {
-        response->setT(TYPE_ACK);
-        response->setMessageId(message.getMessageId());
+        response.setT(TYPE_ACK);
+        response.setMessageId(message.getMessageId());
     } else if (message.getT() == TYPE_NON) {
-        response->setT(TYPE_NON);
-        response->setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
+        response.setT(TYPE_NON);
+        response.setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
     }
 
     if(message.getCode() == CODE_GET)
-        response->setCode(69); //if get then code: 2.05-content
+        response.setCode(69); //if get then code: 2.05-content
     else if(message.getCode() == CODE_PUT)
-        response->setCode(68); //if put then code 2.04 -changed
+        response.setCode(68); //if put then code 2.04 -changed
 
     ByteArray content_format_value(1);
     content_format_value.pushBack(0);
     CoAPOption content_format(12, content_format_value); //For now we assume payload is text/plain
-    response->addOption(content_format);
+    response.addOption(content_format);
 
     ByteArray payload;
     payload.pushBack(radioMessage.value); //TODO: fix for strings
-    response->setPayload(payload);
-    coAP_message_to_send_ = response;
+    response.setPayload(payload);
+    sendCoAPMessage(response);
 }
 
-void ServerCoAPHandler::handlePut(CoAPMessage &message) {
+void CoAPHandler::handlePut(CoAPMessage &message) {
     //TODO: implement
     /*
     int iterator=0;
@@ -154,27 +154,17 @@ void ServerCoAPHandler::handlePut(CoAPMessage &message) {
     */
 }
 
-CoAPMessage *ServerCoAPHandler::popCoAPMessageToSend() {
-    if(coAP_message_to_send_ == nullptr)
-        return nullptr;
-    else {
-        CoAPMessage *temp = coAP_message_to_send_;
-        coAP_message_to_send_ = nullptr;
-        return temp;
-    }
+void CoAPHandler::sendCoAPMessage(const CoAPMessage &message) {
+    if (coapMessageListener_ != nullptr)
+        (*coapMessageListener_)(message);
 }
 
-RadioMessage *ServerCoAPHandler::popRadioMessageToSend() {
-    if(radio_message_to_send_ == nullptr)
-        return nullptr;
-    else {
-        RadioMessage *temp = radio_message_to_send_;
-        radio_message_to_send_ = nullptr;
-        return temp;
-    }
+void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
+    if (radioMessageListener_ != nullptr)
+        (*radioMessageListener_)(message);
 }
 
-void ServerCoAPHandler::handleBadRequest(CoAPMessage &message) {
+void CoAPHandler::handleBadRequest(CoAPMessage &message) {
     CoAPMessage* response = new CoAPMessage();
     response->setToken(message.getToken());
     if (message.getT() == TYPE_CON) {

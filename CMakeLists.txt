@@ -5,16 +5,19 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
         src/CoAPLib/Array.hpp
-        src/CoAPLib/Constants.h
+        src/CoAPLib/CoAPConstants.h
         src/CoAPLib/CoAPMessage.cpp
         src/CoAPLib/CoAPMessage.h
+        src/CoAPLib/CoAPMessageListener.h
         src/CoAPLib/CoAPOption.cpp
         src/CoAPLib/CoAPOption.h
         src/CoAPLib.h
         src/CoAPLib/Environment.h
+        src/CoAPLib/CoAPHandler.cpp
+        src/CoAPLib/CoAPHandler.h
+        src/RadioLib.h
         src/RadioLib/RadioMessage.hpp
-        src/CoAPLib/ServerCoAPHandler.cpp
-        src/CoAPLib/ServerCoAPHandler.h src/RadioLib.h)
+        src/RadioLib/RadioMessageListener.hpp src/RadioLib/RadioConstants.h)
 
 add_library(CoAPLib SHARED ${SOURCE_FILES})
 set_target_properties(CoAPLib PROPERTIES PREFIX "")

@@ -28,7 +28,7 @@ private:
     void extractPayload(unsigned char *&cursor, unsigned char* buffer_end);
     
     static const String toString(const ByteArray &byte_array);
-    void print(const OptionArray &options);
+    void print(const OptionArray &options) const;
 public:
     CoAPMessage();
 
@@ -57,7 +57,7 @@ public:
     const ByteArray &getPayload() const;
     void setPayload(const ByteArray &payload);
 
-    void print();
+    void print() const;
 };
 
 #endif //FRAME_H
