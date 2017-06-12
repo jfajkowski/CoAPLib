@@ -4,7 +4,7 @@
 void CoAPHandler::handleMessage(CoAPMessage &message) {
     switch (message.getCode()) {
         case CODE_EMPTY:
-            //PING
+            handlePing(message);
             break;
         case CODE_GET:
             handleGet(message);
@@ -16,6 +16,14 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
             //BAD REQUEST
             break;
     }
+}
+
+void CoAPHandler::handlePing(CoAPMessage &message) {
+    CoAPMessage response;
+    response.setT(TYPE_RST);
+    response.setMessageId(message.getMessageId()); //TODO: mirror message id?
+    //TODO: add sth more?
+    sendCoAPMessage(response);
 }
 
 void CoAPHandler::handleGet(CoAPMessage &message) {
@@ -51,7 +59,6 @@ RadioMessage CoAPHandler::prepareRadioMessage(unsigned int message_id, unsigned 
     switch(code) {
         case CODE_GET:
             message.code = 1; //GET
-
             break;
         case CODE_PUT:
             message.code = 0; //PUT
@@ -161,3 +168,5 @@ void CoAPHandler::handleBadRequest(CoAPMessage &message) {
     response->setCode(CODE_BAD_REQUEST);
     coAP_message_to_send_ = response;
 }
+
+

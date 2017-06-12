@@ -54,6 +54,7 @@ void setup() {
 }
 
 void loop() {
+/*
     Serial.print("LAMP: ");
     Serial.println(lamp_value);
     onRadioMessageToSend({0, PUT, LAMP, lamp_value++});
@@ -74,32 +75,32 @@ void loop() {
         lamp_value = 1;
     if (speaker_value == 255)
         speaker_value = 1;
+*/
+    network.update();
+    while (network.available()) {
+         RadioMessage receivedMessage;
+    network.read(header, &receivedMessage, sizeof(receivedMessage));
+    Serial.print("Radio message read");
+    coAPHandler.createResponse(receivedMessage);
+    Serial.print("Created response to radio message");
+    }
 
-//    network.update();
-//    while (network.available()) {
-//         RadioMessage receivedMessage;
-//    network.read(header, &receivedMessage, sizeof(receivedMessage));
-//    Serial.print("Radio message read");
-//    coAPHandler.createResponse(receivedMessage);
-//    Serial.print("Created response to radio message");
-//    }
-//
-//    unsigned int packet_size = Udp.parsePacket();
-//    if (packet_size) {
-//        CoAPMessage message;
-//        message.deserialize(packet_buffer, packet_size);
-//        coAPHandler.handleMessage(message);
-//
-//        Serial.print("Received: ");
-//        Serial.print(packet_size);
-//        Serial.println(" bytes.");
-//        Udp.read(packet_buffer, MAX_BUFFER);
-//
-//        for (int i = 0; i < packet_size; ++i) {
-//            Serial.print(packet_buffer[i]);
-//            Serial.print(" ");
-//        }
-//
-//        Serial.println();
-//    }
+    unsigned int packet_size = Udp.parsePacket();
+    if (packet_size) {
+        CoAPMessage message;
+        message.deserialize(packet_buffer, packet_size);
+        coAPHandler.handleMessage(message);
+
+        Serial.print("Received: ");
+        Serial.print(packet_size);
+        Serial.println(" bytes.");
+        Udp.read(packet_buffer, MAX_BUFFER);
+
+        for (int i = 0; i < packet_size; ++i) {
+            Serial.print(packet_buffer[i]);
+            Serial.print(" ");
+        }
+
+        Serial.println();
+    }
 }

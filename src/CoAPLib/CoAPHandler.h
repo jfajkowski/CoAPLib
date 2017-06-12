@@ -16,6 +16,7 @@ private:
 
     Array<CoAPMessage> pending_messages_;
 
+    void handlePing(CoAPMessage &message);
     void handleGet(CoAPMessage &message);
     void handlePut(CoAPMessage &message);
     void handleBadRequest(CoAPMessage &message);
