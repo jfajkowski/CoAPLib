@@ -2,6 +2,10 @@
 
 
 void CoAPHandler::handleMessage(CoAPMessage &message) {
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("RECEIVED");
+    DEBUG_FUNCTION(message.print());
+
     switch (message.getCode()) {
         case CODE_EMPTY:
             handlePing(message);
@@ -20,10 +24,11 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
 
 void CoAPHandler::handlePing(CoAPMessage &message) {
     CoAPMessage response;
-    //response.setCode(CODE_EMPTY);
+
+    response.setCode(CODE_EMPTY);
     response.setT(TYPE_RST);
-    response.setMessageId(message.getMessageId()); //TODO: mirror message id?
-    //TODO: add sth more?
+    response.setMessageId(message.getMessageId());
+
     sendCoAPMessage(response);
 }
 
@@ -72,7 +77,11 @@ RadioMessage CoAPHandler::prepareRadioMessage(unsigned int message_id, unsigned 
     return message;
 }
 
-void CoAPHandler::createResponse(RadioMessage &radioMessage) {
+void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("RECEIVED");
+    DEBUG_FUNCTION(radioMessage.print());
+
     CoAPMessage message;
     for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].getMessageId() == radioMessage.message_id)
@@ -146,28 +155,38 @@ void CoAPHandler::handlePut(CoAPMessage &message) {
     */
 }
 
+void CoAPHandler::handleBadRequest(CoAPMessage &message) {
+    CoAPMessage response;
+
+    response.setToken(message.getToken());
+    if (message.getT() == TYPE_CON) {
+        response.setT(TYPE_ACK);
+        response.setMessageId(message.getMessageId());
+    } else {
+        response.setT(TYPE_NON);
+        response.setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
+    }
+    response.setCode(CODE_BAD_REQUEST);
+
+    sendCoAPMessage(response);
+}
+
 void CoAPHandler::sendCoAPMessage(const CoAPMessage &message) {
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("SENT");
+    DEBUG_FUNCTION(message.print());
+
     if (coapMessageListener_ != nullptr)
         (*coapMessageListener_)(message);
 }
 
 void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("SENT");
+    DEBUG_FUNCTION(message.print());
+
     if (radioMessageListener_ != nullptr)
         (*radioMessageListener_)(message);
-}
-
-void CoAPHandler::handleBadRequest(CoAPMessage &message) {
-    CoAPMessage* response = new CoAPMessage();
-    response->setToken(message.getToken());
-    if (message.getT() == TYPE_CON) {
-        response->setT(TYPE_ACK);
-        response->setMessageId(message.getMessageId());
-    } else {
-        response->setT(TYPE_NON);
-        response->setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
-    }
-    response->setCode(CODE_BAD_REQUEST);
-    coAP_message_to_send_ = response;
 }
 
 

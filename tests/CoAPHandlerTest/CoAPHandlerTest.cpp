@@ -1,16 +1,12 @@
 #include "Test.hpp"
 
 static struct OnCoAPMessageToSend : public CoAPMessageListener {
-    void operator()(const CoAPMessage &message) override {
-        message.print();
-    }
+    void operator()(const CoAPMessage &message) override {}
 } onCoAPMessageToSend;
 
 
 static struct OnRadioMessageToSend : public RadioMessageListener {
-    void operator()(const RadioMessage &message) override {
-        message.print();
-    }
+    void operator()(const RadioMessage &message) override {}
 } onRadioMessageToSend;
 
 beginTest
@@ -57,7 +53,7 @@ beginTest
         radioMessageMock.value = 300;
         CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
         coAPHandler.handleMessage(message);
-        coAPHandler.createResponse(radioMessageMock);
+        coAPHandler.handleMessage(radioMessageMock);
     }
 
     test(PingTest) {

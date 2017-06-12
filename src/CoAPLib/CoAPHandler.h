@@ -12,8 +12,6 @@ private:
     CoAPMessageListener* coapMessageListener_;
     RadioMessageListener* radioMessageListener_;
 
-    CoAPMessage* coAP_message_to_send_;
-
     Array<CoAPMessage> pending_messages_;
 
     void handlePing(CoAPMessage &message);
@@ -28,11 +26,10 @@ private:
 public:
     CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
                 coapMessageListener_(&coapMessageListener),
-                radioMessageListener_(&radioMessageListener),
-                coAP_message_to_send_(nullptr) {}
+                radioMessageListener_(&radioMessageListener) {}
 
     void handleMessage(CoAPMessage &message);
-    void createResponse(RadioMessage &radioMessage);
+    void handleMessage(RadioMessage &radioMessage);
 };
 
 

@@ -9,8 +9,8 @@
     #include <CoAPLib.h>
 #else
     #define beginTest int main() { cout << "Testing started!" << endl;
-    #define test(x) cout << "Testing: " << #x << endl;
-    #define endTest cout << "Testing finished!" << endl; }
+    #define test(x) cout << endl << "Testing: " << #x << endl << "----------------------------------------------------" << endl;
+    #define endTest cout << endl << "Testing finished!" << endl; }
     #define assertEqual(x, y) assert(x == y)
 
     #include <functional>

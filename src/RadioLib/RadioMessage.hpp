@@ -19,6 +19,7 @@ struct RadioMessage {
         PRINTLN(resource);
         PRINT("Value: ");
         PRINTLN(value);
+        PRINTLN("");
     }
 };
 

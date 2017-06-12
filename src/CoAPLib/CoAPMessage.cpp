@@ -162,6 +162,8 @@ void CoAPMessage::print() const {
         PRINT("Payload: \n\t");
         PRINTLN(CoAPMessage::toString(payload_));
     }
+
+    PRINTLN("");
 }
 
 const String CoAPMessage::toString(const ByteArray &byte_array) {
