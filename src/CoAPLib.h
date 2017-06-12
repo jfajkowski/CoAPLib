@@ -7,6 +7,6 @@
 #include "CoAPLib/CoAPMessage.h"
 #include "CoAPLib/CoAPMessageListener.h"
 #include "CoAPLib/CoAPOption.h"
-#include "CoAPLib/Environment.h"
+#include "Environment.h"
 
 #endif //CoAPLib_h

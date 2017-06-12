@@ -136,6 +136,7 @@ void CoAPMessage::setPayload(const ByteArray &payload) {
 }
 
 void CoAPMessage::print() const {
+    PRINTLN("---CoAP message---");
     PRINT("Version: ");
     PRINTLN(header_.Ver);
     PRINT("Type: ");
