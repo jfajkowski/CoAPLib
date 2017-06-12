@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
         src/CoAPLib/Array.hpp
-        src/CoAPLib/Constants.h
+        src/CoAPLib/CoAPConstants.h
         src/CoAPLib/CoAPMessage.cpp
         src/CoAPLib/CoAPMessage.h
         src/CoAPLib/CoAPMessageListener.h
