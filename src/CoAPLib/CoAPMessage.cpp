@@ -135,7 +135,7 @@ void CoAPMessage::setPayload(const ByteArray &payload) {
     payload_ = payload;
 }
 
-void CoAPMessage::print() {
+void CoAPMessage::print() const {
     PRINT("Version: ");
     PRINTLN(header_.Ver);
     PRINT("Type: ");
@@ -173,7 +173,7 @@ const String CoAPMessage::toString(const ByteArray &byte_array) {
     return s;
 }
 
-void CoAPMessage::print(const OptionArray &options) {
+void CoAPMessage::print(const OptionArray &options) const {
     unsigned int option_code = 0; 
     for (int i = 0; i < options.size(); ++i) {
         option_code += options[i].getNumber();
