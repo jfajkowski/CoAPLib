@@ -154,7 +154,7 @@ void ServerCoAPHandler::handlePut(CoAPMessage &message) {
     */
 }
 
-CoAPMessage *ServerCoAPHandler::getCoAPMessageToSend() {
+CoAPMessage *ServerCoAPHandler::popCoAPMessageToSend() {
     if(coAP_message_to_send_ == nullptr)
         return nullptr;
     else {
@@ -164,7 +164,7 @@ CoAPMessage *ServerCoAPHandler::getCoAPMessageToSend() {
     }
 }
 
-RadioMessage *ServerCoAPHandler::getRadioMessageToSend() {
+RadioMessage *ServerCoAPHandler::popRadioMessageToSend() {
     if(radio_message_to_send_ == nullptr)
         return nullptr;
     else {

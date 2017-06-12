@@ -24,7 +24,9 @@ public:
     void deserialize(unsigned char *cursor, unsigned int num);
 
     void pushBack(const T &value);
+    const T popBack();
     void insert(const T &value, unsigned int index);
+    const T erase(unsigned int index);
     void reserve(unsigned int new_capacity);
 
     Array &operator=(const Array & array);
@@ -73,6 +75,19 @@ void Array<T>::pushBack(const T &value) {
     }
     array_begin_[size_] = value;
     ++size_;
+}
+
+template<typename T>
+const T Array<T>::popBack() {
+    T element = array_begin_[size_ - 1];
+    --size_;
+    return element;
+}
+
+template<typename T>
+const T Array<T>::erase(unsigned int index) {
+    //TODO:implement
+    return T();
 }
 
 template <typename T>

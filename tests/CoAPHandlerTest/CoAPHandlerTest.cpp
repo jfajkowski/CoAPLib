@@ -13,7 +13,7 @@ beginTest
         ServerCoAPHandler coAPHandler;
 
         coAPHandler.handleMessage(message);
-        RadioMessage* radioMessage = coAPHandler.getRadioMessageToSend();
+        RadioMessage* radioMessage = coAPHandler.popRadioMessageToSend();
         assertEqual(radioMessage->message_id, message.getMessageId());
         assertEqual(radioMessage->code, 1);
         assertEqual(radioMessage->resource, 0);
@@ -31,14 +31,14 @@ beginTest
         ServerCoAPHandler coAPHandler;
 
         coAPHandler.handleMessage(message);
-        RadioMessage* radioMessage = coAPHandler.getRadioMessageToSend();
+        RadioMessage* radioMessage = coAPHandler.popRadioMessageToSend();
         assertEqual(radioMessage->message_id, message.getMessageId());
         assertEqual(radioMessage->code, 1);
         assertEqual(radioMessage->resource, 0);
 
         radioMessage->value = 'p';
         coAPHandler.createResponse(*radioMessage);
-        CoAPMessage* response = coAPHandler.getCoAPMessageToSend();
+        CoAPMessage* response = coAPHandler.popCoAPMessageToSend();
         assertEqual(response->getMessageId(), message.getMessageId());
         assertEqual(response->getPayload()[0], 'p');
 

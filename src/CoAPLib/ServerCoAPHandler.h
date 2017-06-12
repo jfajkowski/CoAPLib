@@ -25,8 +25,8 @@ public:
     void handleMessage(CoAPMessage &message);
     void createResponse(RadioMessage &radioMessage);
 
-    CoAPMessage *getCoAPMessageToSend();
-    RadioMessage *getRadioMessageToSend();
+    CoAPMessage *popCoAPMessageToSend();
+    RadioMessage *popRadioMessageToSend();
 };
 
 

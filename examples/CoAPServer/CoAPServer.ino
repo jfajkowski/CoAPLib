@@ -39,8 +39,8 @@ void loop() {
     }
 
 
-    CoAPMessage* coAPMessage = coAPHandler.getCoAPMessageToSend();
-    RadioMessage* radioMessage = coAPHandler.getRadioMessageToSend();
+    CoAPMessage* coAPMessage = coAPHandler.popCoAPMessageToSend();
+    RadioMessage* radioMessage = coAPHandler.popRadioMessageToSend();
 
     if(coAPMessage != nullptr) {
         sendCoAPMessage(*coAPMessage);
