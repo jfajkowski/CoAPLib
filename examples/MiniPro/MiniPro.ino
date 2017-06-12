@@ -1,5 +1,7 @@
 #include <RF24Network.h>
 #include <RF24.h>
+#include <RadioLib.h>
+
 
 
 
@@ -11,18 +13,13 @@ const uint16_t this_node = 01;        // Address of our node in Octal format
 const uint16_t other_node = 00;       // Address of the other node in Octal format
 
 
-unsigned short lampValue : 14;
-unsigned short speakerValue: 14;
+unsigned short lampValue;
+unsigned short speakerValue;
 unsigned long interval = 0; //ms
 unsigned long last_sent;
 bool runningFlag=false;
 
-struct RadioMessage{
-unsigned int message_id: 16;
-unsigned char code: 1;
-unsigned char resource: 1;
-unsigned short value: 14;
-} message;
+RadioMessage message;
 
 
 void setup() {
@@ -32,7 +29,7 @@ void setup() {
   network.begin(/*channel*/ 100, /*node address*/ this_node);
 
   pinMode(A0, OUTPUT);
-  pinMode(A1, OUTPUT);  //pewnie nie będzie się to nazywać A1, skoro potrzebujemy digitala
+  pinMode(2, OUTPUT);  //pewnie nie będzie się to nazywać A1, skoro potrzebujemy digitala
 
 }
 
@@ -45,7 +42,7 @@ void loop() {
   if (runningFlag && now - last_sent >= interval  )
     {
       last_sent = now;
-      digitalWrite(A1,digitalRead(9) ^ 1);
+      digitalWrite(2,digitalRead(2) ^ 1);
     }
 
   while ( network.available() ) {     // Is there anything ready for us?
@@ -65,7 +62,7 @@ void loop() {
   }
 }
 
-void setLamp(unsigned char short ){
+void setLamp(unsigned char level ){
     int temp=(int)level/4;
     temp=temp -250;
     temp=temp*-1;
@@ -82,7 +79,7 @@ unsigned short convert(unsigned short val){
     return (unsigned short)temp;
 }
 
-void send(unsigned short value:14){
+void send(unsigned short value){
     message.value=value;
     RF24NetworkHeader header(/*to node*/ other_node);
     network.write(header,&message,sizeof(message));

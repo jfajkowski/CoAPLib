@@ -6,7 +6,7 @@
 #include "CoAPLib/CoAPOption.h"
 #include "CoAPLib/Constants.h"
 #include "CoAPLib/Environment.h"
-#include "CoAPLib/RadioMessage.hpp"
+#include "RadioLib/RadioMessage.hpp"
 #include "CoAPLib/ServerCoAPHandler.h"
 
 #endif //CoAPLib_h

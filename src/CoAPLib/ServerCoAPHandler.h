@@ -3,7 +3,7 @@
 
 
 #include "CoAPMessage.h"
-#include "RadioMessage.hpp"
+#include "../RadioLib/RadioMessage.hpp"
 
 class ServerCoAPHandler {
 private:

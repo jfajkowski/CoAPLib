@@ -12,9 +12,9 @@ set(SOURCE_FILES
         src/CoAPLib/CoAPOption.h
         src/CoAPLib.h
         src/CoAPLib/Environment.h
-        src/CoAPLib/RadioMessage.hpp
+        src/RadioLib/RadioMessage.hpp
         src/CoAPLib/ServerCoAPHandler.cpp
-        src/CoAPLib/ServerCoAPHandler.h)
+        src/CoAPLib/ServerCoAPHandler.h src/RadioLib.h)
 
 add_library(CoAPLib SHARED ${SOURCE_FILES})
 set_target_properties(CoAPLib PROPERTIES PREFIX "")
