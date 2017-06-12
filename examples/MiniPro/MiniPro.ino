@@ -24,7 +24,8 @@ RadioMessage message;
 
 void setup() {
   lampValue = 255;
-  speakerValue = 0;
+  speakerValue = 50;
+  setSpeakerFrequency(speakerValue);
   radio.begin();
   network.begin(/*channel*/ 100, /*node address*/ this_node);
 
