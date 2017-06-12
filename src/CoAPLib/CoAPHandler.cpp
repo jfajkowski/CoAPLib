@@ -1,26 +1,7 @@
 #include "CoAPHandler.h"
 
-void CoAPHandler::handleMessage(CoAPMessage &message) {
-    switch (message.getCode()){
-        case CODE_EMPTY ... CODE_DELETE:
-            handleRequest(message);
-            break;
-        case 65 ... 69:
-            //SUCCESS
-            break;
-        case 128 ... 143:
-            //CLIENT ERROR
-            break;
-        case 160 ...165:
-            //SERVER ERROR
-            break;
-        default:
-            //BAD REQUEST
-            break;
-    }
-}
 
-void CoAPHandler::handleRequest(CoAPMessage &message) {
+void CoAPHandler::handleMessage(CoAPMessage &message) {
     switch (message.getCode()) {
         case CODE_EMPTY:
             //PING
@@ -62,19 +43,18 @@ void CoAPHandler::handleGet(CoAPMessage &message) {
     //TODO: what if there are no options?
 }
 
-RadioMessage CoAPHandler::prepareRadioMessage(unsigned short message_id, unsigned short code, String uri) const {
+RadioMessage CoAPHandler::prepareRadioMessage(unsigned int message_id, unsigned int code, String uri) const {
     RadioMessage message;
-    message.message_id = message_id;
+    message.message_id = (unsigned short)message_id;
     //TODO: translate uri to resource code and change message.resource = 0
-
+    message.resource = 0; //lamp
     switch(code) {
         case CODE_GET:
             message.code = 1; //GET
-            message.resource = 0; //lamp
+
             break;
         case CODE_PUT:
             message.code = 0; //PUT
-            message.resource = 0; //lamp
             //message.value = ?
             break;
         default:
@@ -86,9 +66,9 @@ RadioMessage CoAPHandler::prepareRadioMessage(unsigned short message_id, unsigne
 
 void CoAPHandler::createResponse(RadioMessage &radioMessage) {
     CoAPMessage message;
-    for(int i = 0; i < pending_messages_.size(); ++i) {
+    for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].getMessageId() == radioMessage.message_id)
-            message = pending_messages_[i]; //TODO: delete from Array
+            message = pending_messages_.pop(i);
     }
 
     CoAPMessage response;
@@ -108,12 +88,16 @@ void CoAPHandler::createResponse(RadioMessage &radioMessage) {
         response.setCode(68); //if put then code 2.04 -changed
 
     ByteArray content_format_value(1);
-    content_format_value.pushBack(0);
+    content_format_value.pushBack((unsigned int)0);
     CoAPOption content_format(12, content_format_value); //For now we assume payload is text/plain
     response.addOption(content_format);
 
-    ByteArray payload;
-    payload.pushBack(radioMessage.value); //TODO: fix for strings
+    ByteArray payload(2);
+    unsigned char temp=(unsigned char)(radioMessage.value & 0xff);
+    payload.pushBack(temp);
+    temp=(unsigned char)((radioMessage.value >> 8) & 0xff);
+    payload.pushBack(temp);
+
     response.setPayload(payload);
     sendCoAPMessage(response);
 }

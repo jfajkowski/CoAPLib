@@ -19,7 +19,24 @@ RF24NetworkHeader header(peer_node_id);
 EthernetUDP Udp;
 RF24 radio(7, 8);
 RF24Network network(radio);
-CoAPHandler coAPHandler;
+
+static struct OnCoAPMessageToSend : public CoAPMessageListener {
+    void operator()(const CoAPMessage &message) override {
+        Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+        unsigned char buffer[MAX_BUFFER];
+        unsigned int size = message.serialize(buffer);
+        Udp.write(buffer, size);
+        Udp.endPacket();
+    }
+} onCoAPMessageToSend;
+
+static struct OnRadioMessageToSend : public RadioMessageListener {
+    void operator()(const RadioMessage &message) override {
+        network.write(header, &message, sizeof(message));
+    }
+} onRadioMessageToSend;
+
+CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
 unsigned short local_port = 10000;
 
 void setup() {
@@ -32,11 +49,14 @@ void setup() {
 }
 
 void loop() {
+    Serial.println("Loop beginning");
     network.update();
     while (network.available()) {
         RadioMessage receivedMessage;
         network.read(header, &receivedMessage, sizeof(receivedMessage));
+        Serial.print("Radio message read");
         coAPHandler.createResponse(receivedMessage);
+        Serial.print("Created response to radio message");
     }
 
     unsigned int packet_size = Udp.parsePacket();
@@ -44,6 +64,16 @@ void loop() {
         CoAPMessage message;
         message.deserialize(packet_buffer, packet_size);
         coAPHandler.handleMessage(message);
+
+        //mocking radio response
+        RadioMessage radioMessageMock;
+        radioMessageMock.message_id = (unsigned short)message.getMessageId();
+        radioMessageMock.code = message.getCode();
+        radioMessageMock.resource = 0;
+        radioMessageMock.value = 20;
+        Serial.println("Mocking radio message");
+        coAPHandler.createResponse(radioMessageMock);
+        Serial.println("Mocking radio message");
 
         Serial.print("Received: ");
         Serial.print(packet_size);
@@ -57,16 +87,4 @@ void loop() {
 
         Serial.println();
     }
-}
-
-void sendCoAPMessage(const CoAPMessage &message) { //TODO: test
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    unsigned char buffer[MAX_BUFFER];
-    unsigned int size = message.serialize(buffer);
-    Udp.write(buffer, size);
-    Udp.endPacket();
-}
-
-void sendRadioMessage(const RadioMessage &message) { //TODO: test
-    network.write(header, &message, sizeof(message));
 }

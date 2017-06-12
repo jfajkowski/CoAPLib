@@ -50,4 +50,23 @@ beginTest
         coAPHandler.handleMessage(message);
     }
 
+    test(ExplicitCreateResponseTest) {
+        CoAPMessage message;
+        message.setMessageId(100);
+        message.setToken(222);
+        message.setCode(CODE_GET);
+        message.setT(TYPE_CON);
+        CoAPOption uripath(11, "uri-path");
+        message.addOption(uripath);
+
+        RadioMessage radioMessageMock;
+        radioMessageMock.message_id = (unsigned short)message.getMessageId();
+        radioMessageMock.code = (unsigned short)message.getCode();
+        radioMessageMock.resource = 0;
+        radioMessageMock.value = 300;
+        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+        coAPHandler.handleMessage(message);
+        coAPHandler.createResponse(radioMessageMock);
+    }
+
 endTest

@@ -16,12 +16,11 @@ private:
 
     Array<CoAPMessage> pending_messages_;
 
-    void handleRequest(CoAPMessage &message);
     void handleGet(CoAPMessage &message);
     void handlePut(CoAPMessage &message);
     void handleBadRequest(CoAPMessage &message);
 
-    RadioMessage prepareRadioMessage(unsigned short message_id, unsigned short code, String uri) const;
+    RadioMessage prepareRadioMessage(unsigned int message_id, unsigned int code, String uri) const;
 
     void sendCoAPMessage(const CoAPMessage &message);
     void sendRadioMessage(const RadioMessage &message);
