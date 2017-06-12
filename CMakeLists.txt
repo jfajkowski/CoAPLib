@@ -12,7 +12,7 @@ set(SOURCE_FILES
         src/CoAPLib/CoAPOption.cpp
         src/CoAPLib/CoAPOption.h
         src/CoAPLib.h
-        src/CoAPLib/Environment.h
+        src/Environment.h
         src/CoAPLib/CoAPHandler.cpp
         src/CoAPLib/CoAPHandler.h
         src/RadioLib.h

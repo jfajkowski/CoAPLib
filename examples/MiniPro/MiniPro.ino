@@ -21,14 +21,17 @@ RadioMessage message;
 
 
 void setup() {
-    lampValue = 255;
+    lampValue = 0;
     speakerValue = 0;
-    setSpeakerFrequency(speakerValue);
     radio.begin();
     network.begin(/*channel*/ 100, /*node address*/ this_node);
 
-    pinMode(A0, OUTPUT);
+    pinMode(3, OUTPUT);
     pinMode(2, OUTPUT);
+
+    setLampBrightness(lampValue);
+    setSpeakerFrequency(speakerValue);
+
     Serial.begin(9600);
     Serial.println("Rise and shine...");
 }
@@ -36,7 +39,7 @@ void setup() {
 void loop() {
     network.update();                          // Check the network regularly
 
-    lampValue = analogRead(A0);
+    lampValue = analogRead(3);
     unsigned long now = millis();
 
     if (runningFlag && now - last_sent >= interval) {
@@ -48,19 +51,9 @@ void loop() {
         RF24NetworkHeader header;
         network.read(header, &message, sizeof(message));
 
-        Serial.println("Radio message:");
-        Serial.print("Message ID: ");
-        Serial.println(message.message_id);
-        Serial.print("Code: ");
-        Serial.println(message.code);
-        Serial.print("Resource: ");
-        Serial.println(message.resource);
-        Serial.print("Value: ");
-        Serial.println(message.value);
-
         if(message.resource == 0){
             if(message.code == 0)
-                setLamp(message.value);
+                setLampBrightness(message.value);
             send(convert(lampValue));
         }
         else if(message.resource == 1){
@@ -71,16 +64,25 @@ void loop() {
     }
 }
 
-void setLamp(unsigned char level ){
+void setLampBrightness(unsigned short level){
     int tmp = (int) level/4;
     tmp = tmp - 250;
     tmp = tmp * -1;
     tmp = tmp + 5;
-    level = (unsigned short) tmp;
-    lampValue = level;
-    analogWrite(A0, lampValue);
-
+    lampValue = tmp;
+    analogWrite(3, lampValue);
 }
+
+void setSpeakerFrequency(unsigned short freq){
+    speakerValue = freq;
+
+    if (speakerValue > 0){
+        runningFlag = true;
+        interval = (1.0/speakerValue) * 1000;
+    }
+    else runningFlag = false;
+}
+
 unsigned short convert(unsigned short val){
     int tmp = (int) val;
     tmp = tmp - 255;
@@ -92,14 +94,4 @@ void send(unsigned short value){
     message.value = value;
     RF24NetworkHeader header(/*to node*/ other_node);
     network.write(header, &message, sizeof(message));
-}
-
-void setSpeakerFrequency(unsigned short freq){
-    speakerValue = freq;
-
-    if (speakerValue > 0){
-        runningFlag = true;
-        interval = (1.0/speakerValue) * 1000;
-    }
-    else runningFlag = false;
 }

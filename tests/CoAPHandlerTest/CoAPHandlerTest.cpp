@@ -2,7 +2,6 @@
 
 static struct OnCoAPMessageToSend : public CoAPMessageListener {
     void operator()(const CoAPMessage &message) override {
-        PRINTLN("CoAP message:");
         message.print();
     }
 } onCoAPMessageToSend;
@@ -10,15 +9,7 @@ static struct OnCoAPMessageToSend : public CoAPMessageListener {
 
 static struct OnRadioMessageToSend : public RadioMessageListener {
     void operator()(const RadioMessage &message) override {
-        PRINTLN("Radio message:");
-        PRINT("Message ID: ");
-        PRINTLN(message.message_id);
-        PRINT("Code: ");
-        PRINTLN(message.code);
-        PRINT("Resource: ");
-        PRINTLN(message.resource);
-        PRINT("Value: ");
-        PRINTLN(message.value);
+        message.print();
     }
 } onRadioMessageToSend;
 
