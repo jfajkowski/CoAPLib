@@ -11,8 +11,8 @@ const uint16_t this_node = 01;        // Address of our node in Octal format
 const uint16_t other_node = 00;       // Address of the other node in Octal format
 
 
-unsigned char lampValue : 14;
-unsigned char speakerValue: 14;
+unsigned short lampValue : 14;
+unsigned short speakerValue: 14;
 unsigned long interval = 0; //ms
 unsigned long last_sent;
 bool runningFlag=false;
@@ -21,7 +21,7 @@ struct RadioMessage{
 unsigned int message_id: 16;
 unsigned char code: 1;
 unsigned char resource: 1;
-unsigned char value: 14;
+unsigned short value: 14;
 } message;
 
 
@@ -55,7 +55,7 @@ void loop() {
     if(message.resource==0){
       if(message.code==0)
         setLamp(message.value);
-      send(lampValue);
+      send(convert(lampValue));
     }
     else if(message.resource==1){
       if(message.code==0)
@@ -65,19 +65,30 @@ void loop() {
   }
 }
 
-void setLamp(unsigned char level ){
+void setLamp(unsigned char short ){
+    int temp=(int)level/4;
+    temp=temp -250;
+    temp=temp*-1;
+    temp=temp+5;
+    level =(unsigned short)temp;
     lampValue=level;
     analogWrite(A0,lampValue);
 
 }
+unsigned short convert(unsigned short val){
+    int temp=(int)val;
+    temp=temp-255;
+    temp=temp*-4;
+    return (unsigned short)temp;
+}
 
-void send(unsigned char value:14){
+void send(unsigned short value:14){
     message.value=value;
     RF24NetworkHeader header(/*to node*/ other_node);
     network.write(header,&message,sizeof(message));
 }
 
-void setSpeakerFrequency(unsigned char freq){
+void setSpeakerFrequency(unsigned short freq){
     speakerValue=message.value;
     if (speakerValue>0){
       runningFlag=true;
