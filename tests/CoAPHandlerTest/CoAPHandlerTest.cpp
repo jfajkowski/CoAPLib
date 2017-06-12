@@ -2,30 +2,48 @@
 
 beginTest
 
-test(SuccessResponseTest){
-    CoAPMessage test_frame;
-    test_frame.setCode(1);
-    test_frame.setT(0);
-    ByteArray option_value(3);
-    option_value.pushBack(1);
-    option_value.pushBack(2);
-    option_value.pushBack(3);
-    CoAPOption option1(3, option_value);
-    OptionArray optionArray(1);
-    optionArray.pushBack(option1);
-    //test_frame.setOptions(optionArray);
-    CoAPHandler coAPHandler;
+    test(HandleMessageTest) {
+        CoAPMessage message;
+        message.setMessageId(100);
+        message.setToken(222);
+        message.setCode(CODE_GET);
+        message.setT(TYPE_CON);
+        CoAPOption uripath(11, "uri-path");
+        message.addOption(uripath);
+        ServerCoAPHandler coAPHandler;
 
-    ByteArray payload_value(3);
-    payload_value.pushBack('p');
-    payload_value.pushBack('a');
-    payload_value.pushBack('y');
+        coAPHandler.handleMessage(message);
+        RadioMessage* radioMessage = coAPHandler.getRadioMessageToSend();
+        assertEqual(radioMessage->message_id, message.getMessageId());
+        assertEqual(radioMessage->code, 1);
+        assertEqual(radioMessage->resource, 0);
+        delete radioMessage;
+    }
 
-    CoAPMessage response1=coAPHandler.successWrapper(test_frame, payload_value);
-    assertEqual(response1.getT(),2);
-    assertEqual(response1.getCode(),69);
-    unsigned char value = response1.getOptions()[0].getValue()[0];
-    assertEqual(value,0);
-}
+    test(CreateResponseTest) {
+        CoAPMessage message;
+        message.setMessageId(100);
+        message.setToken(222);
+        message.setCode(CODE_GET);
+        message.setT(TYPE_CON);
+        CoAPOption uripath(11, "uri-path");
+        message.addOption(uripath);
+        ServerCoAPHandler coAPHandler;
+
+        coAPHandler.handleMessage(message);
+        RadioMessage* radioMessage = coAPHandler.getRadioMessageToSend();
+        assertEqual(radioMessage->message_id, message.getMessageId());
+        assertEqual(radioMessage->code, 1);
+        assertEqual(radioMessage->resource, 0);
+
+        radioMessage->value = 'p';
+        coAPHandler.createResponse(*radioMessage);
+        CoAPMessage* response = coAPHandler.getCoAPMessageToSend();
+        assertEqual(response->getMessageId(), message.getMessageId());
+        assertEqual(response->getPayload()[0], 'p');
+
+        delete radioMessage;
+        delete response;
+    }
 
 endTest

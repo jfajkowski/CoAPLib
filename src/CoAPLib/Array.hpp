@@ -35,6 +35,7 @@ public:
     unsigned int capacity() const;
 
     T *begin() const;
+    T *end(); //TODO: if size=capacity iterator will point at memory that does not belong to array, but reallocating can lead to unexpected behaviour when end() is called
 };
 
 template <typename T>
@@ -150,6 +151,11 @@ unsigned int Array<T>::capacity() const {
 template <typename T>
 T *Array<T>::begin() const {
     return array_begin_;
+}
+
+template <typename T>
+T *Array<T>::end() {
+    return &array_begin_[size_];
 }
 
 template <typename T>

@@ -105,4 +105,19 @@ test(ConcatenateTest) {
     }
 }
 
+    test(IteratorTest) {
+        OptionArray array(2);
+        assertEqual(array.capacity(), 2);
+        array.pushBack(CoAPOption(1, "1st"));
+        array.pushBack(CoAPOption(2, "2nd"));
+        assertEqual(array.capacity(), 2);
+        CoAPOption* begin = array.begin();
+        assertEqual(begin->getNumber(), 1);
+        begin++;
+        assertEqual(begin->getNumber(), 2);
+        CoAPOption* end = array.end(); //at this point iterator points at memory that does not belong to array
+        begin++;
+        assertEqual(begin, end);
+    }
+
 endTest
