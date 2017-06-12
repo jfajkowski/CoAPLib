@@ -22,6 +22,7 @@ RF24Network network(radio);
 
 static struct OnCoAPMessageToSend : public CoAPMessageListener {
     void operator()(const CoAPMessage &message) override {
+        message.print();
         Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
         unsigned char buffer[MAX_BUFFER];
         unsigned int size = message.serialize(buffer);
@@ -76,21 +77,17 @@ void loop() {
     if (speaker_value == 255)
         speaker_value = 1;
 */
-    network.update();
-    while (network.available()) {
-         RadioMessage receivedMessage;
-    network.read(header, &receivedMessage, sizeof(receivedMessage));
-    Serial.print("Radio message read");
-    coAPHandler.createResponse(receivedMessage);
-    Serial.print("Created response to radio message");
-    }
+//    network.update();
+//    while (network.available()) {
+//        RadioMessage receivedMessage;
+//        network.read(header, &receivedMessage, sizeof(receivedMessage));
+//        Serial.print("Radio message read");
+//        coAPHandler.createResponse(receivedMessage);
+//        Serial.print("Created response to radio message");
+//    }
 
     unsigned int packet_size = Udp.parsePacket();
     if (packet_size) {
-        CoAPMessage message;
-        message.deserialize(packet_buffer, packet_size);
-        coAPHandler.handleMessage(message);
-
         Serial.print("Received: ");
         Serial.print(packet_size);
         Serial.println(" bytes.");
@@ -100,7 +97,12 @@ void loop() {
             Serial.print(packet_buffer[i]);
             Serial.print(" ");
         }
-
         Serial.println();
+
+        CoAPMessage message;
+        message.deserialize(packet_buffer, packet_size);
+        message.print();
+        coAPHandler.handleMessage(message);
+
     }
 }

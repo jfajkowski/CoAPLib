@@ -69,4 +69,16 @@ beginTest
         coAPHandler.createResponse(radioMessageMock);
     }
 
+    test(PingTest) {
+        unsigned int buffer_size = 4;
+        unsigned char buffer[] = {0x40, 0x00, 0xb7, 0x6c};
+
+        CoAPMessage message;
+        message.deserialize(buffer, buffer_size);
+
+
+        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+        coAPHandler.handleMessage(message);
+    }
+
 endTest

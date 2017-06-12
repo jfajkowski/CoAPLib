@@ -20,6 +20,7 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
 
 void CoAPHandler::handlePing(CoAPMessage &message) {
     CoAPMessage response;
+    //response.setCode(CODE_EMPTY);
     response.setT(TYPE_RST);
     response.setMessageId(message.getMessageId()); //TODO: mirror message id?
     //TODO: add sth more?

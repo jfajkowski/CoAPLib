@@ -13,7 +13,7 @@ unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) const {
     insert(cursor, PAYLOAD_MARKER);
     insert(cursor, payload_);
 
-    return cursor - buffer_begin;
+    return cursor - buffer_begin - 1;
 }
 
 void CoAPMessage::insert(unsigned char* &cursor, const Header &header) const {
