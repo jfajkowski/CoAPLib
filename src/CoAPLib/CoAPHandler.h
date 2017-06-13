@@ -29,7 +29,7 @@ private:
 
     void handlePing(const CoAPMessage &message);
     void handleRequest(const CoAPMessage &message);
-    void handleBadRequest(const CoAPMessage &message);
+    void handleBadRequest(const CoAPMessage &message, unsigned short error_code);
 
     void updateMetrics(unsigned short rtt);
     void updateRoundTripTimeMetric(unsigned short rtt);

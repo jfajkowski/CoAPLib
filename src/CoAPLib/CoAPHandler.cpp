@@ -14,7 +14,7 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
             message.getCode() == CODE_PUT)
         handleRequest(message);
     else
-        handleBadRequest(message);
+        handleBadRequest(message, CODE_BAD_REQUEST);
 }
 
 void CoAPHandler::handlePing(const CoAPMessage &message) {
@@ -81,7 +81,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                         }
                         else
                         {
-                            handleBadRequest(message);
+                            handleBadRequest(message, CODE_BAD_REQUEST);
                         }
                     }
                 }
@@ -150,7 +150,7 @@ void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &respons
         response.setMessageId(message.getMessageId());
     } else if (message.getT() == TYPE_NON) {
         response.setT(TYPE_NON);
-        response.setMessageId((unsigned short) (message.getMessageId() + 1)); //TODO: a method generating new IDs
+        response.setMessageId((unsigned short) (message.getMessageId() + 1));
     }
 
     if(message.getCode() == CODE_GET)
@@ -172,7 +172,7 @@ void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &respons
     response.setPayload(payload);
 }
 
-void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
+void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short error_code) {
     CoAPMessage response;
 
     response.setToken(message.getToken());
@@ -181,12 +181,13 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
         response.setMessageId(message.getMessageId());
     } else {
         response.setT(TYPE_NON);
-        response.setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
+        response.setMessageId(message.getMessageId()+1);
     }
-    response.setCode(CODE_BAD_REQUEST);
+    response.setCode(error_code);
 
     send(response);
 }
+
 
 void CoAPHandler::send(const CoAPMessage &message) {
     DEBUG_FUNCTION(
@@ -211,7 +212,7 @@ void CoAPHandler::send(const RadioMessage &message) {
 }
 
 void CoAPHandler::addPendingMessage(const CoAPMessage &message) {
-    pending_messages_.pushBack({message, millis()}); //TODO: pushing back a copy, what about original?
+    pending_messages_.pushBack({message, millis()});
     DEBUG_PRINT("Added pending message. Array size: ");
     DEBUG_PRINTLN(pending_messages_.size());
     DEBUG_PRINTLN("");
@@ -234,8 +235,9 @@ void CoAPHandler::deleteTimedOut() {
                 DEBUG_PRINT_TIME();
                 DEBUG_PRINTLN("TIMEOUT");
                 pending_messages_[i].coapMessage.print();
-            );
 
+            );
+            handleBadRequest(pending_messages_[i].coapMessage, CODE_GATEWAY_TIMEOUT);
             pending_messages_.erase(i);
             updateTimeoutMetric();
         }
