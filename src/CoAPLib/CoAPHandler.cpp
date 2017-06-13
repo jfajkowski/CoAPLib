@@ -82,7 +82,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                                     response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
                                     response.setPayload(toByteArray(TO_STRING(mean_rtt)));
                                 }
-                                else if(resource->key == RESOURCE_TIMEOUT) {
+                                else if(resource->key == RESOURCE_TIMED_OUT) {
                                     createResponse(message, response);
                                     response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
                                     response.setPayload(toByteArray(TO_STRING(timed_out)));

@@ -75,6 +75,13 @@
         return result;
     }
 
+    static void delay(unsigned long millis) {
+        struct timespec tim, tim2;
+        tim.tv_sec  = 0;
+        tim.tv_nsec = 1000 * millis;
+        nanosleep(&tim , &tim2);
+    }
+
 #endif
 
 

@@ -28,13 +28,6 @@ void prepareLampResource(CoAPHandler &coAPHandler) {
     coAPHandler.registerResource(uri_path, LAMP);
 }
 
-void sleep(unsigned long seconds, unsigned long nanos) {
-    struct timespec tim, tim2;
-    tim.tv_sec  = seconds;
-    tim.tv_nsec = nanos;
-    nanosleep(&tim , &tim2);
-}
-
 beginTest
 
 //    test(HandleMessage) {
@@ -128,7 +121,7 @@ beginTest
 //        coap_handler.sendPing();
 //
 //        coap_handler.deleteTimedOut();
-//        sleep(6, 0);
+//        delay(6000);
 //        coap_handler.deleteTimedOut();
 //    }
 
