@@ -112,7 +112,9 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 } else {
                     handleBadRequest(message, CODE_BAD_REQUEST);
                 }
+                break;
             }
+
             case OPTION_BLOCK2:
                 {
                     Block2 values(iterator->toBlock2());
