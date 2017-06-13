@@ -13,10 +13,10 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
             handlePing(message);
             break;
         case CODE_GET:
-            handleGet(message);
+            handleRequest(message);
             break;
         case CODE_PUT:
-            handlePut(message);
+            handleRequest(message);
             break;
         default:
             //BAD REQUEST
@@ -40,7 +40,7 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
     }
 }
 
-void CoAPHandler::handleGet(const CoAPMessage &message) {
+void CoAPHandler::handleRequest(const CoAPMessage &message) {
     CoAPMessage response;
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
@@ -63,20 +63,25 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
 
                     if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_WELL_KNOWN) {
+                            if(message.getCode() == PUT){
+                                handleBadRequest(message);
+                            }
                             //TODO: implement
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
-
-                            if(resource->key == RESOURCE_JITTER) {
-                                createResponse(message, response, last_jitter);
-                            }else if(resource->key == RESOURCE_RTT) {
-                                createResponse(message, response, mean_rtt);
-                            }else if(resource->key == RESOURCE_TIMEOUT) {
-                                createResponse(message, response, timed_out);
+                            if(message.getCode() == PUT){
+                                handleBadRequest(message);
+                            }else if (message.getCode() == GET){
+                                if(resource->key == RESOURCE_JITTER) {
+                                    createResponse(message, response,(unsigned short) last_jitter);
+                                }else if(resource->key == RESOURCE_RTT) {
+                                    createResponse(message, response, mean_rtt);
+                                }else if(resource->key == RESOURCE_TIMEOUT) {
+                                    createResponse(message, response, timed_out);
+                                }
                             }
-
                         } else if (uri_path[0] == RESOURCE_REMOTE) {
                             unsigned short resourceId = resource->value;
-                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId));
+                            send(prepareRadioMessage(message.getCode(), message.getMessageId(), resourceId));
                             addPendingMessage(message);
                         }
                     }

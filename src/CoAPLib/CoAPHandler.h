@@ -28,7 +28,7 @@ private:
     Array<PendingMessage> pending_messages_;
 
     void handlePing(const CoAPMessage &message);
-    void handleGet(const CoAPMessage &message);
+    void handleRequest(const CoAPMessage &message);
     void handlePut(const CoAPMessage &message);
     void handleBadRequest(const CoAPMessage &message);
 
