@@ -2,12 +2,14 @@
 
 void prepareSpeakerResource(CoAPResources &res) {
     Array<String> uri_path;
+    uri_path.pushBack("remote");
     uri_path.pushBack("speaker");
     res.insert(uri_path, SPEAKER);
 }
 
 void prepareLampResource(CoAPResources &res) {
     Array<String> uri_path;
+    uri_path.pushBack("remote");
     uri_path.pushBack("lamp");
     res.insert(uri_path, LAMP);
 }
@@ -50,6 +52,15 @@ beginTest
         prepareLampResource(coapResources);
 
         assert(coapResources.search(coreResource) != nullptr);
+    }
+
+    test(ToCoreFormat) {
+        CoAPResources coapResources;
+
+        prepareSpeakerResource(coapResources);
+        prepareLampResource(coapResources);
+
+        assertEqual(coapResources.toLinkFormat(), String("</remote/speaker>;value=1,</remote/lamp>;value=0"));
     }
 
 endTest

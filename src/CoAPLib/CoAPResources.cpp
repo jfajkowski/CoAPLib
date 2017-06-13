@@ -103,3 +103,35 @@ void CoAPResources::insert(const Array<String> &keys, const unsigned short value
 Node *CoAPResources::search(const Array<String> &keys) {
     return search(keys.begin(), keys.end(), root);
 }
+
+String CoAPResources::toLinkFormat() const {
+    String core_format;
+
+    core_format += "<";
+    for (int i = 1; i < root->nodes.size(); ++i) {
+        getUriPaths(core_format, root->nodes[i]);
+    }
+
+    return core_format.substr(0, core_format.length() - 2);
+}
+
+void CoAPResources::getUriPaths(String &result, Node *child) const {
+    Node* node = nullptr;
+
+    for (int i = 0; i < child->nodes.size(); ++i) {
+        result += "/";
+        result += child->key;
+        node = child->nodes[i];
+        getUriPaths(result, node);
+    }
+
+    if (node == nullptr) {
+        result += "/";
+        result += child->key;
+        result += ">;value=";
+        result += valueOf(child->value);
+        result += ",<";
+    }
+}
+
+

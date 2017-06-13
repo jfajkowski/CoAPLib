@@ -37,62 +37,62 @@ void sleep(unsigned long seconds, unsigned long nanos) {
 
 beginTest
 
-    test(HandleMessage) {
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_GET);
-        message.setT(TYPE_CON);
-        CoAPOption uripath(11, "uri-path");
-        message.addOption(uripath);
-        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-
-        coAPHandler.handleMessage(message);
-    }
-
-    test(CreateResponse) {
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_GET);
-        message.setT(TYPE_CON);
-        CoAPOption uripath(11, "uri-path");
-        message.addOption(uripath);
-        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-
-        coAPHandler.handleMessage(message);
-    }
-
-    test(ExplicitCreateResponse) {
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_GET);
-        message.setT(TYPE_CON);
-        CoAPOption uripath(11, "uri-path");
-        message.addOption(uripath);
-
-        RadioMessage radioMessageMock;
-        radioMessageMock.message_id = message.getMessageId();
-        radioMessageMock.code = message.getCode();
-        radioMessageMock.resource = 0;
-        radioMessageMock.value = 300;
-        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-        coAPHandler.handleMessage(message);
-        coAPHandler.handleMessage(radioMessageMock);
-    }
-
-    test(Ping) {
-        unsigned int buffer_size = 4;
-        unsigned char buffer[] = {0x40, 0x00, 0xb7, 0x6c};
-
-        CoAPMessage message;
-        message.deserialize(buffer, buffer_size);
-
-
-        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-        coAPHandler.handleMessage(message);
-    }
+//    test(HandleMessage) {
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_GET);
+//        message.setT(TYPE_CON);
+//        CoAPOption uripath(11, "uri-path");
+//        message.addOption(uripath);
+//        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//
+//        coAPHandler.handleMessage(message);
+//    }
+//
+//    test(CreateResponse) {
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_GET);
+//        message.setT(TYPE_CON);
+//        CoAPOption uripath(11, "uri-path");
+//        message.addOption(uripath);
+//        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//
+//        coAPHandler.handleMessage(message);
+//    }
+//
+//    test(ExplicitCreateResponse) {
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_GET);
+//        message.setT(TYPE_CON);
+//        CoAPOption uripath(11, "uri-path");
+//        message.addOption(uripath);
+//
+//        RadioMessage radioMessageMock;
+//        radioMessageMock.message_id = message.getMessageId();
+//        radioMessageMock.code = message.getCode();
+//        radioMessageMock.resource = 0;
+//        radioMessageMock.value = 300;
+//        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//        coAPHandler.handleMessage(message);
+//        coAPHandler.handleMessage(radioMessageMock);
+//    }
+//
+//    test(Ping) {
+//        unsigned int buffer_size = 4;
+//        unsigned char buffer[] = {0x40, 0x00, 0xb7, 0x6c};
+//
+//        CoAPMessage message;
+//        message.deserialize(buffer, buffer_size);
+//
+//
+//        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//        coAPHandler.handleMessage(message);
+//    }
 
     test(Block2) {
         unsigned int buffer_size = 23;
@@ -107,29 +107,29 @@ beginTest
         coAPHandler.handleMessage(message);
     }
 
-    test(RegisteredResourceGet) {
-        CoAPMessage speaker_message;
-        speaker_message.setCode(CODE_GET);
-        speaker_message.addOption(CoAPOption(11, "speaker"));
-
-        CoAPMessage lamp_message;
-        lamp_message.setCode(CODE_GET);
-        lamp_message.addOption(CoAPOption(11, "lamp"));
-
-        CoAPHandler coap_handler(onCoAPMessageToSend, onRadioMessageToSend);
-        prepareSpeakerResource(coap_handler);
-        prepareLampResource(coap_handler);
-
-        coap_handler.handleMessage(speaker_message);
-    }
-
-    test(Timeout) {
-        CoAPHandler coap_handler(onCoAPMessageToSend, onRadioMessageToSend);
-        coap_handler.sendPing();
-
-        coap_handler.deleteTimedOut();
-        sleep(6, 0);
-        coap_handler.deleteTimedOut();
-    }
+//    test(RegisteredResourceGet) {
+//        CoAPMessage speaker_message;
+//        speaker_message.setCode(CODE_GET);
+//        speaker_message.addOption(CoAPOption(11, "speaker"));
+//
+//        CoAPMessage lamp_message;
+//        lamp_message.setCode(CODE_GET);
+//        lamp_message.addOption(CoAPOption(11, "lamp"));
+//
+//        CoAPHandler coap_handler(onCoAPMessageToSend, onRadioMessageToSend);
+//        prepareSpeakerResource(coap_handler);
+//        prepareLampResource(coap_handler);
+//
+//        coap_handler.handleMessage(speaker_message);
+//    }
+//
+//    test(Timeout) {
+//        CoAPHandler coap_handler(onCoAPMessageToSend, onRadioMessageToSend);
+//        coap_handler.sendPing();
+//
+//        coap_handler.deleteTimedOut();
+//        sleep(6, 0);
+//        coap_handler.deleteTimedOut();
+//    }
 
 endTest
