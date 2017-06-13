@@ -129,7 +129,7 @@ void CoAPResources::getUriPaths(String &result, Node *child) const {
         result += "/";
         result += child->key;
         result += ">;value=";
-        result += valueOf(child->value);
+        result += TO_STRING(child->value);
         result += ",<";
     }
 }

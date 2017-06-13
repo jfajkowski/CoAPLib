@@ -65,27 +65,29 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                             radioMessage.resource = resourceId;
                             addPendingMessage(message);
                         }
-                        else if(message.getCode() == GET)
-                        {
-                            if (uri_path[0] == RESOURCE_WELL_KNOWN)
-                            {
+                        else if(message.getCode() == GET) {
+                            if (uri_path[0] == RESOURCE_WELL_KNOWN) {
                                 //TODO: implement
                             }
-                            else if (uri_path[0] == RESOURCE_LOCAL)
-                            {
+                            else if (uri_path[0] == RESOURCE_LOCAL) {
                                 if(resource->key == RESOURCE_JITTER) {
-                                    createResponse(message, response,(unsigned short) last_jitter);
+                                    createResponse(message, response);
+                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    response.setPayload(toByteArray(TO_STRING(last_jitter)));
                                 }
                                 else if(resource->key == RESOURCE_RTT) {
-                                    createResponse(message, response, mean_rtt);
+                                    createResponse(message, response);
+                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    response.setPayload(toByteArray(TO_STRING(mean_rtt)));
                                 }
                                 else if(resource->key == RESOURCE_TIMEOUT) {
-                                    createResponse(message, response, timed_out);
+                                    createResponse(message, response);
+                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    response.setPayload(toByteArray(TO_STRING(timed_out)));
                                 }
                             }
                         }
-                        else
-                        {
+                        else {
                             handleBadRequest(message, CODE_BAD_REQUEST);
                         }
                     }
@@ -95,7 +97,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
             {
                 if(message.getCode() == CODE_PUT) {
                     String option_value = iterator->toString();
-                    if(option_value == valueOf(CONTENT_FORMAT_TEXT_PLAIN)) {
+                    if(option_value == TO_STRING(CONTENT_TEXT_PLAIN)) {
                         ByteArray payload = response.getPayload();
                         unsigned char* payload_iterator = payload.begin();
                         while(payload_iterator != payload.end()) {
@@ -135,16 +137,16 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
 
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id).coapMessage;
-    unsigned short responseValue=radioMessage.value;
-    CoAPMessage response;
 
-    createResponse(message, response, responseValue);
+    CoAPMessage response;
+    createResponse(message, response);
+    response.addOption(toContentFormat(0));
+    response.setPayload(toByteArray(TO_STRING(radioMessage.value)));
     send(response);
 
 }
 
-void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &response, unsigned short responseValue) {
-
+void CoAPHandler::createResponse(const CoAPMessage &message, CoAPMessage &response) {
     response.setToken(message.getToken());
 
     if (message.getT() == TYPE_CON) {
@@ -159,19 +161,6 @@ void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &respons
         response.setCode(69); //if get then code: 2.05-content
     else if(message.getCode() == CODE_PUT)
         response.setCode(68); //if put then code 2.04 -changed
-
-    ByteArray content_format_value(1);
-    content_format_value.pushBack((unsigned int)0);
-    CoAPOption content_format(12, content_format_value); //For now we assume payload is text/plain
-    response.addOption(content_format);
-
-    ByteArray payload(2);
-    unsigned char temp = (unsigned char)(responseValue & 0xff);
-    payload.pushBack(temp);
-    temp = (unsigned char)((responseValue >> 8) & 0xff);
-    payload.pushBack(temp);
-
-    response.setPayload(payload);
 }
 
 void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short error_code) {
@@ -293,5 +282,37 @@ void CoAPHandler::updateTimeoutMetric() {
 
 unsigned short CoAPHandler::getTimeout() const {
     return timeout_;
+}
+
+ByteArray CoAPHandler::toByteArray(unsigned short value) {
+    ByteArray result(2);
+    result.pushBack((const unsigned char &) (value & 0xff));
+    result.pushBack((const unsigned char &) ((value >> 8) & 0xff));
+    return result;
+}
+
+CoAPOption CoAPHandler::toContentFormat(unsigned short value) {
+    CoAPOption result(OPTION_CONTENT_FORMAT, toByteArray(value));
+    return result;
+}
+
+ByteArray CoAPHandler::toByteArray(const String &value) {
+    ByteArray result(value.length());
+    for (int i = 0; i < value.length(); ++i) {
+        result.pushBack((unsigned char) value[i]);
+    }
+    return result;
+}
+
+unsigned short CoAPHandler::toUnsignedShort(const string &value) {
+    return ((value[0]) << OFFSET_MESSAGE_ID) | (value[1]);
+}
+
+String CoAPHandler::toString(const ByteArray &value) {
+    String result;
+    for(int i = 0; i < value.size(); ++i){
+        result += char(value[i]);
+    }
+    return result;
 }
 

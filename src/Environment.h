@@ -21,7 +21,8 @@
     #endif
 
     #define substr substring
-    #define valueOf(x) String(x)
+    #define TO_STRING(x) String(x)
+    #define TO_INT(x) x.toInt()
     #define PRINT(x) Serial.print(x)
     #define PRINTLN(x) Serial.println(x)
 #else
@@ -45,7 +46,8 @@
     #endif
 
     #define String string
-    #define valueOf(x) to_string(x)
+    #define TO_STRING(x) to_string(x)
+    #define TO_INT(x) from_string(x)
     #define PRINT(x) std::cout << x
     #define PRINTLN(x) std::cout << x << std::endl
 
@@ -64,6 +66,13 @@
         std::ostringstream stm;
         stm << n ;
         return stm.str() ;
+    }
+
+    template <typename T>
+    T from_string(const String &s) {
+        T result;
+        stringstream(s) >> result;
+        return result;
     }
 
 #endif

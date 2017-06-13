@@ -41,6 +41,12 @@ private:
 
     void send(const CoAPMessage &message);
     void send(const RadioMessage &message);
+
+    ByteArray toByteArray(const String &value);
+    ByteArray toByteArray(unsigned short value);
+    unsigned short toUnsignedShort(const string &value);
+    String toString(const ByteArray &value);
+    CoAPOption toContentFormat(unsigned short value);
 public:
     CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
                 coapMessageListener_(&coapMessageListener),
@@ -56,7 +62,7 @@ public:
 
     unsigned short getTimeout() const;
 
-    void createResponse(const CoAPMessage &message, CoAPMessage &response, unsigned short responseValue);
+    void createResponse(const CoAPMessage &message, CoAPMessage &response);
 };
 
 
