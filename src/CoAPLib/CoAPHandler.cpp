@@ -304,8 +304,8 @@ ByteArray CoAPHandler::toByteArray(const String &value) {
     return result;
 }
 
-unsigned short CoAPHandler::toUnsignedShort(const string &value) {
-    return ((value[0]) << OFFSET_MESSAGE_ID) | (value[1]);
+unsigned short CoAPHandler::toUnsignedShort(const String &value) {
+    return (unsigned short) TO_INT(value);
 }
 
 String CoAPHandler::toString(const ByteArray &value) {

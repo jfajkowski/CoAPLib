@@ -44,7 +44,7 @@ private:
 
     ByteArray toByteArray(const String &value);
     ByteArray toByteArray(unsigned short value);
-    unsigned short toUnsignedShort(const string &value);
+    unsigned short toUnsignedShort(const String &value);
     String toString(const ByteArray &value);
     CoAPOption toContentFormat(unsigned short value);
 public:
