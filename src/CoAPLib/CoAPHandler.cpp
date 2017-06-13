@@ -8,20 +8,13 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
             message.print();
     )
 
-    switch (message.getCode()) {
-        case CODE_EMPTY:
-            handlePing(message);
-            break;
-        case CODE_GET:
-            handleRequest(message);
-            break;
-        case CODE_PUT:
-            handleRequest(message);
-            break;
-        default:
-            //BAD REQUEST
-            break;
-    }
+    if(message.getCode() == CODE_EMPTY)
+        handlePing(message);
+    else if(message.getCode() == CODE_GET &&
+            message.getCode() == CODE_PUT)
+        handleRequest(message);
+    else
+        handleBadRequest(message);
 }
 
 void CoAPHandler::handlePing(const CoAPMessage &message) {
@@ -62,27 +55,33 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                     Node* resource = resources_.search(uri_path);
 
                     if (resource != nullptr) {
-                        if (uri_path[0] == RESOURCE_WELL_KNOWN) {
-                            if(message.getCode() == PUT){
-                                handleBadRequest(message);
-                            }
-                            //TODO: implement
-                        } else if (uri_path[0] == RESOURCE_LOCAL) {
-                            if(message.getCode() == PUT){
-                                handleBadRequest(message);
-                            }else if (message.getCode() == GET){
-                                if(resource->key == RESOURCE_JITTER) {
-                                    createResponse(message, response,(unsigned short) last_jitter);
-                                }else if(resource->key == RESOURCE_RTT) {
-                                    createResponse(message, response, mean_rtt);
-                                }else if(resource->key == RESOURCE_TIMEOUT) {
-                                    createResponse(message, response, timed_out);
-                                }
-                            }
-                        } else if (uri_path[0] == RESOURCE_REMOTE) {
+                        if (uri_path[0] == RESOURCE_REMOTE) {
                             unsigned short resourceId = resource->value;
                             send(prepareRadioMessage(message.getCode(), message.getMessageId(), resourceId));
                             addPendingMessage(message);
+                        }
+                        else if(message.getCode() == GET)
+                        {
+                            if (uri_path[0] == RESOURCE_WELL_KNOWN)
+                            {
+                                //TODO: implement
+                            }
+                            else if (uri_path[0] == RESOURCE_LOCAL)
+                            {
+                                if(resource->key == RESOURCE_JITTER) {
+                                    createResponse(message, response,(unsigned short) last_jitter);
+                                }
+                                else if(resource->key == RESOURCE_RTT) {
+                                    createResponse(message, response, mean_rtt);
+                                }
+                                else if(resource->key == RESOURCE_TIMEOUT) {
+                                    createResponse(message, response, timed_out);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            handleBadRequest(message);
                         }
                     }
                 }
