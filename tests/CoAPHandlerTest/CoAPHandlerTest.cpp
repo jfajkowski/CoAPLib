@@ -19,13 +19,13 @@ static struct OnRadioMessageToSend : public RadioMessageListener {
 void prepareSpeakerResource(CoAPHandler &coAPHandler) {
     Array<String> uri_path;
     uri_path.pushBack("speaker");
-    coAPHandler.registerResource(uri_path);
+    coAPHandler.registerResource(uri_path, SPEAKER);
 }
 
 void prepareLampResource(CoAPHandler &coAPHandler) {
     Array<String> uri_path;
     uri_path.pushBack("lamp");
-    coAPHandler.registerResource(uri_path);
+    coAPHandler.registerResource(uri_path, LAMP);
 }
 
 void sleep(unsigned long seconds, unsigned long nanos) {
@@ -76,7 +76,7 @@ beginTest
         radioMessageMock.message_id = message.getMessageId();
         radioMessageMock.code = message.getCode();
         radioMessageMock.resource = 0;
-        radioMessageMock.key = 300;
+        radioMessageMock.value = 300;
         CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
         coAPHandler.handleMessage(message);
         coAPHandler.handleMessage(radioMessageMock);

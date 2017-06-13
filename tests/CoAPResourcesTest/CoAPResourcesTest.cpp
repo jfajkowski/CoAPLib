@@ -17,8 +17,8 @@ beginTest
         strings2.pushBack("3b");
 
         CoAPResources coapResources;
-        coapResources.insert(strings1);
-        coapResources.insert(strings2);
+        coapResources.insert(strings1, 0);
+        coapResources.insert(strings2, 0);
 
         String actual1 = coapResources.search(strings1)->key;
         String actual2 = coapResources.search(strings2)->key;

@@ -73,7 +73,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                             //We need to put nodeId  to radio header
                             subPath.pushBack(uri_path[2]);
                             unsigned short resourceId=resources_.valueAtPath(subPath);
-                            sendRadioMessage(prepareRadioMessage(GET,message.getMessageId(),resourceId));
+                            send(prepareRadioMessage(GET,message.getMessageId(),resourceId));
                             addPendingMessage(message);
                             break;
                     }
