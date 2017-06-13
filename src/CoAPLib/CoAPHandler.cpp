@@ -82,6 +82,10 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                     }
                 }
                 break;
+            case OPTION_CONTENT_FORMAT:
+            {
+                //TODO: implement
+            }
             case OPTION_BLOCK2:
                 {
                     Block2 values(iterator->toBlock2());
@@ -94,6 +98,89 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
         }
     }
     //TODO: what if there are no options?
+}
+
+void CoAPHandler::handlePut(const CoAPMessage &message) {
+    OptionArray options = message.getOptions();
+    CoAPOption* iterator = options.begin();
+    int option_id = 0;
+
+    for(; iterator != options.end(); iterator++) {
+        option_id = iterator->getNumber();
+
+        switch(option_id) {
+            case OPTION_URI_PATH:
+            {
+                Array<String> uri_path;
+                while (((iterator + 1) != options.end()) && ((iterator + 1)->getNumber() == OPTION_URI_PATH)) {
+                    uri_path.pushBack(iterator->toString());
+                    ++iterator;
+                }
+                uri_path.pushBack(iterator->toString());
+
+                Node* resource = resources_.search(uri_path);
+
+                if (resource != nullptr) {
+                    if (uri_path[0] == RESOURCE_WELL_KNOWN) {
+                        //TODO: implement
+                    } else if (uri_path[0] == RESOURCE_LOCAL) {
+                        //TODO: implement
+                    } else if (uri_path[0] == RESOURCE_REMOTE) {
+                        //TODO: implement
+                    }
+                }
+            }
+                break;
+            case OPTION_CONTENT_FORMAT:
+            {
+                //TODO: implement
+            }
+                break;
+            case OPTION_BLOCK2:
+            {
+                Block2 values(iterator->toBlock2());
+            }
+                break;
+            default:
+                //BAD REQUEST?
+                //TODO: add more options
+                break;
+        }
+    }
+    //TODO: what if there are no options?
+
+    /*
+    int iterator=0;
+    int id=0;
+    id+= message.getOptions()[iterator].getNumber();
+    if(id==11) //Uri-Path option
+    {
+        CoAPOption uri_path_option=message.getOptions()[iterator];
+        String path=uri_path_option.toString();
+        iterator++;
+        id+= message.getOptions()[iterator].getNumber();
+        if(id == 12){ //Content-Format option
+            //TODO: Interpret payload accordingly to Content-Format and update resource
+        }
+        else{
+            //Try to deafault formating for this resource or...
+            //throw std::logic_error("No content format option");
+        }
+        //get updated resource
+        iterator++;
+        id+= message.getOptions()[iterator].getNumber();
+        if(id == 17)//Accept option
+        {
+            //TODO::try to format resource to specified content_format
+        }
+        ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
+        CoAPMessage response = sendResponse(message, mockupPayload);
+        //TODO: send back/change methods to return response?
+    }
+    else{
+        //throw logic_error("Bad option");
+    }
+    */
 }
 
 RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const {
@@ -160,42 +247,6 @@ void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short resp
 
     response.setPayload(payload);
     send(response);
-}
-
-void CoAPHandler::handlePut(const CoAPMessage &message) {
-    //TODO: implement
-    /*
-    int iterator=0;
-    int id=0;
-    id+= message.getOptions()[iterator].getNumber();
-    if(id==11) //Uri-Path option
-    {
-        CoAPOption uri_path_option=message.getOptions()[iterator];
-        String path=uri_path_option.toString();
-        iterator++;
-        id+= message.getOptions()[iterator].getNumber();
-        if(id == 12){ //Content-Format option
-            //TODO: Interpret payload accordingly to Content-Format and update resource
-        }
-        else{
-            //Try to deafault formating for this resource or...
-            //throw std::logic_error("No content format option");
-        }
-        //get updated resource
-        iterator++;
-        id+= message.getOptions()[iterator].getNumber();
-        if(id == 17)//Accept option
-        {
-            //TODO::try to format resource to specified content_format
-        }
-        ByteArray mockupPayload=ByteArray((const ByteArray &) "payload");
-        CoAPMessage response = sendResponse(message, mockupPayload);
-        //TODO: send back/change methods to return response?
-    }
-    else{
-        //throw logic_error("Bad option");
-    }
-    */
 }
 
 void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
@@ -285,7 +336,6 @@ void CoAPHandler::updateMetrics(unsigned short rtt) {
     updateJitterMetric(rtt);
     DEBUG_PRINTLN("");
 }
-
 
 void CoAPHandler::updateRoundTripTimeMetric(unsigned short rtt) {
     if (mean_rtt == 0)

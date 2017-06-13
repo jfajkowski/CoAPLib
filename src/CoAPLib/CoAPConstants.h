@@ -45,6 +45,7 @@ static const unsigned short CODE_PROXYING_NOT_SUPPORTED = COAP_CODE(505);
 
 // Option codes:
 static const unsigned short OPTION_URI_PATH = 11;
+static const unsigned short OPTION_CONTENT_FORMAT = 12;
 static const unsigned short OPTION_BLOCK2 = 23;
 
 // Message header constants:
