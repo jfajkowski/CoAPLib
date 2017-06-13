@@ -42,7 +42,7 @@ public:
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
 
-    void registerResource(const Array<String> &uri_path);
+    void registerResource(const Array<String> &uri_path, const String &value);
 };
 
 

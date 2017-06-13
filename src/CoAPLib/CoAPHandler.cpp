@@ -226,7 +226,7 @@ CoAPMessage CoAPHandler::finalizePendingMessage(const unsigned int message_id) {
     // TODO WHAT IF NOT FOUND?
 }
 
-void CoAPHandler::registerResource(const Array<String> &uri_path) {
-    resources_.insert(uri_path);
+void CoAPHandler::registerResource(const Array<String> &uri_path, const String &value) {
+    resources_.insert(uri_path, value);
 }
 
