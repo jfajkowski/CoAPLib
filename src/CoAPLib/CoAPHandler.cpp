@@ -53,30 +53,30 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
             case OPTION_URI_PATH:
                 {
                     Array<String> uri_path;
-                    while ((iterator + 1)->getNumber() == OPTION_URI_PATH) {
+                    while (((iterator + 1) != options.end()) && ((iterator + 1)->getNumber() == OPTION_URI_PATH)) {
                         uri_path.pushBack(iterator->toString());
                         ++iterator;
                     }
                     uri_path.pushBack(iterator->toString());
 
-                    Node* node = resources_.search(uri_path);
+                    Node* resource = resources_.search(uri_path);
 
-                    if (node != nullptr) {
+                    if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_WELL_KNOWN) {
-
+                            //TODO: implement
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
 
-                            if(node->key == RESOURCE_JITTER) {
+                            if(resource->key == RESOURCE_JITTER) {
                                 createResponse(message,last_jitter);
-                            }else if(node->key == RESOURCE_RTT) {
+                            }else if(resource->key == RESOURCE_RTT) {
                                 createResponse(message,mean_rtt);
-                            }else if(node->key == RESOURCE_TIMEOUT) {
+                            }else if(resource->key == RESOURCE_TIMEOUT) {
                                 createResponse(message,timed_out);
                             }
 
                         } else if (uri_path[0] == RESOURCE_REMOTE) {
-                            unsigned short resourceId = node->value;
-                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId));
+                            unsigned short resourceId = resource->value;
+                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId)); //TODO: send at the end
                             addPendingMessage(message);
                         }
                     }
