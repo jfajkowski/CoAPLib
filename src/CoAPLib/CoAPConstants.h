@@ -66,8 +66,12 @@ static const unsigned char OFFSET_DELTA = 4;
 static const unsigned char OFFSET_EXTENDABLE = 8;
 
 // Resource types constants:
-static const unsigned short RESOURCE_WELLKNOWN = COAP_CODE(0);
-static const unsigned short RESOURCE_LOCAL = COAP_CODE(1);
-static const unsigned short RESOURCE_REMOTE = COAP_CODE(2);
+static const String RESOURCE_WELL_KNOWN = ".well-known";
+static const String RESOURCE_CORE = "core";
+static const String RESOURCE_LOCAL = "local";
+static const String RESOURCE_REMOTE = "remote";
+static const String RESOURCE_RTT = "rtt";
+static const String RESOURCE_TIMEOUT = "timeout";
+static const String RESOURCE_JITTER = "jitter";
 
 #endif //CODES_H

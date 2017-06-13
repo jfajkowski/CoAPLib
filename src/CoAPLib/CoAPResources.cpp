@@ -5,9 +5,9 @@ CoAPResources::CoAPResources() {
     root->key = ".";
 
     Array<String> coreResource;
-    coreResource.pushBack(".well-known");
+    coreResource.pushBack(RESOURCE_WELL_KNOWN);
     insert(coreResource, 0);
-    coreResource.pushBack("core");
+    coreResource.pushBack(RESOURCE_CORE);
     insert(coreResource, 0);
 }
 

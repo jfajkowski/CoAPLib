@@ -1,5 +1,17 @@
 #include "Test.hpp"
 
+void prepareSpeakerResource(CoAPResources &res) {
+    Array<String> uri_path;
+    uri_path.pushBack("speaker");
+    res.insert(uri_path, SPEAKER);
+}
+
+void prepareLampResource(CoAPResources &res) {
+    Array<String> uri_path;
+    uri_path.pushBack("lamp");
+    res.insert(uri_path, LAMP);
+}
+
 beginTest
 
     test(Create) {
@@ -33,6 +45,10 @@ beginTest
         coreResource.pushBack("core");
 
         CoAPResources coapResources;
+
+        prepareSpeakerResource(coapResources);
+        prepareLampResource(coapResources);
+
         assert(coapResources.search(coreResource) != nullptr);
     }
 

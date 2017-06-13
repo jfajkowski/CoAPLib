@@ -2,6 +2,7 @@
 #define COAPLIB_COAPRESOURCES_H
 
 #include "Array.hpp"
+#include "CoAPConstants.h"
 #include "../Environment.h"
 
 struct Node {

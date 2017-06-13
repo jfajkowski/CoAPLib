@@ -58,24 +58,27 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                         ++iterator;
                     }
                     uri_path.pushBack(iterator->toString());
-                    //Ok, here we need to decide wheter it is well known, local or remote resource
-                    Array<String> subPath;
-                    subPath.pushBack(uri_path[0]);
-                    switch(resources_.valueAtPath(subPath))
-                    {
-                        case RESOURCE_WELLKNOWN:  //TODO:
-                            break;
-                        case RESOURCE_LOCAL:
-                            break;
-                        case RESOURCE_REMOTE:
-                            subPath.pushBack(uri_path[1]);
-                            unsigned short nodeId=resources_.valueAtPath(subPath);
-                            //We need to put nodeId  to radio header
-                            subPath.pushBack(uri_path[2]);
-                            unsigned short resourceId=resources_.valueAtPath(subPath);
-                            send(prepareRadioMessage(GET,message.getMessageId(),resourceId));
+
+                    Node* node = resources_.search(uri_path);
+
+                    if (node != nullptr) {
+                        if (uri_path[0] == RESOURCE_WELL_KNOWN) {
+
+                        } else if (uri_path[0] == RESOURCE_LOCAL) {
+
+                            if(node->key == RESOURCE_JITTER) {
+
+                            }else if(node->key == RESOURCE_RTT) {
+
+                            }else if(node->key == RESOURCE_TIMEOUT) {
+
+                            }
+
+                        } else if (uri_path[0] == RESOURCE_REMOTE) {
+                            unsigned short resourceId = node->value;
+                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId));
                             addPendingMessage(message);
-                            break;
+                        }
                     }
                 }
                 break;
