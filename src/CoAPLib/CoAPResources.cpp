@@ -6,8 +6,9 @@ CoAPResources::CoAPResources() {
 
     Array<String> coreResource;
     coreResource.pushBack(".well-known");
+    insert(coreResource, 0);
     coreResource.pushBack("core");
-    insert(coreResource);
+    insert(coreResource, 0);
 }
 
 CoAPResources::~CoAPResources() {
@@ -27,7 +28,7 @@ void CoAPResources::destroy(Node *leaf) {
     }
 }
 
-void CoAPResources::insert(String *begin, const String *end, Node *leaf) {
+void CoAPResources::insert(String *begin, const String *end, Node *leaf, unsigned short value) {
     Node* node = nullptr;
     for (int i = 0; i < leaf->nodes.size(); ++i) {
         if (leaf->nodes[i]->key == *begin) {
@@ -48,8 +49,10 @@ void CoAPResources::insert(String *begin, const String *end, Node *leaf) {
     if (begin + 1 != end) {
         DEBUG_PRINT("Moving into: ");
         DEBUG_PRINTLN(node->key);
-        insert(++begin, end, node);
+        insert(++begin, end, node, value);
     }
+    else
+        node->value=value;
 }
 
 Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
@@ -93,10 +96,13 @@ Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     else return node;
 }
 
-void CoAPResources::insert(const Array<String> &keys) {
-    insert(keys.begin(), keys.end(), root);
+void CoAPResources::insert(const Array<String> &keys, const unsigned short value) {
+    insert(keys.begin(), keys.end(), root, value);
 }
 
 Node *CoAPResources::search(const Array<String> &keys) {
     return search(keys.begin(), keys.end(), root);
+}
+unsigned short CoAPResources::valueAtPath(const Array<String> &keys){
+    return search(keys.begin(), keys.end(), root)->value;
 }

@@ -65,4 +65,9 @@ static const unsigned char MASK_EXTENDABLE = 0x00FF;
 static const unsigned char OFFSET_DELTA = 4;
 static const unsigned char OFFSET_EXTENDABLE = 8;
 
+// Resource types constants:
+static const unsigned short RESOURCE_WELLKNOWN = COAP_CODE(0);
+static const unsigned short RESOURCE_LOCAL = COAP_CODE(1);
+static const unsigned short RESOURCE_REMOTE = COAP_CODE(2);
+
 #endif //CODES_H

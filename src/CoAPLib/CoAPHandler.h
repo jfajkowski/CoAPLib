@@ -37,7 +37,7 @@ private:
     void updateJitterMetric(unsigned short rtt);
     void updateTimeoutMetric();
 
-    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const;
+    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const;
 
     void addPendingMessage(const CoAPMessage &message);
     PendingMessage finalizePendingMessage(const unsigned short message_id);
@@ -53,10 +53,9 @@ public:
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
 
+    void registerResource(const Array<String> &uri_path, unsigned short value);
     void sendPing();
     void deleteTimedOut();
-
-    void registerResource(const Array<String> &uri_path);
 
     unsigned short getTimeout() const;
 };
