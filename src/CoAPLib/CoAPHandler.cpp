@@ -10,7 +10,7 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
 
     if(message.getCode() == CODE_EMPTY)
         handlePing(message);
-    else if(message.getCode() == CODE_GET &&
+    else if(message.getCode() == CODE_GET ||
             message.getCode() == CODE_PUT)
         handleRequest(message);
     else
@@ -52,7 +52,8 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                         uri_path.pushBack(iterator->toString());
                         ++iterator;
                     }
-                    uri_path.pushBack(iterator->toString());
+                    String temp_uri = toString(iterator->getValue());
+                    uri_path.pushBack(temp_uri);
 
                     Node* resource = resources_.search(uri_path);
 
@@ -98,19 +99,18 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
             case OPTION_CONTENT_FORMAT:
             {
                 if(message.getCode() == CODE_PUT) {
-                    String option_value = iterator->toString();
-                    if(option_value == TO_STRING(CONTENT_TEXT_PLAIN)) {
-                        ByteArray payload = response.getPayload();
-                        unsigned char* payload_iterator = payload.begin();
-                        while(payload_iterator != payload.end()) {
-                            ++payload_iterator;
-                        }
+                    String s_value = toString(iterator->getValue());
+                    unsigned short content_format_type = toUnsignedShort(s_value);
 
+                    if(content_format_type == CONTENT_TEXT_PLAIN) {
+                        String s_payload = toString(message.getPayload());
+                        unsigned short payload = toUnsignedShort(s_payload);
+                        radioMessage.value = payload;
                     } else {
-                        //bad request
+                        handleBadRequest(message, CODE_NOT_IMPLEMENTED);
                     }
                 } else {
-                    //bad request
+                    handleBadRequest(message, CODE_BAD_REQUEST);
                 }
             }
             case OPTION_BLOCK2:

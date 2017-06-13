@@ -86,19 +86,19 @@ beginTest
 //        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
 //        coAPHandler.handleMessage(message);
 //    }
-
-    test(Block2) {
-        unsigned int buffer_size = 23;
-        unsigned char buffer[] = {0x40, 0x01, 0xfd, 0xf8, 0xbb, 0x2e, 0x77, 0x65, 0x6c,
-                                  0x6c, 0x2d, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x04, 0x63,
-                                  0x6f, 0x72, 0x65, 0xc1, 0x02};
-
-        CoAPMessage message;
-        message.deserialize(buffer, buffer_size);
-
-        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-        coAPHandler.handleMessage(message);
-    }
+//
+//    test(Block2) {
+//        unsigned int buffer_size = 23;
+//        unsigned char buffer[] = {0x40, 0x01, 0xfd, 0xf8, 0xbb, 0x2e, 0x77, 0x65, 0x6c,
+//                                  0x6c, 0x2d, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x04, 0x63,
+//                                  0x6f, 0x72, 0x65, 0xc1, 0x02};
+//
+//        CoAPMessage message;
+//        message.deserialize(buffer, buffer_size);
+//
+//        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//        coAPHandler.handleMessage(message);
+//    }
 
 //    test(RegisteredResourceGet) {
 //        CoAPMessage speaker_message;
@@ -124,5 +124,34 @@ beginTest
 //        delay(6000);
 //        coap_handler.deleteTimedOut();
 //    }
+
+        test(OptionContentFormat) {
+        CoAPMessage message;
+        message.setMessageId(100);
+        message.setToken(222);
+        message.setCode(CODE_PUT);
+        message.setT(TYPE_CON);
+        CoAPOption uripath(11, RESOURCE_REMOTE);
+        message.addOption(uripath);
+//        CoAPOption wellknown(11, RESOURCE_WELL_KNOWN);
+//        message.addOption(wellknown);
+//        CoAPOption core(11, RESOURCE_CORE);
+//        message.addOption(core);
+
+        ByteArray c_f(2);
+        c_f.pushBack((const unsigned char &) (0 & 0xff));
+        c_f.pushBack((const unsigned char &) ((0 >> 8) & 0xff));
+
+        CoAPOption content_format(OPTION_CONTENT_FORMAT, c_f);
+        message.addOption(content_format);
+
+        ByteArray payload;
+        payload.pushBack('2');
+        payload.pushBack('4');
+        message.setPayload(payload);
+
+        CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+        coAPHandler.handleMessage(message);
+    }
 
 endTest
