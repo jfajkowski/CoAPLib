@@ -119,8 +119,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 }
                 break;
             default:
-                //BAD REQUEST?
-                //TODO: add more options
+                handleBadRequest(message, CODE_BAD_REQUEST);
                 break;
         }
     }
@@ -157,7 +156,7 @@ void CoAPHandler::createResponse(const CoAPMessage &message, CoAPMessage &respon
         response.setMessageId(message.getMessageId());
     } else if (message.getT() == TYPE_NON) {
         response.setT(TYPE_NON);
-        response.setMessageId((unsigned short) (message.getMessageId() + 1));
+        response.setMessageId((unsigned short)(message.getMessageId() + 1));
     }
 
     if(message.getCode() == CODE_GET)
@@ -175,7 +174,7 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short er
         response.setMessageId(message.getMessageId());
     } else {
         response.setT(TYPE_NON);
-        response.setMessageId(message.getMessageId()+1);
+        response.setMessageId((unsigned short)(message.getMessageId() + 1));
     }
     response.setCode(error_code);
 
