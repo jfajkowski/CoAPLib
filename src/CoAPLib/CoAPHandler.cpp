@@ -66,7 +66,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                             radioMessage.resource = resourceId;
                             addPendingMessage(message);
                         }
-                        else if(message.getCode() == GET) {
+                        else if(message.getCode() == CODE_GET) {
                             if (uri_path[0] == RESOURCE_WELL_KNOWN) {
                                 createResponse(message, response);
                                 response.addOption(toContentFormat(CONTENT_LINK_FORMAT));

@@ -52,8 +52,8 @@ void setup() {
     Serial.begin(9600);
 
     // Prepare Ethernet:
-    //Ethernet.begin(mac);                    // Connected to router
-    Ethernet.begin(mac, ip);              // Directly connected
+    Ethernet.begin(mac);                    // Connected to router
+    //Ethernet.begin(mac, ip);              // Directly connected
     Serial.println(Ethernet.localIP());
     Udp.begin(local_port);
 
@@ -112,7 +112,6 @@ void loop() {
             last_ping_sent = now;
         }
     }
-
 }
 
 void prepareSpeakerResource() {

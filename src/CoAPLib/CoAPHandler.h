@@ -5,6 +5,7 @@
 #include "CoAPMessage.h"
 #include "CoAPMessageListener.h"
 #include "CoAPResources.h"
+#include "../Environment.h"
 #include "../RadioLib.h"
 
 class CoAPHandler {
