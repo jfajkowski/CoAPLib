@@ -11,8 +11,15 @@ class CoAPHandler {
 private:
     struct PendingMessage {
         CoAPMessage coapMessage;
-        unsigned long timeArrived;
+        unsigned long timestamp;
     };
+
+    unsigned short timeout_ = 5000;
+
+    unsigned short ping_messages_sent = 0;
+    unsigned short mean_rtt = 0;
+    short last_jitter = 0;
+    unsigned short timed_out = 0;
 
     CoAPResources resources_;
     CoAPMessageListener* coapMessageListener_;
@@ -25,14 +32,18 @@ private:
     void handlePut(const CoAPMessage &message);
     void handleBadRequest(const CoAPMessage &message);
 
+    void updateMetrics(unsigned short rtt);
+    void updateRoundTripTimeMetric(unsigned short rtt);
+    void updateJitterMetric(unsigned short rtt);
+    void updateTimeoutMetric();
+
     RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const;
 
     void addPendingMessage(const CoAPMessage &message);
-    CoAPMessage finalizePendingMessage(const unsigned int message_id);
-    void appendPendingMessage(const CoAPMessage &message);
+    PendingMessage finalizePendingMessage(const unsigned short message_id);
 
-    void sendCoAPMessage(const CoAPMessage &message);
-    void sendRadioMessage(const RadioMessage &message);
+    void send(const CoAPMessage &message);
+    void send(const RadioMessage &message);
 public:
     CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
                 coapMessageListener_(&coapMessageListener),
@@ -42,7 +53,12 @@ public:
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
 
+    void sendPing();
+    void deleteTimedOut();
+
     void registerResource(const Array<String> &uri_path);
+
+    unsigned short getTimeout() const;
 };
 
 

@@ -28,6 +28,7 @@ public:
     const T popBack();
     void insert(const T &value, unsigned int index);
     const T pop(unsigned int index);
+    void erase(unsigned int index);
     void reserve(unsigned int new_capacity);
 
     Array &operator=(const Array & array);
@@ -104,6 +105,20 @@ const T Array<T>::pop(unsigned int index) { //TODO: add resizing when size is le
     }
     --size_;
     return element;
+}
+
+template<typename T>
+void Array<T>::erase(unsigned int index) { //TODO: add resizing when size is less than half of the capacity
+    T* iterator1 = array_begin_ + index;
+    T* iterator2 = array_begin_ + index + 1;
+    T* end = Array<T>::end();
+
+    while(iterator2 != end) {
+        *iterator1 = *iterator2;
+        iterator1++;
+        iterator2++;
+    }
+    --size_;
 }
 
 template <typename T>

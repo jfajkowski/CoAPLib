@@ -25,13 +25,19 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
 }
 
 void CoAPHandler::handlePing(const CoAPMessage &message) {
-    CoAPMessage response;
+    if (message.getT() == TYPE_ACK) {
+        PendingMessage pendingMessage = finalizePendingMessage((unsigned short) (ping_messages_sent - 1));
+        updateMetrics((unsigned short) (millis() - pendingMessage.timestamp));
+    }
+    else {
+        CoAPMessage response;
 
-    response.setCode(CODE_EMPTY);
-    response.setT(TYPE_RST);
-    response.setMessageId(message.getMessageId());
+        response.setCode(CODE_EMPTY);
+        response.setT(TYPE_ACK);
+        response.setMessageId(message.getMessageId());
 
-    sendCoAPMessage(response);
+        send(response);
+    }
 }
 
 void CoAPHandler::handleGet(const CoAPMessage &message) {
@@ -54,7 +60,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                     uri_path.pushBack(iterator->toString());
 
                     resources_.search(uri_path)->key; // TODO DO SOMETHING ACCORDING TO RESULT!
-                    // sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
+                    // send(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
                     // addPendingMessage(message);
                     }
                 break;
@@ -100,7 +106,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     );
 
     CoAPMessage message;
-    message = finalizePendingMessage(radioMessage.message_id);
+    message = finalizePendingMessage(radioMessage.message_id).coapMessage;
 
     CoAPMessage response;
     response.setToken(message.getToken());
@@ -110,7 +116,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
         response.setMessageId(message.getMessageId());
     } else if (message.getT() == TYPE_NON) {
         response.setT(TYPE_NON);
-        response.setMessageId(message.getMessageId()+1); //TODO: a method generating new IDs
+        response.setMessageId((unsigned short) (message.getMessageId() + 1)); //TODO: a method generating new IDs
     }
 
     if(message.getCode() == CODE_GET)
@@ -130,7 +136,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     payload.pushBack(temp);
 
     response.setPayload(payload);
-    sendCoAPMessage(response);
+    send(response);
 }
 
 void CoAPHandler::handlePut(const CoAPMessage &message) {
@@ -182,10 +188,10 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
     }
     response.setCode(CODE_BAD_REQUEST);
 
-    sendCoAPMessage(response);
+    send(response);
 }
 
-void CoAPHandler::sendCoAPMessage(const CoAPMessage &message) {
+void CoAPHandler::send(const CoAPMessage &message) {
     DEBUG_FUNCTION(
             DEBUG_PRINT_TIME();
             DEBUG_PRINTLN("SENT");
@@ -196,7 +202,7 @@ void CoAPHandler::sendCoAPMessage(const CoAPMessage &message) {
         (*coapMessageListener_)(message);
 }
 
-void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
+void CoAPHandler::send(const RadioMessage &message) {
     DEBUG_FUNCTION(
             DEBUG_PRINT_TIME();
             DEBUG_PRINTLN("SENT");
@@ -211,22 +217,81 @@ void CoAPHandler::addPendingMessage(const CoAPMessage &message) {
     pending_messages_.pushBack({message, millis()}); //TODO: pushing back a copy, what about original?
     DEBUG_PRINT("Added pending message. Array size: ");
     DEBUG_PRINTLN(pending_messages_.size());
+    DEBUG_PRINTLN("");
 }
 
-void CoAPHandler::appendPendingMessage(const CoAPMessage &message) {
-
-}
-
-CoAPMessage CoAPHandler::finalizePendingMessage(const unsigned int message_id) {
+CoAPHandler::PendingMessage CoAPHandler::finalizePendingMessage(const unsigned short message_id) {
     for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].coapMessage.getMessageId() == message_id)
-            return pending_messages_.pop(i).coapMessage;
+            return pending_messages_.pop(i);
     }
 
     // TODO WHAT IF NOT FOUND?
 }
 
+void CoAPHandler::deleteTimedOut() {
+    unsigned long now = millis();
+    for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
+        if(now - pending_messages_[i].timestamp > timeout_) {
+            DEBUG_FUNCTION(
+                DEBUG_PRINT_TIME();
+                DEBUG_PRINTLN("TIMEOUT");
+                pending_messages_[i].coapMessage.print();
+            );
+
+            pending_messages_.erase(i);
+            updateTimeoutMetric();
+        }
+    }
+}
+
 void CoAPHandler::registerResource(const Array<String> &uri_path) {
     resources_.insert(uri_path);
+}
+
+void CoAPHandler::sendPing() {
+    CoAPMessage message;
+    message.setCode(CODE_EMPTY);
+    message.setMessageId(ping_messages_sent++);
+    send(message);
+    addPendingMessage(message);
+}
+
+void CoAPHandler::updateMetrics(unsigned short rtt) {
+    updateRoundTripTimeMetric(rtt);
+    updateJitterMetric(rtt);
+    DEBUG_PRINTLN("");
+}
+
+
+void CoAPHandler::updateRoundTripTimeMetric(unsigned short rtt) {
+    if (mean_rtt == 0)
+        mean_rtt = rtt;
+    else {
+        int tmp = (ping_messages_sent - 1) * mean_rtt;
+        mean_rtt = (unsigned short) ((tmp + rtt) / ping_messages_sent);
+    }
+
+    DEBUG_PRINT("RTT: ");
+    DEBUG_PRINTLN(mean_rtt);
+}
+
+void CoAPHandler::updateJitterMetric(unsigned short rtt) {
+    last_jitter = rtt - mean_rtt;
+
+    DEBUG_PRINT("Jitter: ");
+    DEBUG_PRINTLN(last_jitter);
+}
+
+void CoAPHandler::updateTimeoutMetric() {
+    ++timed_out;
+
+    DEBUG_PRINT("Timed out messages: ");
+    DEBUG_PRINTLN(timed_out);
+    DEBUG_PRINTLN("");
+}
+
+unsigned short CoAPHandler::getTimeout() const {
+    return timeout_;
 }
 

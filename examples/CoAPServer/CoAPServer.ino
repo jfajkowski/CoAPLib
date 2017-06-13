@@ -10,7 +10,8 @@
 #include <RadioLib.h>
 
 // Ethernet library variables:
-IPAddress ip(192, 168, 0, 2);                   // Used only when directly connected.
+IPAddress invalid(0, 0, 0, 0);
+IPAddress ip(169, 254, 42, 110);                   // Used only when directly connected.
 unsigned short local_port = 10000;
 byte mac[] = {222, 222, 222, 222, 222, 222};
 EthernetUDP Udp;
@@ -43,13 +44,16 @@ struct : public RadioMessageListener {
 } onRadioMessageToSend;
 
 CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
+unsigned long ping_interval = 10000;
+unsigned long last_ping_sent = 0;
+unsigned long last_timeout_check = 0;
 
 void setup() {
     Serial.begin(9600);
 
     // Prepare Ethernet:
-    Ethernet.begin(mac);                    // Connected to router
-    //Ethernet.begin(mac, ip);              // Directly connected
+    //Ethernet.begin(mac);                    // Connected to router
+    Ethernet.begin(mac, ip);              // Directly connected
     Serial.println(Ethernet.localIP());
     Udp.begin(local_port);
 
@@ -72,6 +76,7 @@ void loop() {
     }
 
     unsigned int packet_size = Udp.parsePacket();
+
     if (packet_size) {
         Udp.read(packet_buffer, MAX_BUFFER);
 
@@ -89,6 +94,25 @@ void loop() {
         message.deserialize(packet_buffer, packet_size);
         coAPHandler.handleMessage(message);
     }
+
+    unsigned long now = millis();
+    if (now - last_timeout_check >= coAPHandler.getTimeout()) {
+        coAPHandler.deleteTimedOut();
+        last_timeout_check = now;
+    }
+    if (now - last_ping_sent >= ping_interval) {
+
+        if (Udp.remoteIP() != invalid) {
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINT("PING ");
+            DEBUG_PRINT(Udp.remoteIP());
+            DEBUG_PRINT(":");
+            DEBUG_PRINTLN(Udp.remotePort());
+            coAPHandler.sendPing();
+            last_ping_sent = now;
+        }
+    }
+
 }
 
 void prepareSpeakerResource() {
