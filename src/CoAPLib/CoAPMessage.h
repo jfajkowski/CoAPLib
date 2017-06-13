@@ -7,11 +7,11 @@
 class CoAPMessage {
 private:
     struct Header {
-        unsigned int Ver : 2;
-        unsigned int T : 2;
-        unsigned int TKL : 4;
-        unsigned int Code : 8;
-        unsigned int MessageId : 16;
+        unsigned short Ver : 2;
+        unsigned short T : 2;
+        unsigned short TKL : 4;
+        unsigned short Code : 8;
+        unsigned short MessageId : 16;
     } header_;
 
     ByteArray token_;
@@ -35,18 +35,18 @@ public:
     unsigned int serialize(unsigned char* buffer_begin) const;
     void deserialize(unsigned char* buffer_begin, unsigned int num);
 
-    unsigned int getVer() const;
+    unsigned short getVer() const;
 
-    unsigned int getT() const;
-    void setT(unsigned int T);
+    unsigned short getT() const;
+    void setT(unsigned short T);
 
-    unsigned int getTKL() const;
+    unsigned short getTKL() const;
 
-    unsigned int getCode() const;
-    void setCode(unsigned int Code);
+    unsigned short getCode() const;
+    void setCode(unsigned short Code);
 
-    unsigned int getMessageId() const;
-    void setMessageId(unsigned int MessageId);
+    unsigned short getMessageId() const;
+    void setMessageId(unsigned short MessageId);
 
     const ByteArray &getToken() const;
     void setToken(const ByteArray &token);

@@ -70,20 +70,20 @@ void loop() {
 
     unsigned int packet_size = Udp.parsePacket();
     if (packet_size) {
-        DEBUG_PRINT("Received: ");
-        DEBUG_PRINT(packet_size);
-        DEBUG_PRINTLN(" bytes.");
         Udp.read(packet_buffer, MAX_BUFFER);
 
+        DEBUG_PRINT("Received ");
+        DEBUG_PRINT(packet_size);
+        DEBUG_PRINT(" bytes: ");
+
         for (int i = 0; i < packet_size; ++i) {
-            DEBUG_PRINT(packet_buffer[i]);
+            DEBUG_PRINTHEX(packet_buffer[i]);
             DEBUG_PRINT(" ");
         }
         DEBUG_PRINTLN();
 
         CoAPMessage message;
         message.deserialize(packet_buffer, packet_size);
-        message.print();
         coAPHandler.handleMessage(message);
     }
 }

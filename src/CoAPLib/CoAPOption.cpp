@@ -156,12 +156,57 @@ const ByteArray &CoAPOption::getValue() const {
     return value_;
 }
 
+void CoAPOption::print() const {
+    PRINT("\t");
+    PRINT(number_);
+    PRINT(": ");
+
+    switch (number_) {
+        case OPTION_BLOCK2:
+            toBlock2().print();
+            break;
+        default:
+            PRINT(toString());
+            break;
+    }
+
+    PRINT("\n");
+}
+
 const String CoAPOption::toString() const {
     String s;
-  
+
     for(int i = 0; i < value_.size(); ++i){
         s += char(value_[i]);
     }
 
     return s;
+}
+
+const Block2 CoAPOption::toBlock2() const {
+    Block2 result;
+
+    switch (value_.size()) {
+        case 0:
+            result.num = 0;
+            result.m = 0;
+            result.szx = 0;
+            break;
+        case 1:
+            result.num = value_[0] >> 4;
+            result.m = (unsigned int) ((value_[0] >> 3) & 0x01);
+            result.szx = (unsigned int) (value_[0] & 0x07) + 4;
+            break;
+        case 2:
+            // TODO
+            break;
+        case 3:
+            // TODO
+            break;
+        default:
+            // TODO
+            break;
+    }
+
+    return result;
 }

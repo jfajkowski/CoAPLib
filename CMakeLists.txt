@@ -4,20 +4,23 @@ project(CoAPLib)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
+        src/CoAPLib.h
         src/CoAPLib/Array.hpp
         src/CoAPLib/CoAPConstants.h
+        src/CoAPLib/CoAPHandler.cpp
+        src/CoAPLib/CoAPHandler.h
         src/CoAPLib/CoAPMessage.cpp
         src/CoAPLib/CoAPMessage.h
         src/CoAPLib/CoAPMessageListener.h
         src/CoAPLib/CoAPOption.cpp
         src/CoAPLib/CoAPOption.h
-        src/CoAPLib.h
+        src/CoAPLib/CoAPResources.cpp
+        src/CoAPLib/CoAPResources.h
         src/Environment.h
-        src/CoAPLib/CoAPHandler.cpp
-        src/CoAPLib/CoAPHandler.h
         src/RadioLib.h
         src/RadioLib/RadioMessage.hpp
-        src/RadioLib/RadioMessageListener.hpp src/RadioLib/RadioConstants.h)
+        src/RadioLib/RadioMessageListener.hpp
+        src/RadioLib/RadioConstants.h)
 
 add_library(CoAPLib SHARED ${SOURCE_FILES})
 set_target_properties(CoAPLib PROPERTIES PREFIX "")
@@ -39,5 +42,9 @@ add_test(NAME CoAPMessageTest COMMAND CoAPMessageTest)
 add_executable(CoAPOptionTest tests/CoAPOptionTest/CoAPOptionTest.cpp tests/CoAPOptionTest/Test.hpp)
 target_link_libraries(CoAPOptionTest CoAPLib)
 add_test(NAME CoAPOptionTest COMMAND CoAPOptionTest)
+
+add_executable(CoAPResourcesTest tests/CoAPResourcesTest/CoAPResourcesTest.cpp tests/CoAPResourcesTest/Test.hpp)
+target_link_libraries(CoAPResourcesTest CoAPLib)
+add_test(NAME CoAPResourcesTest COMMAND CoAPResourcesTest)
 
 

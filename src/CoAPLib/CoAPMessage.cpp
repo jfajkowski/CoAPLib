@@ -71,35 +71,35 @@ void CoAPMessage::extractPayload(unsigned char *&cursor, unsigned char* buffer_e
     cursor += buffer_end - cursor;
 }
 
-unsigned int CoAPMessage::getVer() const {
+unsigned short CoAPMessage::getVer() const {
     return header_.Ver;
 }
 
-unsigned int CoAPMessage::getT() const {
+unsigned short CoAPMessage::getT() const {
     return header_.T;
 }
 
-void CoAPMessage::setT(unsigned int T) {
+void CoAPMessage::setT(unsigned short T) {
     header_.T = T;
 }
 
-unsigned int CoAPMessage::getTKL() const {
+unsigned short CoAPMessage::getTKL() const {
     return header_.TKL;
 }
 
-unsigned int CoAPMessage::getCode() const {
+unsigned short CoAPMessage::getCode() const {
     return header_.Code;
 }
 
-void CoAPMessage::setCode(unsigned int Code) {
+void CoAPMessage::setCode(unsigned short Code) {
     header_.Code = Code;
 }
 
-unsigned int CoAPMessage::getMessageId() const {
+unsigned short CoAPMessage::getMessageId() const {
     return header_.MessageId;
 }
 
-void CoAPMessage::setMessageId(unsigned int MessageId) {
+void CoAPMessage::setMessageId(unsigned short MessageId) {
     header_.MessageId = MessageId;
 }
 
@@ -109,7 +109,7 @@ const ByteArray &CoAPMessage::getToken() const {
 
 void CoAPMessage::setToken(const ByteArray &token) {
     token_ = token;
-    header_.TKL = token.size();
+    header_.TKL = (unsigned short) token.size();
 }
 
 const OptionArray &CoAPMessage::getOptions() const {
@@ -177,13 +177,7 @@ const String CoAPMessage::toString(const ByteArray &byte_array) {
 }
 
 void CoAPMessage::print(const OptionArray &options) const {
-    unsigned int option_code = 0; 
     for (int i = 0; i < options.size(); ++i) {
-        option_code += options[i].getNumber();
-        PRINT("\t");
-        PRINT(option_code);
-        PRINT(": ");
-        PRINT(options[i].toString());
-        PRINT("\n");
+        options[i].print();
     }
 }

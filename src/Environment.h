@@ -1,18 +1,20 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     #if DEBUG
         #define DEBUG_PRINT_TIME() Serial.print("["); printTime(); Serial.print("] ")
         #define DEBUG_PRINT(x) Serial.print(x)
         #define DEBUG_PRINTLN(x) Serial.println(x)
+        #define DEBUG_PRINTHEX(x) Serial.print(x, HEX)
         #define DEBUG_FUNCTION(x) x
     #else
         #define DEBUG_PRINT_TIME()
         #define DEBUG_PRINT(x)
         #define DEBUG_PRINTLN(x)
+        #define DEBUG_PRINTHEX(x)
         #define DEBUG_FUNCTION(x)
     #endif
 

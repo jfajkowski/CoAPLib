@@ -66,7 +66,7 @@ test(MultipleOptionsWithPayloadMarker) {
 }
 
 test(SingleOptionStringConversion) {
-    String expected("Test value!");
+    String expected("Test key!");
   
     CoAPOption o(0, expected);
     String actual = o.toString();

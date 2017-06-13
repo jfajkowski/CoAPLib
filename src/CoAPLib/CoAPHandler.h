@@ -3,23 +3,24 @@
 
 
 #include "CoAPMessage.h"
-#include "../RadioLib/RadioMessage.hpp"
 #include "CoAPMessageListener.h"
-#include "../RadioLib/RadioMessageListener.hpp"
+#include "CoAPResources.h"
+#include "../RadioLib.h"
 
 class CoAPHandler {
 private:
+    CoAPResources coapResources;
     CoAPMessageListener* coapMessageListener_;
     RadioMessageListener* radioMessageListener_;
 
     Array<CoAPMessage> pending_messages_;
 
-    void handlePing(CoAPMessage &message);
-    void handleGet(CoAPMessage &message);
-    void handlePut(CoAPMessage &message);
-    void handleBadRequest(CoAPMessage &message);
+    void handlePing(const CoAPMessage &message);
+    void handleGet(const CoAPMessage &message);
+    void handlePut(const CoAPMessage &message);
+    void handleBadRequest(const CoAPMessage &message);
 
-    RadioMessage prepareRadioMessage(unsigned int message_id, unsigned int code, String uri) const;
+    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const;
 
     void sendCoAPMessage(const CoAPMessage &message);
     void sendRadioMessage(const RadioMessage &message);

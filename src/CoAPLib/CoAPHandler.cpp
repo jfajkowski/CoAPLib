@@ -22,7 +22,7 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
     }
 }
 
-void CoAPHandler::handlePing(CoAPMessage &message) {
+void CoAPHandler::handlePing(const CoAPMessage &message) {
     CoAPMessage response;
 
     response.setCode(CODE_EMPTY);
@@ -32,21 +32,21 @@ void CoAPHandler::handlePing(CoAPMessage &message) {
     sendCoAPMessage(response);
 }
 
-void CoAPHandler::handleGet(CoAPMessage &message) {
+void CoAPHandler::handleGet(const CoAPMessage &message) {
 
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
     int option_id = 0;
 
     for(; iterator != options.end(); iterator++) {
-        option_id += iterator->getNumber();
+        option_id = iterator->getNumber();
 
         switch(option_id) {
-            case 11: //Uri-Path option
-                sendRadioMessage(prepareRadioMessage(message.getMessageId(),
-                                                     message.getCode(),
-                                                     iterator->toString()));
+            case OPTION_URI_PATH:
+                sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
                 pending_messages_.pushBack(message); //TODO: pushing back a copy, what about original?
+                break;
+            case OPTION_BLOCK2:
                 break;
             default:
                 //BAD REQUEST?
@@ -57,18 +57,18 @@ void CoAPHandler::handleGet(CoAPMessage &message) {
     //TODO: what if there are no options?
 }
 
-RadioMessage CoAPHandler::prepareRadioMessage(unsigned int message_id, unsigned int code, String uri) const {
+RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const {
     RadioMessage message;
-    message.message_id = (unsigned short)message_id;
+    message.message_id = message_id;
     //TODO: translate uri to resource code and change message.resource = 0
-    message.resource = 0; //lamp
+    message.resource = LAMP;
     switch(code) {
         case CODE_GET:
-            message.code = 1; //GET
+            message.code = GET;
             break;
         case CODE_PUT:
-            message.code = 0; //PUT
-            //message.value = ?
+            message.code = PUT;
+            //message.key = ?
             break;
         default:
             //error?
@@ -119,7 +119,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     sendCoAPMessage(response);
 }
 
-void CoAPHandler::handlePut(CoAPMessage &message) {
+void CoAPHandler::handlePut(const CoAPMessage &message) {
     //TODO: implement
     /*
     int iterator=0;
@@ -155,7 +155,7 @@ void CoAPHandler::handlePut(CoAPMessage &message) {
     */
 }
 
-void CoAPHandler::handleBadRequest(CoAPMessage &message) {
+void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
     CoAPMessage response;
 
     response.setToken(message.getToken());
@@ -188,5 +188,4 @@ void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
     if (radioMessageListener_ != nullptr)
         (*radioMessageListener_)(message);
 }
-
 
