@@ -46,6 +46,7 @@
 // Option codes:
 #define OPTION_URI_PATH 11
 #define OPTION_CONTENT_FORMAT 12
+#define OPTION_ACCEPT 17
 #define OPTION_BLOCK2 23
 
 // Supported content formats:

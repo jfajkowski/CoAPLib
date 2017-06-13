@@ -113,6 +113,16 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                     handleBadRequest(message, CODE_BAD_REQUEST);
                 }
             }
+            case OPTION_ACCEPT:
+            {
+                String s_value = toString(iterator->getValue());
+                unsigned short content_format_type = toUnsignedShort(s_value);
+                if(content_format_type == CONTENT_TEXT_PLAIN) {
+                    //TODO: Should do anything?
+                } else {
+                    //TODO: Bad request or what?
+                }
+            }
             case OPTION_BLOCK2:
                 {
                     Block2 values(iterator->toBlock2());
