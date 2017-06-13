@@ -29,7 +29,6 @@ private:
 
     void handlePing(const CoAPMessage &message);
     void handleRequest(const CoAPMessage &message);
-    void handlePut(const CoAPMessage &message);
     void handleBadRequest(const CoAPMessage &message);
 
     void updateMetrics(unsigned short rtt);
