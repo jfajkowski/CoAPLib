@@ -1,20 +1,65 @@
 #include "CoAPHandler.h"
 
+CoAPHandler::CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
+        coapMessageListener_(&coapMessageListener),
+        radioMessageListener_(&radioMessageListener),
+        resources_() {
+    prepareSpeakerResource();
+    prepareLampResource();
+    prepareRttResource();
+    prepareJitterResource();
+    prepareTimedOutResource();
+}
+
+void CoAPHandler::prepareTimedOutResource() {
+    Array<String> uri_path;
+    uri_path.pushBack(RESOURCE_LOCAL);
+    uri_path.pushBack(RESOURCE_TIMED_OUT);
+    resources_.insert(uri_path, 0);
+}
+
+void CoAPHandler::prepareJitterResource() {
+    Array<String> uri_path;
+    uri_path.pushBack(RESOURCE_LOCAL);
+    uri_path.pushBack(RESOURCE_JITTER);
+    resources_.insert(uri_path, 0);
+}
+
+void CoAPHandler::prepareRttResource() {
+    Array<String> uri_path;
+    uri_path.pushBack(RESOURCE_LOCAL);
+    uri_path.pushBack(RESOURCE_RTT);
+    resources_.insert(uri_path, 0);
+}
+
+void CoAPHandler::prepareLampResource() {
+    Array<String> uri_path;
+    uri_path.pushBack(RESOURCE_REMOTE);
+    uri_path.pushBack(RESOURCE_LAMP);
+    resources_.insert(uri_path, RADIO_LAMP);
+}
+
+void CoAPHandler::prepareSpeakerResource() {
+    Array<String> uri_path;
+    uri_path.pushBack(RESOURCE_REMOTE);
+    uri_path.pushBack(RESOURCE_SPEAKER);
+    resources_.insert(uri_path, RADIO_SPEAKER);
+}
 
 void CoAPHandler::handleMessage(CoAPMessage &message) {
-    DEBUG_FUNCTION(
-            DEBUG_PRINT_TIME();
-            DEBUG_PRINTLN("RECEIVED");
-            message.print();
-    )
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("RECEIVED");
+    DEBUG_FUNCTION(message.print());
 
-    if(message.getCode() == CODE_EMPTY)
+    if(message.getCode() == CODE_EMPTY) {
         handlePing(message);
-    else if(message.getCode() == CODE_GET ||
-            message.getCode() == CODE_PUT)
+    }
+    else if(message.getCode() == CODE_GET || message.getCode() == CODE_PUT) {
         handleRequest(message);
-    else
+    }
+    else {
         handleBadRequest(message, CODE_BAD_REQUEST);
+    }
 }
 
 void CoAPHandler::handlePing(const CoAPMessage &message) {
@@ -34,21 +79,21 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
 }
 
 void CoAPHandler::handleRequest(const CoAPMessage &message) {
-    CoAPMessage response;
-    RadioMessage radioMessage;
+    CoAPMessage coapResponse;
+    RadioMessage radioResponse;
     bool sendRadioMessage = false;
-    OptionArray options = message.getOptions();
-    CoAPOption* iterator = options.begin();
+    CoAPOption* iterator = message.getOptions().begin();
+    CoAPOption* end = message.getOptions().end();
     int option_id = 0;
 
-    for(; iterator != options.end(); iterator++) {
+    for(; iterator != end; iterator++) {
         option_id = iterator->getNumber();
 
         switch(option_id) {
             case OPTION_URI_PATH:
                 {
                     Array<String> uri_path;
-                    while (((iterator + 1) != options.end()) && ((iterator + 1)->getNumber() == OPTION_URI_PATH)) {
+                    while (((iterator + 1) != end) && ((iterator + 1)->getNumber() == OPTION_URI_PATH)) {
                         uri_path.pushBack(iterator->toString());
                         ++iterator;
                     }
@@ -61,32 +106,31 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                         if (uri_path[0] == RESOURCE_REMOTE) {
                             unsigned short resourceId = resource->value;
                             sendRadioMessage = true;
-                            radioMessage.code = message.getCode();
-                            radioMessage.message_id = message.getMessageId();
-                            radioMessage.resource = resourceId;
+                            createResponse(message, radioResponse);
+                            radioResponse.resource = resourceId;
                             addPendingMessage(message);
                         }
                         else if(message.getCode() == CODE_GET) {
                             if (uri_path[0] == RESOURCE_WELL_KNOWN) {
-                                createResponse(message, response);
-                                response.addOption(toContentFormat(CONTENT_LINK_FORMAT));
-                                response.setPayload(toByteArray(resources_.toLinkFormat()));
+                                createResponse(message, coapResponse);
+                                coapResponse.addOption(toContentFormat(CONTENT_LINK_FORMAT));
+                                coapResponse.setPayload(toByteArray(resources_.toLinkFormat()));
                             }
                             else if (uri_path[0] == RESOURCE_LOCAL) {
                                 if(resource->key == RESOURCE_JITTER) {
-                                    createResponse(message, response);
-                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
-                                    response.setPayload(toByteArray(TO_STRING(last_jitter)));
+                                    createResponse(message, coapResponse);
+                                    coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    coapResponse.setPayload(toByteArray(TO_STRING(last_jitter)));
                                 }
                                 else if(resource->key == RESOURCE_RTT) {
-                                    createResponse(message, response);
-                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
-                                    response.setPayload(toByteArray(TO_STRING(mean_rtt)));
+                                    createResponse(message, coapResponse);
+                                    coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    coapResponse.setPayload(toByteArray(TO_STRING(mean_rtt)));
                                 }
                                 else if(resource->key == RESOURCE_TIMED_OUT) {
-                                    createResponse(message, response);
-                                    response.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
-                                    response.setPayload(toByteArray(TO_STRING(timed_out)));
+                                    createResponse(message, coapResponse);
+                                    coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
+                                    coapResponse.setPayload(toByteArray(TO_STRING(timed_out)));
                                 }
                             }
                         }
@@ -105,7 +149,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                     if(content_format_type == CONTENT_TEXT_PLAIN) {
                         String s_payload = toString(message.getPayload());
                         unsigned short payload = toUnsignedShort(s_payload);
-                        radioMessage.value = payload;
+                        radioResponse.value = payload;
                     } else {
                         handleBadRequest(message, CODE_NOT_IMPLEMENTED);
                     }
@@ -137,17 +181,15 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
     }
 
     if(sendRadioMessage)
-        send(radioMessage);
+        send(radioResponse);
     else
-        send(response);
+        send(coapResponse);
 }
 
 void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
-    DEBUG_FUNCTION(
-            DEBUG_PRINT_TIME();
-            DEBUG_PRINTLN("RECEIVED");
-            radioMessage.print();
-    );
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("RECEIVED");
+    DEBUG_FUNCTION(radioMessage.print());
 
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id).coapMessage;
@@ -177,6 +219,16 @@ void CoAPHandler::createResponse(const CoAPMessage &message, CoAPMessage &respon
         response.setCode(68); //if put then code 2.04 -changed
 }
 
+void CoAPHandler::createResponse(const CoAPMessage &message, RadioMessage &response) {
+    response.message_id = message.getMessageId();
+    if (message.getCode() == CODE_GET) {
+        response.code = RADIO_GET;
+    }
+    else if (message.getCode() == CODE_PUT) {
+        response.code = RADIO_PUT;
+    }
+}
+
 void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short error_code) {
     CoAPMessage response;
 
@@ -195,22 +247,18 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short er
 
 
 void CoAPHandler::send(const CoAPMessage &message) {
-    DEBUG_FUNCTION(
-            DEBUG_PRINT_TIME();
-            DEBUG_PRINTLN("SENT");
-            message.print();
-    );
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("SENT");
+    DEBUG_FUNCTION(message.print());
 
     if (coapMessageListener_ != nullptr)
         (*coapMessageListener_)(message);
 }
 
 void CoAPHandler::send(const RadioMessage &message) {
-    DEBUG_FUNCTION(
-            DEBUG_PRINT_TIME();
-            DEBUG_PRINTLN("SENT");
-            message.print();
-    );
+    DEBUG_PRINT_TIME();
+    DEBUG_PRINTLN("SENT");
+    DEBUG_FUNCTION(message.print());
 
     if (radioMessageListener_ != nullptr)
         (*radioMessageListener_)(message);
@@ -236,12 +284,10 @@ void CoAPHandler::deleteTimedOut() {
     unsigned long now = millis();
     for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(now - pending_messages_[i].timestamp > timeout_) {
-            DEBUG_FUNCTION(
-                DEBUG_PRINT_TIME();
-                DEBUG_PRINTLN("TIMEOUT");
-                pending_messages_[i].coapMessage.print();
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINTLN("TIMEOUT");
+            DEBUG_FUNCTION(pending_messages_[i].coapMessage.print());
 
-            );
             handleBadRequest(pending_messages_[i].coapMessage, CODE_GATEWAY_TIMEOUT);
             pending_messages_.erase(i);
             updateTimeoutMetric();
@@ -329,4 +375,3 @@ String CoAPHandler::toString(const ByteArray &value) {
     }
     return result;
 }
-

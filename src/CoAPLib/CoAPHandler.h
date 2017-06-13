@@ -43,57 +43,22 @@ private:
     void send(const CoAPMessage &message);
     void send(const RadioMessage &message);
 
+    void createResponse(const CoAPMessage &message, CoAPMessage &response);
+    void createResponse(const CoAPMessage &message, RadioMessage &response);
+
     ByteArray toByteArray(const String &value);
     ByteArray toByteArray(unsigned short value);
     unsigned short toUnsignedShort(const String &value);
     String toString(const ByteArray &value);
     CoAPOption toContentFormat(unsigned short value);
 
-    void prepareSpeakerResource() {
-        Array<String> uri_path;
-        uri_path.pushBack(RESOURCE_REMOTE);
-        uri_path.pushBack(RESOURCE_SPEAKER);
-        resources_.insert(uri_path, SPEAKER);
-    }
-
-    void prepareLampResource() {
-        Array<String> uri_path;
-        uri_path.pushBack(RESOURCE_REMOTE);
-        uri_path.pushBack(RESOURCE_LAMP);
-        resources_.insert(uri_path, LAMP);
-    }
-
-    void  prepareRttResource() {
-        Array<String> uri_path;
-        uri_path.pushBack(RESOURCE_LOCAL);
-        uri_path.pushBack(RESOURCE_RTT);
-        resources_.insert(uri_path, 0);
-    }
-
-    void prepareJitterResource() {
-        Array<String> uri_path;
-        uri_path.pushBack(RESOURCE_LOCAL);
-        uri_path.pushBack(RESOURCE_JITTER);
-        resources_.insert(uri_path, 0);
-    }
-
-    void prepareTimedOutResource() {
-        Array<String> uri_path;
-        uri_path.pushBack(RESOURCE_LOCAL);
-        uri_path.pushBack(RESOURCE_TIMED_OUT);
-        resources_.insert(uri_path, 0);
-    }
+    void prepareSpeakerResource();
+    void prepareLampResource();
+    void prepareRttResource();
+    void prepareJitterResource();
+    void prepareTimedOutResource();
 public:
-    CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
-                coapMessageListener_(&coapMessageListener),
-                radioMessageListener_(&radioMessageListener),
-                resources_() {
-        prepareSpeakerResource();
-        prepareLampResource();
-        prepareTimedOutResource();
-        prepareRttResource();
-        prepareJitterResource();
-    }
+    CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener);
 
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
@@ -103,8 +68,6 @@ public:
     void deleteTimedOut();
 
     unsigned short getTimeout() const;
-
-    void createResponse(const CoAPMessage &message, CoAPMessage &response);
 };
 
 

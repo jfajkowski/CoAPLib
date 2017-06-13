@@ -4,7 +4,7 @@ Array<String> prepareSpeakerResource(CoAPResources &res) {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
     uri_path.pushBack(RESOURCE_SPEAKER);
-    res.insert(uri_path, SPEAKER);
+    res.insert(uri_path, RADIO_SPEAKER);
     return uri_path;
 }
 
@@ -12,7 +12,7 @@ Array<String> prepareLampResource(CoAPResources &res) {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
     uri_path.pushBack(RESOURCE_LAMP);
-    res.insert(uri_path, LAMP);
+    res.insert(uri_path, RADIO_LAMP);
     return uri_path;
 }
 

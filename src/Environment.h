@@ -1,7 +1,8 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#define DEBUG 0
+#define DEBUG 1
+#define LIGHT_DEBUG 0
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     #include <Arduino.h>
@@ -11,13 +12,18 @@
         #define DEBUG_PRINT(x) Serial.print(x)
         #define DEBUG_PRINTLN(x) Serial.println(x)
         #define DEBUG_PRINTHEX(x) Serial.print(x, HEX)
-        #define DEBUG_FUNCTION(x) {x}
+        #define DEBUG_FUNCTION(x) x
     #else
         #define DEBUG_PRINT_TIME()
         #define DEBUG_PRINT(x)
         #define DEBUG_PRINTLN(x)
         #define DEBUG_PRINTHEX(x)
-        #define DEBUG_FUNCTION(x) {x}
+
+        #if LIGHT_DEBUG
+            #define DEBUG_FUNCTION(x) x
+        #else
+            #define DEBUG_FUNCTION(x)
+        #endif
     #endif
 
     #define substr substring
@@ -33,16 +39,21 @@
     #include <thread>
     #include <sstream>
 
-#if DEBUG
+    #if DEBUG
         #define DEBUG_PRINT_TIME() std::cout << "["; printTime(); std::cout << "] "
         #define DEBUG_PRINT(x) std::cout << x
         #define DEBUG_PRINTLN(x) std::cout << x << std::endl
-        #define DEBUG_FUNCTION(x) {x}
+        #define DEBUG_FUNCTION(x) x
     #else
         #define DEBUG_PRINT_TIME()
         #define DEBUG_PRINT(x)
         #define DEBUG_PRINTLN(x)
-        #define DEBUG_FUNCTION(x)
+
+        #if LIGHT_DEBUG
+            #define DEBUG_FUNCTION(x) x
+        #else
+            #define DEBUG_FUNCTION(x)
+        #endif
     #endif
 
     #define String string

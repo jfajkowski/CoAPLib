@@ -92,21 +92,21 @@ void loop() {
         coAPHandler.handleMessage(message);
     }
 
-    unsigned long now = millis();
-    if (now - last_timeout_check >= coAPHandler.getTimeout()) {
-        coAPHandler.deleteTimedOut();
-        last_timeout_check = now;
-    }
-    if (now - last_ping_sent >= ping_interval) {
-
-        if (Udp.remoteIP() != invalid) {
-            DEBUG_PRINT_TIME();
-            DEBUG_PRINT("PING ");
-            DEBUG_PRINT(Udp.remoteIP());
-            DEBUG_PRINT(":");
-            DEBUG_PRINTLN(Udp.remotePort());
-            coAPHandler.sendPing();
-            last_ping_sent = now;
-        }
-    }
+//    unsigned long now = millis();
+//    if (now - last_timeout_check >= coAPHandler.getTimeout()) {
+//        coAPHandler.deleteTimedOut();
+//        last_timeout_check = now;
+//    }
+//    if (now - last_ping_sent >= ping_interval) {
+//
+//        if (Udp.remoteIP() != invalid) {
+//            DEBUG_PRINT_TIME();
+//            DEBUG_PRINT("PING ");
+//            DEBUG_PRINT(Udp.remoteIP());
+//            DEBUG_PRINT(":");
+//            DEBUG_PRINTLN(Udp.remotePort());
+//            coAPHandler.sendPing();
+//            last_ping_sent = now;
+//        }
+//    }
 }
