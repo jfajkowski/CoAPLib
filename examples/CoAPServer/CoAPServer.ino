@@ -57,6 +57,9 @@ void setup() {
     radio.begin();
     network.begin(channel, this_node_id);
 
+    prepareSpeakerResource();
+    prepareLampResource();
+
     Serial.println("Rise and shine...");
 }
 
@@ -86,4 +89,16 @@ void loop() {
         message.deserialize(packet_buffer, packet_size);
         coAPHandler.handleMessage(message);
     }
+}
+
+void prepareSpeakerResource() {
+    Array<String> uri_path;
+    uri_path.pushBack("speaker");
+    coAPHandler.registerResource(uri_path);
+}
+
+void prepareLampResource() {
+    Array<String> uri_path;
+    uri_path.pushBack("lamp");
+    coAPHandler.registerResource(uri_path);
 }
