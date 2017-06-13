@@ -14,7 +14,7 @@ private:
         unsigned long timeArrived;
     };
 
-    CoAPResources coapResources;
+    CoAPResources resources_;
     CoAPMessageListener* coapMessageListener_;
     RadioMessageListener* radioMessageListener_;
 
@@ -36,7 +36,8 @@ private:
 public:
     CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
                 coapMessageListener_(&coapMessageListener),
-                radioMessageListener_(&radioMessageListener) {}
+                radioMessageListener_(&radioMessageListener),
+                resources_() {}
 
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);

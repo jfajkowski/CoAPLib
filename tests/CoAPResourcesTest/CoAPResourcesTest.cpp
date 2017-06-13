@@ -27,4 +27,13 @@ beginTest
         assertEqual(expected2, actual2);
     }
 
+    test(FindCore) {
+        Array<String> coreResource;
+        coreResource.pushBack(".well-known");
+        coreResource.pushBack("core");
+
+        CoAPResources coapResources;
+        assert(coapResources.search(coreResource) != nullptr);
+    }
+
 endTest

@@ -2,6 +2,7 @@
 #define COAPLIB_COAPRESOURCES_H
 
 #include "Array.hpp"
+#include "../Environment.h"
 
 struct Node {
     String key;

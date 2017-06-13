@@ -9,13 +9,13 @@
         #define DEBUG_PRINT(x) Serial.print(x)
         #define DEBUG_PRINTLN(x) Serial.println(x)
         #define DEBUG_PRINTHEX(x) Serial.print(x, HEX)
-        #define DEBUG_FUNCTION(x) x
+        #define DEBUG_FUNCTION(x) {x}
     #else
         #define DEBUG_PRINT_TIME()
         #define DEBUG_PRINT(x)
         #define DEBUG_PRINTLN(x)
         #define DEBUG_PRINTHEX(x)
-        #define DEBUG_FUNCTION(x)
+        #define DEBUG_FUNCTION(x) {x}
     #endif
 
     #define PRINT(x) Serial.print(x)
@@ -27,7 +27,7 @@
         #define DEBUG_PRINT_TIME() std::cout << "["; printTime(); std::cout << "] "
         #define DEBUG_PRINT(x) std::cout << x
         #define DEBUG_PRINTLN(x) std::cout << x << std::endl
-        #define DEBUG_FUNCTION(x) x
+        #define DEBUG_FUNCTION(x) {x}
     #else
         #define DEBUG_PRINT_TIME()
         #define DEBUG_PRINT(x)

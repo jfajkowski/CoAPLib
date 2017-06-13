@@ -5,8 +5,8 @@ CoAPResources::CoAPResources() {
     root->key = ".";
 
     Array<String> coreResource;
-    coreResource.pushFront(".well-known");
-    coreResource.pushFront("core");
+    coreResource.pushBack(".well-known");
+    coreResource.pushBack("core");
     insert(coreResource);
 }
 
@@ -40,9 +40,14 @@ void CoAPResources::insert(String *begin, const String *end, Node *leaf) {
         node = new Node;
         node->key = *begin;
         leaf->nodes.pushBack(node);
+
+        DEBUG_PRINT("Created node: ");
+        DEBUG_PRINTLN(node->key);
     }
 
     if (begin + 1 != end) {
+        DEBUG_PRINT("Moving into: ");
+        DEBUG_PRINTLN(node->key);
         insert(++begin, end, node);
     }
 }
@@ -50,15 +55,37 @@ void CoAPResources::insert(String *begin, const String *end, Node *leaf) {
 Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     Node* node = nullptr;
 
+    DEBUG_PRINT("Looking for: ");
+    DEBUG_PRINTLN(*begin);
+
     if(leaf != nullptr) {
         for (int i = 0; i < leaf->nodes.size(); ++i) {
+            DEBUG_PRINT("Is ");
+            DEBUG_PRINT(leaf->nodes[i]->key);
+            DEBUG_PRINT(" a match? ");
+
             if (leaf->nodes[i]->key == *begin) {
+                DEBUG_PRINTLN("Yes!");
                 node = leaf->nodes[i];
                 break;
             }
+
+            DEBUG_PRINTLN("No!");
         }
+
+        DEBUG_FUNCTION(
+            if (node != nullptr) {
+                DEBUG_PRINT("Found node: ");
+                DEBUG_PRINTLN(node->key);
+            }
+        )
     }
-    else return nullptr;
+    else {
+        DEBUG_PRINT("Not found: ");
+        DEBUG_PRINTLN(*begin);
+
+        return nullptr;
+    }
 
     if (begin + 1 != end) {
         return search(++begin, end, node);

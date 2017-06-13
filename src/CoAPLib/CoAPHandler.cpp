@@ -2,9 +2,11 @@
 
 
 void CoAPHandler::handleMessage(CoAPMessage &message) {
-    DEBUG_PRINT_TIME();
-    DEBUG_PRINTLN("RECEIVED");
-    DEBUG_FUNCTION(message.print());
+    DEBUG_FUNCTION(
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINTLN("RECEIVED");
+            message.print();
+    )
 
     switch (message.getCode()) {
         case CODE_EMPTY:
@@ -43,12 +45,23 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
 
         switch(option_id) {
             case OPTION_URI_PATH:
-                sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
-                addPendingMessage(message);
+                {
+                    Array<String> uri_path;
+                    while ((iterator + 1)->getNumber() == OPTION_URI_PATH) {
+                        uri_path.pushBack(iterator->toString());
+                        ++iterator;
+                    }
+                    uri_path.pushBack(iterator->toString());
+
+                    resources_.search(uri_path)->key; // TODO DO SOMETHING ACCORDING TO RESULT!
+                    // sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
+                    // addPendingMessage(message);
+                    }
                 break;
             case OPTION_BLOCK2:
-                Block2 values;
-                values = iterator->toBlock2();
+                {
+                    Block2 values(iterator->toBlock2());
+                }
                 break;
             default:
                 //BAD REQUEST?
@@ -80,9 +93,11 @@ RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned shor
 }
 
 void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
-    DEBUG_PRINT_TIME();
-    DEBUG_PRINTLN("RECEIVED");
-    DEBUG_FUNCTION(radioMessage.print());
+    DEBUG_FUNCTION(
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINTLN("RECEIVED");
+            radioMessage.print();
+    );
 
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id);
@@ -171,18 +186,22 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
 }
 
 void CoAPHandler::sendCoAPMessage(const CoAPMessage &message) {
-    DEBUG_PRINT_TIME();
-    DEBUG_PRINTLN("SENT");
-    DEBUG_FUNCTION(message.print());
+    DEBUG_FUNCTION(
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINTLN("SENT");
+            message.print();
+    );
 
     if (coapMessageListener_ != nullptr)
         (*coapMessageListener_)(message);
 }
 
 void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
-    DEBUG_PRINT_TIME();
-    DEBUG_PRINTLN("SENT");
-    DEBUG_FUNCTION(message.print());
+    DEBUG_FUNCTION(
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINTLN("SENT");
+            message.print();
+    );
 
     if (radioMessageListener_ != nullptr)
         (*radioMessageListener_)(message);
@@ -190,6 +209,8 @@ void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
 
 void CoAPHandler::addPendingMessage(const CoAPMessage &message) {
     pending_messages_.pushBack({message, millis()}); //TODO: pushing back a copy, what about original?
+    DEBUG_PRINT("Added pending message. Array size: ");
+    DEBUG_PRINTLN(pending_messages_.size());
 }
 
 void CoAPHandler::appendPendingMessage(const CoAPMessage &message) {
