@@ -23,6 +23,7 @@ public:
     void serialize(unsigned char *cursor) const;
     void deserialize(unsigned char *cursor, unsigned int num);
 
+    void pushFront(const T &value);
     void pushBack(const T &value);
     const T popBack();
     void insert(const T &value, unsigned int index);
@@ -66,6 +67,11 @@ Array<T>::Array(const Array &array) {
 template <typename T>
 Array<T>::~Array() {
     delete[] array_begin_;
+}
+
+template <typename T>
+void Array<T>::pushFront(const T &value) {
+    insert(value, 0);
 }
 
 template <typename T>

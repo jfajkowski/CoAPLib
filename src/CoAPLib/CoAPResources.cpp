@@ -3,18 +3,19 @@
 CoAPResources::CoAPResources() {
     root = new Node;
     root->key = ".";
+
+    Array<String> coreResource;
+    coreResource.pushFront(".well-known");
+    coreResource.pushFront("core");
+    insert(coreResource);
 }
 
 CoAPResources::~CoAPResources() {
     destroy();
-    delete root;
 }
 
 void CoAPResources::destroy() {
     destroy(root);
-
-    root = new Node;
-    root->key = ".";
 }
 
 void CoAPResources::destroy(Node *leaf) {

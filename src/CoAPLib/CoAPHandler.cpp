@@ -44,9 +44,11 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
         switch(option_id) {
             case OPTION_URI_PATH:
                 sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
-                pending_messages_.pushBack(message); //TODO: pushing back a copy, what about original?
+                addPendingMessage(message);
                 break;
             case OPTION_BLOCK2:
+                Block2 values;
+                values = iterator->toBlock2();
                 break;
             default:
                 //BAD REQUEST?
@@ -83,10 +85,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     DEBUG_FUNCTION(radioMessage.print());
 
     CoAPMessage message;
-    for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
-        if(pending_messages_[i].getMessageId() == radioMessage.message_id)
-            message = pending_messages_.pop(i);
-    }
+    message = finalizePendingMessage(radioMessage.message_id);
 
     CoAPMessage response;
     response.setToken(message.getToken());
@@ -187,5 +186,22 @@ void CoAPHandler::sendRadioMessage(const RadioMessage &message) {
 
     if (radioMessageListener_ != nullptr)
         (*radioMessageListener_)(message);
+}
+
+void CoAPHandler::addPendingMessage(const CoAPMessage &message) {
+    pending_messages_.pushBack({message, millis()}); //TODO: pushing back a copy, what about original?
+}
+
+void CoAPHandler::appendPendingMessage(const CoAPMessage &message) {
+
+}
+
+CoAPMessage CoAPHandler::finalizePendingMessage(const unsigned int message_id) {
+    for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
+        if(pending_messages_[i].coapMessage.getMessageId() == message_id)
+            return pending_messages_.pop(i).coapMessage;
+    }
+
+    // TODO WHAT IF NOT FOUND?
 }
 

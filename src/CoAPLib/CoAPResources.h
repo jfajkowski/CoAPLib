@@ -10,6 +10,7 @@ struct Node {
 
 class CoAPResources {
 private:
+    void destroy();
     void destroy(Node *leaf);
     void insert(String *begin, const String *end, Node *leaf);
     Node *search(String *begin, const String *end, Node *leaf);
@@ -22,7 +23,6 @@ public:
 
     void insert(const Array<String> &keys);
     Node *search(const Array<String> &keys);
-    void destroy();
 };
 
 #endif //COAPLIB_COAPRESOURCES_H

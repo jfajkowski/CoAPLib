@@ -9,11 +9,16 @@
 
 class CoAPHandler {
 private:
+    struct PendingMessage {
+        CoAPMessage coapMessage;
+        unsigned long timeArrived;
+    };
+
     CoAPResources coapResources;
     CoAPMessageListener* coapMessageListener_;
     RadioMessageListener* radioMessageListener_;
 
-    Array<CoAPMessage> pending_messages_;
+    Array<PendingMessage> pending_messages_;
 
     void handlePing(const CoAPMessage &message);
     void handleGet(const CoAPMessage &message);
@@ -21,6 +26,10 @@ private:
     void handleBadRequest(const CoAPMessage &message);
 
     RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const;
+
+    void addPendingMessage(const CoAPMessage &message);
+    CoAPMessage finalizePendingMessage(const unsigned int message_id);
+    void appendPendingMessage(const CoAPMessage &message);
 
     void sendCoAPMessage(const CoAPMessage &message);
     void sendRadioMessage(const RadioMessage &message);
