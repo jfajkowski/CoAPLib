@@ -41,7 +41,7 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
 }
 
 void CoAPHandler::handleGet(const CoAPMessage &message) {
-
+    CoAPMessage response;
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
     int option_id = 0;
@@ -67,16 +67,16 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
 
                             if(resource->key == RESOURCE_JITTER) {
-                                createResponse(message,last_jitter);
+                                createResponse(message, response, last_jitter);
                             }else if(resource->key == RESOURCE_RTT) {
-                                createResponse(message,mean_rtt);
+                                createResponse(message, response, mean_rtt);
                             }else if(resource->key == RESOURCE_TIMEOUT) {
-                                createResponse(message,timed_out);
+                                createResponse(message, response, timed_out);
                             }
 
                         } else if (uri_path[0] == RESOURCE_REMOTE) {
                             unsigned short resourceId = resource->value;
-                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId)); //TODO: send at the end
+                            send(prepareRadioMessage(GET, message.getMessageId(), resourceId));
                             addPendingMessage(message);
                         }
                     }
@@ -97,7 +97,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                 break;
         }
     }
-    //TODO: what if there are no options?
+    send(response);
 }
 
 void CoAPHandler::handlePut(const CoAPMessage &message) {
@@ -212,13 +212,15 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id).coapMessage;
     unsigned short responseValue=radioMessage.value;
+    CoAPMessage response;
 
-    createResponse(message, responseValue);
+    createResponse(message, response, responseValue);
+    send(response);
 
 }
 
-void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short responseValue) {
-    CoAPMessage response;
+void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &response, unsigned short responseValue) {
+
     response.setToken(message.getToken());
 
     if (message.getT() == TYPE_CON) {
@@ -246,7 +248,6 @@ void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short resp
     payload.pushBack(temp);
 
     response.setPayload(payload);
-    send(response);
 }
 
 void CoAPHandler::handleBadRequest(const CoAPMessage &message) {
