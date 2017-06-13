@@ -67,11 +67,11 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
 
                             if(node->key == RESOURCE_JITTER) {
-
+                                createResponse(message,last_jitter);
                             }else if(node->key == RESOURCE_RTT) {
-
+                                createResponse(message,mean_rtt);
                             }else if(node->key == RESOURCE_TIMEOUT) {
-
+                                createResponse(message,timed_out);
                             }
 
                         } else if (uri_path[0] == RESOURCE_REMOTE) {
@@ -124,7 +124,13 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
 
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id).coapMessage;
+    unsigned short responseValue=radioMessage.value;
 
+    createResponse(message, responseValue);
+
+}
+
+void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short responseValue) {
     CoAPMessage response;
     response.setToken(message.getToken());
 
@@ -147,9 +153,9 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     response.addOption(content_format);
 
     ByteArray payload(2);
-    unsigned char temp=(unsigned char)(radioMessage.value & 0xff);
+    unsigned char temp=(unsigned char)(responseValue & 0xff);
     payload.pushBack(temp);
-    temp=(unsigned char)((radioMessage.value >> 8) & 0xff);
+    temp=(unsigned char)((responseValue >> 8) & 0xff);
     payload.pushBack(temp);
 
     response.setPayload(payload);

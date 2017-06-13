@@ -58,6 +58,8 @@ public:
     void deleteTimedOut();
 
     unsigned short getTimeout() const;
+
+    void createResponse(const CoAPMessage &message, unsigned short responseValue);
 };
 
 

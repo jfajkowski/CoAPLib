@@ -103,6 +103,3 @@ void CoAPResources::insert(const Array<String> &keys, const unsigned short value
 Node *CoAPResources::search(const Array<String> &keys) {
     return search(keys.begin(), keys.end(), root);
 }
-unsigned short CoAPResources::valueAtPath(const Array<String> &keys){
-    return search(keys.begin(), keys.end(), root)->value;
-}

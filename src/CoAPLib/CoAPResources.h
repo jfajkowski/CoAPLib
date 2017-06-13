@@ -26,7 +26,6 @@ public:
 
     void insert(const Array<String> &keys, unsigned short value);
     Node *search(const Array<String> &keys);
-    unsigned short valueAtPath(const Array<String> &keys);
 };
 
 #endif //COAPLIB_COAPRESOURCES_H
