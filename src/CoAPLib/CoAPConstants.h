@@ -48,6 +48,9 @@ static const unsigned short OPTION_URI_PATH = 11;
 static const unsigned short OPTION_CONTENT_FORMAT = 12;
 static const unsigned short OPTION_BLOCK2 = 23;
 
+// Content-format codes:
+static const unsigned short CONTENT_FORMAT_TEXT_PLAIN = 0;
+
 // Message header constants:
 static const unsigned char MASK_VER = 0xC0;
 static const unsigned char MASK_T = 0x30;

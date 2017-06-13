@@ -35,6 +35,8 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
 
 void CoAPHandler::handleRequest(const CoAPMessage &message) {
     CoAPMessage response;
+    RadioMessage radioMessage;
+    bool sendRadioMessage = false;
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
     int option_id = 0;
@@ -57,7 +59,10 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                     if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_REMOTE) {
                             unsigned short resourceId = resource->value;
-                            send(prepareRadioMessage(message.getCode(), message.getMessageId(), resourceId));
+                            sendRadioMessage = true;
+                            radioMessage.code = message.getCode();
+                            radioMessage.message_id = message.getMessageId();
+                            radioMessage.resource = resourceId;
                             addPendingMessage(message);
                         }
                         else if(message.getCode() == GET)
@@ -88,7 +93,21 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 break;
             case OPTION_CONTENT_FORMAT:
             {
-                //TODO: implement
+                if(message.getCode() == CODE_PUT) {
+                    String option_value = iterator->toString();
+                    if(option_value == valueOf(CONTENT_FORMAT_TEXT_PLAIN)) {
+                        ByteArray payload = response.getPayload();
+                        unsigned char* payload_iterator = payload.begin();
+                        while(payload_iterator != payload.end()) {
+                            ++payload_iterator;
+                        }
+
+                    } else {
+                        //bad request
+                    }
+                } else {
+                    //bad request
+                }
             }
             case OPTION_BLOCK2:
                 {
@@ -101,27 +120,10 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 break;
         }
     }
-    send(response);
-}
-
-RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource, unsigned short value = 0) const {
-    RadioMessage message;
-    message.message_id = message_id;
-    message.resource = resource;
-    switch(code) {
-        case CODE_GET:
-            message.code = GET;
-            break;
-        case CODE_PUT:
-            message.code = PUT;
-            message.value=value;
-
-            break;
-        default:
-            //error?
-            break;
-    }
-    return message;
+    if(sendRadioMessage)
+        send(radioMessage);
+    else
+        send(response);
 }
 
 void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
@@ -164,9 +166,9 @@ void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &respons
     response.addOption(content_format);
 
     ByteArray payload(2);
-    unsigned char temp=(unsigned char)(responseValue & 0xff);
+    unsigned char temp = (unsigned char)(responseValue & 0xff);
     payload.pushBack(temp);
-    temp=(unsigned char)((responseValue >> 8) & 0xff);
+    temp = (unsigned char)((responseValue >> 8) & 0xff);
     payload.pushBack(temp);
 
     response.setPayload(payload);
