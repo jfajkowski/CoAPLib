@@ -9,6 +9,14 @@ CoAPResources::CoAPResources() {
     insert(coreResource, 0);
     coreResource.pushBack(RESOURCE_CORE);
     insert(coreResource, 0);
+
+    Array<String> remoteResource;
+    coreResource.pushBack(RESOURCE_REMOTE);
+    insert(coreResource, 0);
+
+    Array<String> localResource;
+    coreResource.pushBack(RESOURCE_LOCAL);
+    insert(coreResource, 0);
 }
 
 CoAPResources::~CoAPResources() {

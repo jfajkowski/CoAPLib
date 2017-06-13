@@ -67,7 +67,9 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                         }
                         else if(message.getCode() == GET) {
                             if (uri_path[0] == RESOURCE_WELL_KNOWN) {
-                                //TODO: implement
+                                createResponse(message, response);
+                                response.addOption(toContentFormat(CONTENT_LINK_FORMAT));
+                                response.setPayload(toByteArray(resources_.toLinkFormat()));
                             }
                             else if (uri_path[0] == RESOURCE_LOCAL) {
                                 if(resource->key == RESOURCE_JITTER) {
@@ -122,6 +124,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 break;
         }
     }
+
     if(sendRadioMessage)
         send(radioMessage);
     else

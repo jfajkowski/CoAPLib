@@ -100,29 +100,31 @@ void loop() {
         coAPHandler.deleteTimedOut();
         last_timeout_check = now;
     }
-//    if (now - last_ping_sent >= ping_interval) {
-//
-//        if (Udp.remoteIP() != invalid) {
-//            DEBUG_PRINT_TIME();
-//            DEBUG_PRINT("PING ");
-//            DEBUG_PRINT(Udp.remoteIP());
-//            DEBUG_PRINT(":");
-//            DEBUG_PRINTLN(Udp.remotePort());
-//            coAPHandler.sendPing();
-//            last_ping_sent = now;
-//        }
-//    }
+    if (now - last_ping_sent >= ping_interval) {
+
+        if (Udp.remoteIP() != invalid) {
+            DEBUG_PRINT_TIME();
+            DEBUG_PRINT("PING ");
+            DEBUG_PRINT(Udp.remoteIP());
+            DEBUG_PRINT(":");
+            DEBUG_PRINTLN(Udp.remotePort());
+            coAPHandler.sendPing();
+            last_ping_sent = now;
+        }
+    }
 
 }
 
 void prepareSpeakerResource() {
     Array<String> uri_path;
-    uri_path.pushBack("speaker");
+    uri_path.pushBack(RESOURCE_REMOTE);
+    uri_path.pushBack(RESOURCE_SPEAKER);
     coAPHandler.registerResource(uri_path, SPEAKER);
 }
 
 void prepareLampResource() {
     Array<String> uri_path;
-    uri_path.pushBack("lamp");
+    uri_path.pushBack(RESOURCE_REMOTE);
+    uri_path.pushBack(RESOURCE_LAMP);
     coAPHandler.registerResource(uri_path, LAMP);
 }

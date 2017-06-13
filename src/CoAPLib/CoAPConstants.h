@@ -78,5 +78,7 @@ static const String RESOURCE_REMOTE = "remote";
 static const String RESOURCE_RTT = "rtt";
 static const String RESOURCE_TIMEOUT = "timeout";
 static const String RESOURCE_JITTER = "jitter";
+static const String RESOURCE_SPEAKER = "speaker";
+static const String RESOURCE_LAMP = "lamp";
 
 #endif //CODES_H

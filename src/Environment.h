@@ -47,7 +47,7 @@
 
     #define String string
     #define TO_STRING(x) to_string(x)
-    #define TO_INT(x) from_string(x)
+    #define TO_INT(x) from_string<int>(x)
     #define PRINT(x) std::cout << x
     #define PRINTLN(x) std::cout << x << std::endl
 
