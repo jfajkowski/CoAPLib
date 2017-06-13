@@ -36,7 +36,7 @@ private:
     void updateJitterMetric(unsigned short rtt);
     void updateTimeoutMetric();
 
-    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const;
+    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource, unsigned short value = 0) const;
 
     void addPendingMessage(const CoAPMessage &message);
     PendingMessage finalizePendingMessage(const unsigned short message_id);

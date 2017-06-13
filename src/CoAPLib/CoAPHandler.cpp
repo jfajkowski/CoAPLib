@@ -104,7 +104,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
     send(response);
 }
 
-RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const {
+RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource, unsigned short value = 0) const {
     RadioMessage message;
     message.message_id = message_id;
     message.resource = resource;
@@ -114,7 +114,8 @@ RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned shor
             break;
         case CODE_PUT:
             message.code = PUT;
-            //message.key = ?
+            message.value=value;
+
             break;
         default:
             //error?
