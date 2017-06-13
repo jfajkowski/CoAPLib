@@ -25,7 +25,7 @@ private:
     void handlePut(const CoAPMessage &message);
     void handleBadRequest(const CoAPMessage &message);
 
-    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const;
+    RadioMessage prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const;
 
     void addPendingMessage(const CoAPMessage &message);
     CoAPMessage finalizePendingMessage(const unsigned int message_id);
@@ -42,7 +42,7 @@ public:
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
 
-    void registerResource(const Array<String> &uri_path, const String &value);
+    void registerResource(const Array<String> &uri_path, unsigned short value);
 };
 
 

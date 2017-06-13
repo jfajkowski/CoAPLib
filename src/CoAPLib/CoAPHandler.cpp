@@ -52,11 +52,26 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                         ++iterator;
                     }
                     uri_path.pushBack(iterator->toString());
-
-                    resources_.search(uri_path)->key; // TODO DO SOMETHING ACCORDING TO RESULT!
-                    // sendRadioMessage(prepareRadioMessage(message.getCode(), message.getMessageId(), iterator->toString()));
-                    // addPendingMessage(message);
+                    //Ok, here we need to decide wheter it is well known, local or remote resource
+                    Array<String> subPath;
+                    subPath.pushBack(uri_path[0]);
+                    switch(resources_.valueAtPath(subPath))
+                    {
+                        case RESOURCE_WELLKNOWN:  //TODO:
+                            break;
+                        case RESOURCE_LOCAL:
+                            break;
+                        case RESOURCE_REMOTE:
+                            subPath.pushBack(uri_path[1]);
+                            unsigned short nodeId=resources_.valueAtPath(subPath);
+                            //We need to put nodeId  to radio header
+                            subPath.pushBack(uri_path[2]);
+                            unsigned short resourceId=resources_.valueAtPath(subPath);
+                            sendRadioMessage(prepareRadioMessage(GET,message.getMessageId(),resourceId));
+                            addPendingMessage(message);
+                            break;
                     }
+                }
                 break;
             case OPTION_BLOCK2:
                 {
@@ -72,11 +87,10 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
     //TODO: what if there are no options?
 }
 
-RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, String uri) const {
+RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const {
     RadioMessage message;
     message.message_id = message_id;
-    //TODO: translate uri to resource code and change message.resource = 0
-    message.resource = LAMP;
+    message.resource = resource;
     switch(code) {
         case CODE_GET:
             message.code = GET;
@@ -226,7 +240,7 @@ CoAPMessage CoAPHandler::finalizePendingMessage(const unsigned int message_id) {
     // TODO WHAT IF NOT FOUND?
 }
 
-void CoAPHandler::registerResource(const Array<String> &uri_path, const String &value) {
+void CoAPHandler::registerResource(const Array<String> &uri_path, unsigned short value) {
     resources_.insert(uri_path, value);
 }
 
