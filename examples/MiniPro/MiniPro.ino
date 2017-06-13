@@ -51,13 +51,13 @@ void loop() {
         RF24NetworkHeader header;
         network.read(header, &message, sizeof(message));
 
-        if(message.resource == 0){
-            if(message.code == 0)
+        if(message.resource == LAMP){
+            if(message.code == PUT)
                 setLampBrightness(message.value);
             send(convert(lampValue));
         }
-        else if(message.resource == 1){
-            if(message.code == 0)
+        else if(message.resource == SPEAKER){
+            if(message.code == PUT)
                 setSpeakerFrequency(message.value);
             send(speakerValue);
         }

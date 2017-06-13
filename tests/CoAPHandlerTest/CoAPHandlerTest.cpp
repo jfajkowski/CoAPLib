@@ -16,48 +16,6 @@ static struct OnRadioMessageToSend : public RadioMessageListener {
     }
 } onRadioMessageToSend;
 
-
-Array<String> prepareSpeakerResource(CoAPHandler &handler) {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_REMOTE);
-    uri_path.pushBack(RESOURCE_SPEAKER);
-    handler.registerResource(uri_path, SPEAKER);
-    return uri_path;
-}
-
-Array<String> prepareLampResource(CoAPHandler &handler) {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_REMOTE);
-    uri_path.pushBack(RESOURCE_LAMP);
-    handler.registerResource(uri_path, LAMP);
-    return uri_path;
-}
-
-Array<String> prepareRttResource(CoAPHandler &handler) {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_LOCAL);
-    uri_path.pushBack(RESOURCE_RTT);
-    handler.registerResource(uri_path, 0);
-    return uri_path;
-}
-
-Array<String> prepareJitterResource(CoAPHandler &handler) {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_LOCAL);
-    uri_path.pushBack(RESOURCE_JITTER);
-    handler.registerResource(uri_path, 0);
-    return uri_path;
-}
-
-Array<String> prepareTimedOutResource(CoAPHandler &handler) {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_LOCAL);
-    uri_path.pushBack(RESOURCE_TIMED_OUT);
-    handler.registerResource(uri_path, 0);
-    return uri_path;
-}
-
-
 beginTest
 
 //    test(HandleMessage) {
@@ -127,11 +85,6 @@ beginTest
         message.deserialize(buffer, buffer_size);
 
         CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
-        Array<String> speaker = prepareSpeakerResource(coapHandler);
-        Array<String> lamp = prepareLampResource(coapHandler);
-        Array<String> jitter = prepareJitterResource(coapHandler);
-        Array<String> rtt = prepareRttResource(coapHandler);
-        Array<String> timed_out = prepareTimedOutResource(coapHandler);
 
         coapHandler.handleMessage(message);
     }

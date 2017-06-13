@@ -61,9 +61,6 @@ void setup() {
     radio.begin();
     network.begin(channel, this_node_id);
 
-    prepareSpeakerResource();
-    prepareLampResource();
-
     Serial.println("Rise and shine...");
 }
 
@@ -112,18 +109,4 @@ void loop() {
             last_ping_sent = now;
         }
     }
-}
-
-void prepareSpeakerResource() {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_REMOTE);
-    uri_path.pushBack(RESOURCE_SPEAKER);
-    coAPHandler.registerResource(uri_path, SPEAKER);
-}
-
-void prepareLampResource() {
-    Array<String> uri_path;
-    uri_path.pushBack(RESOURCE_REMOTE);
-    uri_path.pushBack(RESOURCE_LAMP);
-    coAPHandler.registerResource(uri_path, LAMP);
 }
