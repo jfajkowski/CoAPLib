@@ -53,7 +53,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
             case OPTION_URI_PATH:
                 {
                     Array<String> uri_path;
-                    while ((iterator + 1)->getNumber() == OPTION_URI_PATH) {
+                    while (((iterator + 1) != options.end()) && ((iterator + 1)->getNumber() == OPTION_URI_PATH)) {
                         uri_path.pushBack(iterator->toString());
                         ++iterator;
                     }
@@ -63,7 +63,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
 
                     if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_WELL_KNOWN) {
-
+                            //TODO: implement
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
 
                             if(resource->key == RESOURCE_JITTER) {
