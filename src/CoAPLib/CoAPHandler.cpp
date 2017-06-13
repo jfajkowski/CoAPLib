@@ -41,7 +41,7 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
 }
 
 void CoAPHandler::handleGet(const CoAPMessage &message) {
-
+    CoAPMessage response;
     OptionArray options = message.getOptions();
     CoAPOption* iterator = options.begin();
     int option_id = 0;
@@ -59,23 +59,23 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                     }
                     uri_path.pushBack(iterator->toString());
 
-                    Node* node = resources_.search(uri_path);
+                    Node* resource = resources_.search(uri_path);
 
-                    if (node != nullptr) {
+                    if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_WELL_KNOWN) {
 
                         } else if (uri_path[0] == RESOURCE_LOCAL) {
 
-                            if(node->key == RESOURCE_JITTER) {
-                                createResponse(message,last_jitter);
-                            }else if(node->key == RESOURCE_RTT) {
-                                createResponse(message,mean_rtt);
-                            }else if(node->key == RESOURCE_TIMEOUT) {
-                                createResponse(message,timed_out);
+                            if(resource->key == RESOURCE_JITTER) {
+                                createResponse(message, response, last_jitter);
+                            }else if(resource->key == RESOURCE_RTT) {
+                                createResponse(message, response, mean_rtt);
+                            }else if(resource->key == RESOURCE_TIMEOUT) {
+                                createResponse(message, response, timed_out);
                             }
 
                         } else if (uri_path[0] == RESOURCE_REMOTE) {
-                            unsigned short resourceId = node->value;
+                            unsigned short resourceId = resource->value;
                             send(prepareRadioMessage(GET, message.getMessageId(), resourceId));
                             addPendingMessage(message);
                         }
@@ -93,7 +93,7 @@ void CoAPHandler::handleGet(const CoAPMessage &message) {
                 break;
         }
     }
-    //TODO: what if there are no options?
+    send(response);
 }
 
 RadioMessage CoAPHandler::prepareRadioMessage(unsigned short code, unsigned short message_id, unsigned short resource) const {
@@ -125,13 +125,15 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     CoAPMessage message;
     message = finalizePendingMessage(radioMessage.message_id).coapMessage;
     unsigned short responseValue=radioMessage.value;
+    CoAPMessage response;
 
-    createResponse(message, responseValue);
+    createResponse(message, response, responseValue);
+    send(response);
 
 }
 
-void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short responseValue) {
-    CoAPMessage response;
+void CoAPHandler::createResponse(const CoAPMessage &message,CoAPMessage &response, unsigned short responseValue) {
+
     response.setToken(message.getToken());
 
     if (message.getT() == TYPE_CON) {
@@ -159,7 +161,6 @@ void CoAPHandler::createResponse(const CoAPMessage &message, unsigned short resp
     payload.pushBack(temp);
 
     response.setPayload(payload);
-    send(response);
 }
 
 void CoAPHandler::handlePut(const CoAPMessage &message) {

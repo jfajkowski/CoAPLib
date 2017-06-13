@@ -59,7 +59,7 @@ public:
 
     unsigned short getTimeout() const;
 
-    void createResponse(const CoAPMessage &message, unsigned short responseValue);
+    void createResponse(const CoAPMessage &message, CoAPMessage &response, unsigned short responseValue);
 };
 
 
