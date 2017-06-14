@@ -1,6 +1,6 @@
 #include "CoAPResources.h"
 
-Node::Node(const String &key) : key(key) {}
+Node::Node(const String &key) : key(key), value(nullptr) {}
 
 const String &Node::getKey() const {
     return key;
@@ -19,7 +19,7 @@ Array<Node *> &Node::getNodes() {
 }
 
 Node::~Node() {
-    if (value != nullptr)
+    if (value != nullptr);
         delete value;
 }
 
@@ -28,17 +28,17 @@ CoAPResources::CoAPResources() {
 
     Array<String> coreResource;
     coreResource.pushBack(RESOURCE_WELL_KNOWN);
-    insert(coreResource, 0);
+    insert(coreResource, nullptr);
     coreResource.pushBack(RESOURCE_CORE);
-    insert(coreResource, 0);
+    insert(coreResource, nullptr);
 
     Array<String> remoteResource;
     remoteResource.pushBack(RESOURCE_REMOTE);
-    insert(coreResource, 0);
+    insert(coreResource, nullptr);
 
     Array<String> localResource;
     localResource.pushBack(RESOURCE_LOCAL);
-    insert(coreResource, 0);
+    insert(coreResource, nullptr);
 }
 
 CoAPResources::~CoAPResources() {
