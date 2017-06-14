@@ -57,8 +57,8 @@ beginTest
         strings2.pushBack("3b");
 
         CoAPResources coapResources;
-        coapResources.insert(strings1, 0);
-        coapResources.insert(strings2, 0);
+        coapResources.insert(strings1, nullptr);
+        coapResources.insert(strings2, nullptr);
 
         String actual1 = coapResources.search(strings1)->getKey();
         String actual2 = coapResources.search(strings2)->getKey();
@@ -104,7 +104,7 @@ beginTest
         assertEqual(*(rtt.end()-1), coapResources.search(rtt)->getKey());
         assertEqual(*(timed_out.end()-1), coapResources.search(timed_out)->getKey());
 
-        PRINT(coapResources.toLinkFormat());//, "</remote/speaker>;value=1,</remote/lamp>;value=0,</local/jitter>;value=0,</local/rtt>;value=0,</local/timed_out>;value=0");
+        assertEqual(coapResources.toLinkFormat(), "</remote/speaker>;value=1,</remote/lamp>;value=0,</local/jitter>,</local/rtt>,</local/timed_out>");
     }
 
 endTest

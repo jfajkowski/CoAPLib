@@ -197,14 +197,17 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     DEBUG_PRINTLN("RECEIVED");
     DEBUG_FUNCTION(radioMessage.print());
 
-    CoAPMessage message;
-    message = finalizePendingMessage(radioMessage.message_id).coapMessage;
+    PendingMessage pendingMessage = finalizePendingMessage(radioMessage.message_id);
+    if (pendingMessage.timestamp != 0) {
+        CoAPMessage message;
+        message = pendingMessage.coapMessage;
 
-    CoAPMessage response;
-    createResponse(message, response);
-    response.addOption(toContentFormat(0));
-    response.setPayload(toByteArray(TO_STRING(radioMessage.value)));
-    send(response);
+        CoAPMessage response;
+        createResponse(message, response);
+        response.addOption(toContentFormat(0));
+        response.setPayload(toByteArray(TO_STRING(radioMessage.value)));
+        send(response);
+    }
 
 }
 
@@ -285,7 +288,7 @@ CoAPHandler::PendingMessage CoAPHandler::finalizePendingMessage(const unsigned s
             return pending_messages_.pop(i);
     }
 
-    // TODO WHAT IF NOT FOUND?
+    return PendingMessage();
 }
 
 void CoAPHandler::deleteTimedOut() {
