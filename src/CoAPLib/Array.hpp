@@ -92,7 +92,7 @@ template<typename T>
 const T Array<T>::popBack() {
     T element = array_begin_[size_ - 1];
     --size_;
-    if(size_ < capacity_ - 1)
+    if(size_ > 0 && size_ < capacity_ - 1)
         reserve(size_);
     return element;
 }
@@ -111,7 +111,7 @@ const T Array<T>::pop(unsigned int index) {
         iterator2++;
     }
     --size_;
-    if(size_ < capacity_ - 1)
+    if(size_ > 0 && size_ < capacity_ - 1)
         reserve(size_);
     return element;
 }
@@ -129,7 +129,7 @@ void Array<T>::erase(unsigned int index) {
         iterator2++;
     }
     --size_;
-    if(size_ < capacity_ - 1)
+    if(size_ > 0 && size_ < capacity_ - 1)
         reserve(size_);
 }
 
