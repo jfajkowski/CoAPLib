@@ -25,7 +25,8 @@ RF24NetworkHeader header(peer_node_id);         // Set header of radio messages
 RF24 radio(7, 8);                               // nRF24L01(+) radio
 RF24Network network(radio);                     // Network initialized with radio
 
-// CoAPLib variables:
+// operator() of this struct is called when CoAPHandler needs to send a CoAP message.
+// It takes care of serializing the message into ByteArray and puts it into udp packet.
 struct : public CoAPMessageListener {
     void operator()(const CoAPMessage &message) {
         unsigned int size = message.serialize(packet_buffer);
@@ -35,6 +36,8 @@ struct : public CoAPMessageListener {
     }
 } onCoAPMessageToSend;
 
+// operator() of this struct is called when CoAPHandler needs to send a CoAP message.
+// It sends a message using channel '100' to address '01'
 struct : public RadioMessageListener {
     void operator()(const RadioMessage &message) {
         network.write(header, &message, sizeof(message));
@@ -91,6 +94,7 @@ void loop() {
         coAPHandler.handleMessage(message);
     }
 
+    // Deletes pending CoAP request if it can't be served in 5s
 //    unsigned long now = millis();
 //    if (now - last_timeout_check >= coAPHandler.getTimeout()) {
 //        coAPHandler.deleteTimedOut();
