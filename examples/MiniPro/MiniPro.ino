@@ -22,7 +22,7 @@ RadioMessage message;
 
 void setup() {
     lampValue = 255;                    // Set lamp value to minimum
-    speakerValue = 0;                   // Set speaker value to minimum
+    speakerValue = 0;                   // Set speaker value to off
     radio.begin();
     network.begin(channel, this_node_id);
 
@@ -48,7 +48,7 @@ void loop() {
         digitalWrite(2, digitalRead(2) ^ 1);
     }
 
-    // Is there is anything ready to receive
+    // Check if there is anything ready to receive
     while (network.available()) {
         RF24NetworkHeader header;
         network.read(header, &message, sizeof(message));
@@ -67,7 +67,8 @@ void loop() {
     }
 }
 
-// Set lamp brightness using 0-1000 level of brightness range
+// Set lamp brightness using 0-1000 level of brightness range.
+// Converts 0-1000 into 5-255. Levels 0-4 are 5 top levels and humans can't see the difference anyway
 void setLampBrightness(unsigned short level){
     int tmp = (int) level/4;
     tmp = tmp - 250;
@@ -88,7 +89,7 @@ void setSpeakerFrequency(unsigned short freq){
     else runningFlag = false;
 }
 
-// Convert 0-1000 value range to physical brightness
+// Convert 5-255 value range to human input range
 unsigned short convert(unsigned short val){
     int tmp = (int) val;
     tmp = tmp - 255;
