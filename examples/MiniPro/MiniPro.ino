@@ -32,7 +32,7 @@ void setup() {
     setLampBrightness(lampValue);       // Initialize lamp with min value
     setSpeakerFrequency(speakerValue);  // Initialize speaker with min value
 
-    Serial.begin(115200);
+    Serial.begin(9600);
     Serial.println("Rise and shine...");
 }
 
@@ -52,6 +52,8 @@ void loop() {
     while (network.available()) {
         RF24NetworkHeader header;
         network.read(header, &message, sizeof(message));
+        Serial.println("Received:");
+        message.print();
 
         // Depending on action update, or just send current values
         if(message.resource == RADIO_LAMP){
@@ -100,6 +102,8 @@ unsigned short convert(unsigned short val){
 // Send Radio Message
 void send(unsigned short value){
     message.value = value;
+    Serial.println("Sent:");
+    message.print();
     RF24NetworkHeader header(other_node_id);
     network.write(header, &message, sizeof(message));
 }

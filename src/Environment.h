@@ -2,7 +2,7 @@
 #define ENVIRONMENT_H
 
 #define DEBUG 0
-#define LIGHT_DEBUG 0
+#define LIGHT_DEBUG 1
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     #include <Arduino.h>

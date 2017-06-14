@@ -321,7 +321,7 @@ void CoAPHandler::deleteTimedOut() {
 void CoAPHandler::registerResource(const Array<String> &uri_path, unsigned short *value) {
     resources_.insert(uri_path, value);
 }
-/** Sends ping message to CoAP Client in order to calculate RTT
+/** Sends ping message to CoAP Client in order to calculate RTT **/
 void CoAPHandler::sendPing() {
     CoAPMessage message;
     message.setCode(CODE_EMPTY);
