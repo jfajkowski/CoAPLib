@@ -4,6 +4,9 @@
 #include "Array.hpp"
 #include "CoAPOption.h"
 
+/**
+ * Describes CoAP message and provides options for serialization/deserialization
+ */
 class CoAPMessage {
 private:
     struct Header {

@@ -23,6 +23,7 @@ Node::~Node() {
         delete value;
 }
 
+/** Creates resource tree and adds three main branches: well-known, local and remote**/
 CoAPResources::CoAPResources() {
     root = new Node(".");
 
@@ -58,6 +59,7 @@ void CoAPResources::destroy(Node *leaf) {
     }
 }
 
+/** Inserts path to resource and value at final leaf of resource into resource tree  **/
 void CoAPResources::insert(String *begin, const String *end, Node *leaf, unsigned short *value) {
     Node* node = nullptr;
     for (int i = 0; i < leaf->getNodes().size(); ++i) {
@@ -84,6 +86,7 @@ void CoAPResources::insert(String *begin, const String *end, Node *leaf, unsigne
         node->setValue(value);
 }
 
+/** Searches for resource with path given using String array iterators **/
 Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     Node* node = nullptr;
 
@@ -124,14 +127,17 @@ Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     else return node;
 }
 
+/** Inserts path to resource and value at final leaf of resource into resource tree  **/
 void CoAPResources::insert(const Array<String> &keys, unsigned short *value) {
     insert(keys.begin(), keys.end(), root, value);
 }
 
+/** Searches for resource with path given using String array **/
 Node *CoAPResources::search(const Array<String> &keys) {
     return search(keys.begin(), keys.end(), root);
 }
 
+/** Converts resource tree into string in Link Format **/
 String CoAPResources::toLinkFormat() const {
     String core_format;
 
@@ -143,6 +149,7 @@ String CoAPResources::toLinkFormat() const {
     return core_format.substr(0, core_format.length() - 2);
 }
 
+/** Writes Uri paths of given Node into given string **/
 void CoAPResources::getUriPaths(String &result, Node *child) const {
     Node* node = nullptr;
 

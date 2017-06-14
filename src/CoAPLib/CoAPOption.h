@@ -4,6 +4,9 @@
 #include "Array.hpp"
 #include "CoAPConstants.h"
 
+/**
+ * This struct describes Block2 option
+ */
 struct Block2 {
     unsigned int num : 20;
     unsigned int m : 1;
@@ -28,6 +31,9 @@ struct Block2 {
     }
 };
 
+/**
+ * This class provides mechanisms for CoAP options creation serialization and deserialization
+ */
 class CoAPOption;
 typedef Array<CoAPOption> OptionArray;
 

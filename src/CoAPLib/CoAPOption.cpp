@@ -2,6 +2,7 @@
 
 CoAPOption::CoAPOption() : number_(0), value_() {}
 
+/** Creates Block2 option **/
 CoAPOption::CoAPOption(const Block2 &block2) : number_(OPTION_BLOCK2) {
 //    switch (block2) {
 //        case 1:
@@ -19,6 +20,7 @@ CoAPOption::CoAPOption(const Block2 &block2) : number_(OPTION_BLOCK2) {
 //            break;
 }
 
+/** Creates Option with given number and value **/
 CoAPOption::CoAPOption(unsigned int number, String value) : CoAPOption() {
     ByteArray value_bytes(value.length());
     for (int i = 0; i < value.length(); ++i) {
@@ -31,6 +33,7 @@ CoAPOption::CoAPOption(unsigned int number, String value) : CoAPOption() {
 
 CoAPOption::CoAPOption(unsigned int number, ByteArray value) : number_(number), value_(value) {}
 
+/** Writes options from array into unsigned char array **/
 void CoAPOption::serialize(unsigned char *&cursor, const OptionArray &options) {
     if (options.size() > 0) {
         unsigned int delta = options[0].getNumber();
@@ -43,6 +46,7 @@ void CoAPOption::serialize(unsigned char *&cursor, const OptionArray &options) {
     }
 }
 
+/** Writes options from unsigned char array into OptionArray */
 void CoAPOption::deserialize(unsigned char *&cursor, unsigned char *buffer_end, OptionArray &options)  {
     unsigned int delta_sum = 0;
 
@@ -63,6 +67,7 @@ void CoAPOption::serialize(unsigned char* &cursor, unsigned int delta) const {
     insert(cursor, value_);
 }
 
+/** Takes care of setting proper option delta **/
 void CoAPOption::insert(unsigned char* &cursor, unsigned int delta, unsigned int length) const {
     unsigned char header_delta = 0;
     unsigned char header_length = 0;
@@ -115,6 +120,7 @@ void CoAPOption::insert(unsigned char* &cursor, const ByteArray &bytes) const {
     cursor += bytes.size();
 }
 
+/** Creates single option form part of the char array **/
 void CoAPOption::deserialize(unsigned char* &cursor, unsigned char* &buffer_end, unsigned int delta_sum) {
     unsigned int delta = 0;
     unsigned int length = 0;

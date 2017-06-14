@@ -5,6 +5,9 @@
 #include "CoAPConstants.h"
 #include "../Environment.h"
 
+/**
+ * Represents single node in resource tree
+ */
 class Node {
 private:
     String key;
@@ -22,6 +25,9 @@ public:
     void setValue(unsigned short *value);
 };
 
+/**
+ * Resource tree used to describe resources available from server
+ */
 class CoAPResources {
 private:
     Node *root;

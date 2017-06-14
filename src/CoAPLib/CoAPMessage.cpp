@@ -4,6 +4,7 @@ CoAPMessage::CoAPMessage() {
     header_ = {DEFAULT_VERSION, 0, 0, 0, 0};
 }
 
+/** Puts values from CoAPMessage into unsigned char array, returns length**/
 unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) const {
     unsigned char* cursor = buffer_begin;
 
@@ -16,6 +17,7 @@ unsigned int CoAPMessage::serialize(unsigned char* buffer_begin) const {
     return cursor - buffer_begin - 1;
 }
 
+/** Puts values from header into unsigned char array **/
 void CoAPMessage::insert(unsigned char* &cursor, const Header &header) const {
     *cursor = (header.Ver << OFFSET_VER) | (header.T << OFFSET_T) | header.TKL;
 	*++cursor = header.Code;
@@ -24,20 +26,24 @@ void CoAPMessage::insert(unsigned char* &cursor, const Header &header) const {
     ++cursor;
 }
 
+/** Puts values from ByteArray into unsigned char array **/
 void CoAPMessage::insert(unsigned char* &cursor, const ByteArray &bytes) const {
     bytes.serialize(cursor);
     cursor += bytes.size();
 }
 
+/** Puts values from OptionArray into unsigned char array **/
 void CoAPMessage::insert(unsigned char* &cursor, const OptionArray &options) const {
     CoAPOption::serialize(cursor, options);
 }
 
+/** Puts values unsigned char into unsigned char array **/
 void CoAPMessage::insert(unsigned char *&cursor, unsigned char value) const {
     *cursor = value;
     ++cursor;
 }
 
+/** Fills Message with values extracted from unsigned char array**/
 void CoAPMessage::deserialize(unsigned char *buffer_begin, unsigned int num) {
     unsigned char* cursor = buffer_begin;
     unsigned char* buffer_end = buffer_begin + num;
@@ -48,6 +54,7 @@ void CoAPMessage::deserialize(unsigned char *buffer_begin, unsigned int num) {
     extractPayload(cursor, buffer_end);
 }
 
+/** Fills header with values extracted from unsigned char array**/
 void CoAPMessage::extractHeader(unsigned char *&cursor, unsigned char* buffer_end) {
     header_.Ver = (*cursor & MASK_VER) >> OFFSET_VER;
     header_.T = (*cursor & MASK_T) >> OFFSET_T;
@@ -57,15 +64,18 @@ void CoAPMessage::extractHeader(unsigned char *&cursor, unsigned char* buffer_en
     ++cursor;
 }
 
+/** Fills Token with value extracted from unsigned char array**/
 void CoAPMessage::extractToken(unsigned char *&cursor, unsigned char* buffer_end) {
     token_.deserialize(cursor, header_.TKL);
     cursor += header_.TKL;
 }
 
+/** Fills Options with values extracted from unsigned char array**/
 void CoAPMessage::extractOptions(unsigned char* &cursor, unsigned char* buffer_end) {
     CoAPOption::deserialize(cursor, buffer_end, options_);
 }
 
+/** Fills Payload with values extracted from unsigned char array**/
 void CoAPMessage::extractPayload(unsigned char *&cursor, unsigned char* buffer_end) {
     payload_.deserialize(cursor, buffer_end - cursor);
     cursor += buffer_end - cursor;
@@ -107,6 +117,7 @@ const ByteArray &CoAPMessage::getToken() const {
     return token_;
 }
 
+/** Sets token and appropriate value in TKL **/
 void CoAPMessage::setToken(const ByteArray &token) {
     token_ = token;
     header_.TKL = (unsigned short) token.size();
@@ -116,6 +127,7 @@ const OptionArray &CoAPMessage::getOptions() const {
     return options_;
 }
 
+/** Adds single Option to Option Array**/
 void CoAPMessage::addOption(const CoAPOption &option) {
     for (unsigned int i = 0; i < options_.size(); ++i) {
         if (option.getNumber() < options_[i].getNumber()) {
@@ -135,6 +147,7 @@ void CoAPMessage::setPayload(const ByteArray &payload) {
     payload_ = payload;
 }
 
+/** In debug mode prints contents of message using SPI or std::cout, depending on platform **/
 void CoAPMessage::print() const {
     PRINTLN("---CoAP message---");
     PRINT("Version: ");
@@ -166,6 +179,7 @@ void CoAPMessage::print() const {
     PRINTLN("");
 }
 
+/** Converts ByteArray into String**/
 const String CoAPMessage::toString(const ByteArray &byte_array) {
     String s;
   
