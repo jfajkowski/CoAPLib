@@ -138,15 +138,15 @@ void CoAPMessage::setPayload(const ByteArray &payload) {
 void CoAPMessage::print() const {
     PRINTLN("---CoAP message---");
     PRINT("Version: ");
-    PRINTLN(header_.Ver);
+    PRINTLN(TO_STRING(header_.Ver));
     PRINT("Type: ");
-    PRINTLN(header_.T);
+    PRINTLN(TO_STRING(header_.T));
     PRINT("Token length: ");
-    PRINTLN(header_.TKL);
+    PRINTLN(TO_STRING(header_.TKL));
     PRINT("Code: ");
-    PRINTLN(header_.Code);
+    PRINTLN(TO_STRING(header_.Code));
     PRINT("Message ID: ");
-    PRINTLN(header_.MessageId);
+    PRINTLN(TO_STRING(header_.MessageId));
 
     if (token_.size() != 0) {
         PRINT("Token:");

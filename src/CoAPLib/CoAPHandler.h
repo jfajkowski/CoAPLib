@@ -63,11 +63,14 @@ public:
     void handleMessage(CoAPMessage &message);
     void handleMessage(RadioMessage &radioMessage);
 
-    void registerResource(const Array<String> &uri_path, unsigned short value);
+    void registerResource(const Array<String> &uri_path, unsigned short *value);
     void sendPing();
     void deleteTimedOut();
 
     unsigned short getTimeout() const;
+    void print() {
+        PRINT(resources_.toLinkFormat());
+    }
 };
 
 

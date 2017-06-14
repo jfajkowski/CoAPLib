@@ -48,6 +48,7 @@ class CoAPOption {
 
 public:
     CoAPOption();
+    CoAPOption(const Block2 &block2);
     CoAPOption(unsigned int number, String value);
     CoAPOption(unsigned int number, ByteArray value);
 

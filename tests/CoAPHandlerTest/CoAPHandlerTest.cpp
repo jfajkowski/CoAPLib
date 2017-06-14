@@ -87,75 +87,75 @@ beginTest
 
         coapHandler.handleMessage(message);
     }
-
-    test(CoAPRemoteGet) {
-
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_GET);
-        message.setT(TYPE_CON);
-        message.addOption(CoAPOption(11, "remote"));
-        message.addOption(CoAPOption(11, "speaker"));
-
-        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
-
-        coapHandler.handleMessage(message);
-    }
-    test(CoAPRemotePut) {
-
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_PUT);
-        message.setT(TYPE_CON);
-        message.addOption(CoAPOption(11, "remote"));
-        message.addOption(CoAPOption(11, "speaker"));
-        ByteArray c_f(2);
-        c_f.pushBack((const unsigned char &) (0 & 0xff));
-        c_f.pushBack((const unsigned char &) ((0 >> 8) & 0xff));
-
-        CoAPOption content_format(OPTION_CONTENT_FORMAT, c_f);
-        message.addOption(content_format);
-        ByteArray payload;
-        payload.pushBack('2');
-        payload.pushBack('4');
-        message.setPayload(payload);
-
-        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
-
-        coapHandler.handleMessage(message);
-    }
-    test(CoAPRemotePut) {
-
-        CoAPMessage message;
-        message.setMessageId(100);
-        message.setToken(222);
-        message.setCode(CODE_PUT);
-        message.setT(TYPE_CON);
-        message.addOption(CoAPOption(11, "remote"));
-        message.addOption(CoAPOption(11, "speaker"));
-        ByteArray c_f(2);
-        c_f.pushBack((const unsigned char &) (0 & 0xff));
-        c_f.pushBack((const unsigned char &) ((0 >> 8) & 0xff));
-
-        CoAPOption content_format(OPTION_CONTENT_FORMAT, c_f);
-        message.addOption(content_format);
-        ByteArray payload;
-        payload.pushBack('2');
-        payload.pushBack('4');
-        message.setPayload(payload);
-
-        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
-
-        coapHandler.handleMessage(message);
-        RadioMessage rm;
-        rm.message_id=100;
-        rm.code=1;
-        rm.resource=1;
-        rm.value=24;
-        coapHandler.handleMessage(rm);
-    }
+//
+//    test(CoAPRemoteGet) {
+//
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_GET);
+//        message.setT(TYPE_CON);
+//        message.addOption(CoAPOption(11, "remote"));
+//        message.addOption(CoAPOption(11, "speaker"));
+//
+//        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//
+//        coapHandler.handleMessage(message);
+//    }
+//    test(CoAPRemotePut) {
+//
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_PUT);
+//        message.setT(TYPE_CON);
+//        message.addOption(CoAPOption(11, "remote"));
+//        message.addOption(CoAPOption(11, "speaker"));
+//        ByteArray c_f(2);
+//        c_f.pushBack((const unsigned char &) (0 & 0xff));
+//        c_f.pushBack((const unsigned char &) ((0 >> 8) & 0xff));
+//
+//        CoAPOption content_format(OPTION_CONTENT_FORMAT, c_f);
+//        message.addOption(content_format);
+//        ByteArray payload;
+//        payload.pushBack('2');
+//        payload.pushBack('4');
+//        message.setPayload(payload);
+//
+//        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//
+//        coapHandler.handleMessage(message);
+//    }
+//    test(CoAPRemotePut) {
+//
+//        CoAPMessage message;
+//        message.setMessageId(100);
+//        message.setToken(222);
+//        message.setCode(CODE_PUT);
+//        message.setT(TYPE_CON);
+//        message.addOption(CoAPOption(11, "remote"));
+//        message.addOption(CoAPOption(11, "speaker"));
+//        ByteArray c_f(2);
+//        c_f.pushBack((const unsigned char &) (0 & 0xff));
+//        c_f.pushBack((const unsigned char &) ((0 >> 8) & 0xff));
+//
+//        CoAPOption content_format(OPTION_CONTENT_FORMAT, c_f);
+//        message.addOption(content_format);
+//        ByteArray payload;
+//        payload.pushBack('2');
+//        payload.pushBack('4');
+//        message.setPayload(payload);
+//
+//        CoAPHandler coapHandler(onCoAPMessageToSend, onRadioMessageToSend);
+//
+//        coapHandler.handleMessage(message);
+//        RadioMessage rm;
+//        rm.message_id=100;
+//        rm.code=1;
+//        rm.resource=1;
+//        rm.value=24;
+//        coapHandler.handleMessage(rm);
+//    }
 //
 //    test(RegisteredResourceGet) {
 //        CoAPMessage speaker_message;

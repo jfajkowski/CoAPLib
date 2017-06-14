@@ -32,7 +32,7 @@ void setup() {
     setLampBrightness(lampValue);       // Initialize lamp with min value
     setSpeakerFrequency(speakerValue);  // Initialize speaker with min value
 
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Rise and shine...");
 }
 
