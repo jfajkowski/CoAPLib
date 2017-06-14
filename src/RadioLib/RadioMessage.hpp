@@ -2,7 +2,9 @@
 #define COAPLIB_RADIOMESSAGE_HPP
 
 #include "../Environment.h"
-
+/**
+ * Radio message structure defined to perform automatic serialization in radio module
+ */
 struct RadioMessage {
     unsigned short message_id : 16;
     unsigned short code : 1; //0 - RADIO_PUT, 1 - RADIO_GET
