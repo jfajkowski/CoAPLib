@@ -2,6 +2,23 @@
 
 CoAPOption::CoAPOption() : number_(0), value_() {}
 
+CoAPOption::CoAPOption(const Block2 &block2) : number_(OPTION_BLOCK2) {
+//    switch (block2) {
+//        case 1:
+        unsigned char value = (unsigned char) ((block2.num << 4) | ((block2.m << 3) & 0x08) | (block2.szx - 4));
+         value_.pushBack(value);
+//            break;
+//        case 2:
+//            // TODO
+//            break;
+//        case 3:
+//            // TODO
+//            break;
+//        default:
+//            // TODO
+//            break;
+}
+
 CoAPOption::CoAPOption(unsigned int number, String value) : CoAPOption() {
     ByteArray value_bytes(value.length());
     for (int i = 0; i < value.length(); ++i) {
@@ -187,11 +204,6 @@ const Block2 CoAPOption::toBlock2() const {
     Block2 result;
 
     switch (value_.size()) {
-        case 0:
-            result.num = 0;
-            result.m = 0;
-            result.szx = 0;
-            break;
         case 1:
             result.num = value_[0] >> 4;
             result.m = (unsigned int) ((value_[0] >> 3) & 0x01);

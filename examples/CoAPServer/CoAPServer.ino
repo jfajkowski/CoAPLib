@@ -11,11 +11,10 @@
 
 // Ethernet library variables:
 IPAddress invalid(0, 0, 0, 0);
-IPAddress ip(169, 254, 42, 110);                   // Used only when directly connected.
 unsigned short local_port = 10000;
 byte mac[] = {222, 222, 222, 222, 222, 222};
 EthernetUDP Udp;
-unsigned const int MAX_BUFFER = 128;
+unsigned const int MAX_BUFFER = 64;
 unsigned char packet_buffer[MAX_BUFFER];
 
 // RF24 library variables:
@@ -26,13 +25,12 @@ RF24NetworkHeader header(peer_node_id);
 RF24 radio(7, 8);
 RF24Network network(radio);
 
-// Callbacks for CoAPHandler:
+// CoAPLib variables:
 struct : public CoAPMessageListener {
     void operator()(const CoAPMessage &message) {
+        unsigned int size = message.serialize(packet_buffer);
         Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-        unsigned char buffer[MAX_BUFFER];
-        unsigned int size = message.serialize(buffer);
-        Udp.write(buffer, size);
+        Udp.write(packet_buffer, size);
         Udp.endPacket();
     }
 } onCoAPMessageToSend;
@@ -44,16 +42,15 @@ struct : public RadioMessageListener {
 } onRadioMessageToSend;
 
 CoAPHandler coAPHandler(onCoAPMessageToSend, onRadioMessageToSend);
-unsigned long ping_interval = 10000;
+unsigned short ping_interval = 10000;
 unsigned long last_ping_sent = 0;
 unsigned long last_timeout_check = 0;
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     // Prepare Ethernet:
     Ethernet.begin(mac);                    // Connected to router
-    //Ethernet.begin(mac, ip);              // Directly connected
     Serial.println(Ethernet.localIP());
     Udp.begin(local_port);
 

@@ -72,6 +72,8 @@
 #define OFFSET_EXTENDABLE 8
 
 // Resource types constants:
+#define RESOURCE_ALL1 "</remote/speaker>;value=1,</remote/lamp>;value=0"
+#define RESOURCE_ALL2 ",</local/jitter>,</local/rtt>,</local/timed_out>"
 #define RESOURCE_WELL_KNOWN ".well-known"
 #define RESOURCE_CORE "core"
 #define RESOURCE_LOCAL "local"

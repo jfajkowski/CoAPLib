@@ -1,8 +1,30 @@
 #include "CoAPResources.h"
 
+Node::Node(const String &key) : key(key) {}
+
+const String &Node::getKey() const {
+    return key;
+}
+
+unsigned short *Node::getValue() const {
+    return value;
+}
+
+void Node::setValue(unsigned short *value) {
+    Node::value = value;
+}
+
+Array<Node *> &Node::getNodes() {
+    return nodes;
+}
+
+Node::~Node() {
+    if (value != nullptr)
+        delete value;
+}
+
 CoAPResources::CoAPResources() {
-    root = new Node;
-    root->key = ".";
+    root = new Node(".");
 
     Array<String> coreResource;
     coreResource.pushBack(RESOURCE_WELL_KNOWN);
@@ -11,11 +33,11 @@ CoAPResources::CoAPResources() {
     insert(coreResource, 0);
 
     Array<String> remoteResource;
-    coreResource.pushBack(RESOURCE_REMOTE);
+    remoteResource.pushBack(RESOURCE_REMOTE);
     insert(coreResource, 0);
 
     Array<String> localResource;
-    coreResource.pushBack(RESOURCE_LOCAL);
+    localResource.pushBack(RESOURCE_LOCAL);
     insert(coreResource, 0);
 }
 
@@ -29,38 +51,37 @@ void CoAPResources::destroy() {
 
 void CoAPResources::destroy(Node *leaf) {
     if(leaf != nullptr) {
-        for (int i = 0; i < leaf->nodes.size(); ++i) {
-            destroy(leaf->nodes[i]);
+        for (int i = 0; i < leaf->getNodes().size(); ++i) {
+            destroy(leaf->getNodes()[i]);
         }
         delete leaf;
     }
 }
 
-void CoAPResources::insert(String *begin, const String *end, Node *leaf, unsigned short value) {
+void CoAPResources::insert(String *begin, const String *end, Node *leaf, unsigned short *value) {
     Node* node = nullptr;
-    for (int i = 0; i < leaf->nodes.size(); ++i) {
-        if (leaf->nodes[i]->key == *begin) {
-            node = leaf->nodes[i];
+    for (int i = 0; i < leaf->getNodes().size(); ++i) {
+        if (leaf->getNodes()[i]->getKey() == *begin) {
+            node = leaf->getNodes()[i];
             break;
         }
     }
 
     if (node == nullptr) {
-        node = new Node;
-        node->key = *begin;
-        leaf->nodes.pushBack(node);
+        node = new Node(*begin);
+        leaf->getNodes().pushBack(node);
 
         DEBUG_PRINT("Created node: ");
-        DEBUG_PRINTLN(node->key);
+        DEBUG_PRINTLN(node->getKey());
     }
 
     if (begin + 1 != end) {
         DEBUG_PRINT("Moving into: ");
-        DEBUG_PRINTLN(node->key);
+        DEBUG_PRINTLN(node->getKey());
         insert(++begin, end, node, value);
     }
     else
-        node->value=value;
+        node->setValue(value);
 }
 
 Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
@@ -70,26 +91,25 @@ Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     DEBUG_PRINTLN(*begin);
 
     if(leaf != nullptr) {
-        for (int i = 0; i < leaf->nodes.size(); ++i) {
+        for (int i = 0; i < leaf->getNodes().size(); ++i) {
             DEBUG_PRINT("Is ");
-            DEBUG_PRINT(leaf->nodes[i]->key);
+            DEBUG_PRINT(leaf->getNodes()[i]->getKey());
             DEBUG_PRINT(" a match? ");
 
-            if (leaf->nodes[i]->key == *begin) {
+            if (leaf->getNodes()[i]->getKey() == *begin) {
                 DEBUG_PRINTLN("Yes!");
-                node = leaf->nodes[i];
+                node = leaf->getNodes()[i];
                 break;
             }
 
             DEBUG_PRINTLN("No!");
         }
 
-        DEBUG_FUNCTION(
-            if (node != nullptr) {
-                DEBUG_PRINT("Found node: ");
-                DEBUG_PRINTLN(node->key);
-            }
-        )
+
+        if (node != nullptr) {
+            DEBUG_PRINT("Found node: ");
+            DEBUG_PRINTLN(node->getKey());
+        }
     }
     else {
         DEBUG_PRINT("Not found: ");
@@ -104,7 +124,7 @@ Node *CoAPResources::search(String *begin, const String *end, Node *leaf) {
     else return node;
 }
 
-void CoAPResources::insert(const Array<String> &keys, const unsigned short value) {
+void CoAPResources::insert(const Array<String> &keys, unsigned short *value) {
     insert(keys.begin(), keys.end(), root, value);
 }
 
@@ -116,8 +136,8 @@ String CoAPResources::toLinkFormat() const {
     String core_format;
 
     core_format += "<";
-    for (int i = 1; i < root->nodes.size(); ++i) {
-        getUriPaths(core_format, root->nodes[i]);
+    for (int i = 1; i < root->getNodes().size(); ++i) {
+        getUriPaths(core_format, root->getNodes()[i]);
     }
 
     return core_format.substr(0, core_format.length() - 2);
@@ -126,20 +146,21 @@ String CoAPResources::toLinkFormat() const {
 void CoAPResources::getUriPaths(String &result, Node *child) const {
     Node* node = nullptr;
 
-    for (int i = 0; i < child->nodes.size(); ++i) {
+    for (int i = 0; i < child->getNodes().size(); ++i) {
         result += "/";
-        result += child->key;
-        node = child->nodes[i];
+        result += child->getKey();
+        node = child->getNodes()[i];
         getUriPaths(result, node);
     }
 
     if (node == nullptr) {
         result += "/";
-        result += child->key;
-        result += ">;value=";
-        result += TO_STRING(child->value);
+        result += child->getKey();
+        result += ">";
+        if (child->getValue() != nullptr) {
+            result += ";value=";
+            result += TO_STRING(*child->getValue());
+        }
         result += ",<";
     }
 }
-
-

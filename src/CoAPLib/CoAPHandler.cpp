@@ -15,35 +15,35 @@ void CoAPHandler::prepareTimedOutResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
     uri_path.pushBack(RESOURCE_TIMED_OUT);
-    resources_.insert(uri_path, 0);
+    resources_.insert(uri_path, nullptr);
 }
 
 void CoAPHandler::prepareJitterResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
     uri_path.pushBack(RESOURCE_JITTER);
-    resources_.insert(uri_path, 0);
+    resources_.insert(uri_path, nullptr);
 }
 
 void CoAPHandler::prepareRttResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
     uri_path.pushBack(RESOURCE_RTT);
-    resources_.insert(uri_path, 0);
+    resources_.insert(uri_path, nullptr);
 }
 
 void CoAPHandler::prepareLampResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
     uri_path.pushBack(RESOURCE_LAMP);
-    resources_.insert(uri_path, RADIO_LAMP);
+    resources_.insert(uri_path, new unsigned short(RADIO_LAMP));
 }
 
 void CoAPHandler::prepareSpeakerResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
     uri_path.pushBack(RESOURCE_SPEAKER);
-    resources_.insert(uri_path, RADIO_SPEAKER);
+    resources_.insert(uri_path, new unsigned short(RADIO_SPEAKER));
 }
 
 void CoAPHandler::handleMessage(CoAPMessage &message) {
@@ -97,14 +97,13 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                         uri_path.pushBack(iterator->toString());
                         ++iterator;
                     }
-                    String temp_uri = toString(iterator->getValue());
-                    uri_path.pushBack(temp_uri);
+                    uri_path.pushBack(iterator->toString());
 
                     Node* resource = resources_.search(uri_path);
 
                     if (resource != nullptr) {
                         if (uri_path[0] == RESOURCE_REMOTE) {
-                            unsigned short resourceId = resource->value;
+                            unsigned short resourceId = *resource->getValue();
                             sendRadioMessage = true;
                             createResponse(message, radioResponse);
                             radioResponse.resource = resourceId;
@@ -114,20 +113,20 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                             if (uri_path[0] == RESOURCE_WELL_KNOWN) {
                                 createResponse(message, coapResponse);
                                 coapResponse.addOption(toContentFormat(CONTENT_LINK_FORMAT));
-                                coapResponse.setPayload(toByteArray(resources_.toLinkFormat()));
+                                coapResponse.setPayload(toByteArray(RESOURCE_ALL1));
                             }
                             else if (uri_path[0] == RESOURCE_LOCAL) {
-                                if(resource->key == RESOURCE_JITTER) {
+                                if(resource->getKey() == RESOURCE_JITTER) {
                                     createResponse(message, coapResponse);
                                     coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
                                     coapResponse.setPayload(toByteArray(TO_STRING(last_jitter)));
                                 }
-                                else if(resource->key == RESOURCE_RTT) {
+                                else if(resource->getKey() == RESOURCE_RTT) {
                                     createResponse(message, coapResponse);
                                     coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
                                     coapResponse.setPayload(toByteArray(TO_STRING(mean_rtt)));
                                 }
-                                else if(resource->key == RESOURCE_TIMED_OUT) {
+                                else if(resource->getKey() == RESOURCE_TIMED_OUT) {
                                     createResponse(message, coapResponse);
                                     coapResponse.addOption(toContentFormat(CONTENT_TEXT_PLAIN));
                                     coapResponse.setPayload(toByteArray(TO_STRING(timed_out)));
@@ -172,6 +171,9 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
             case OPTION_BLOCK2:
                 {
                     Block2 values(iterator->toBlock2());
+                    values.m = 0;
+                    CoAPOption option(values);
+                    coapResponse.addOption(option);
                 }
                 break;
             default:
@@ -295,7 +297,7 @@ void CoAPHandler::deleteTimedOut() {
     }
 }
 
-void CoAPHandler::registerResource(const Array<String> &uri_path, unsigned short value) {
+void CoAPHandler::registerResource(const Array<String> &uri_path, unsigned short *value) {
     resources_.insert(uri_path, value);
 }
 
@@ -345,9 +347,14 @@ unsigned short CoAPHandler::getTimeout() const {
 }
 
 ByteArray CoAPHandler::toByteArray(unsigned short value) {
-    ByteArray result(2);
-    result.pushBack((const unsigned char &) (value & 0xff));
-    result.pushBack((const unsigned char &) ((value >> 8) & 0xff));
+    ByteArray result(1);
+    if (value > 255) {
+        result.pushBack((const unsigned char &) (value & 0xff));
+        result.pushBack((const unsigned char &) ((value >> 8) & 0xff));
+    }
+    else {
+        result.pushBack((const unsigned char &) value);
+    }
     return result;
 }
 
