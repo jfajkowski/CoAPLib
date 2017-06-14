@@ -11,20 +11,20 @@
 
 // Ethernet library variables:
 IPAddress invalid(0, 0, 0, 0);
-IPAddress ip(169, 254, 42, 110);                   // Used only when directly connected.
-unsigned short local_port = 10000;
-byte mac[] = {222, 222, 222, 222, 222, 222};
+IPAddress ip(169, 254, 42, 110);                // Used only when directly connected.
+unsigned short local_port = 10000;              // Set local port
+byte mac[] = {222, 222, 222, 222, 222, 222};    // Set MAC address
 EthernetUDP Udp;
-unsigned const int MAX_BUFFER = 128;
-unsigned char packet_buffer[MAX_BUFFER];
+unsigned const int MAX_BUFFER = 128;            // Set max buffer size
+unsigned char packet_buffer[MAX_BUFFER];        // Create buffer for incoming packets
 
 // RF24 library variables:
-const uint16_t this_node_id = 00;
-const uint16_t peer_node_id = 01; //TODO: set id's dynamically?
-const uint16_t channel = 100;
-RF24NetworkHeader header(peer_node_id);
-RF24 radio(7, 8);
-RF24Network network(radio);
+const uint16_t this_node_id = 00;               // Address of the other node in Octal format
+const uint16_t peer_node_id = 01;               // Address of this node in Octal format
+const uint16_t channel = 100;                   // Channel on which transmission will occur
+RF24NetworkHeader header(peer_node_id);         // Set header of radio messages
+RF24 radio(7, 8);                               // nRF24L01(+) radio
+RF24Network network(radio);                     // Network initialized with radio
 
 // Callbacks for CoAPHandler:
 struct : public CoAPMessageListener {
@@ -66,14 +66,15 @@ void setup() {
 
 void loop() {
     network.update();
+    // Handle all available radio messages
     while (network.available()) {
         RadioMessage receivedMessage;
         network.read(header, &receivedMessage, sizeof(receivedMessage));
         coAPHandler.handleMessage(receivedMessage);
     }
 
+    // Handle CoAP packet if received any
     unsigned int packet_size = Udp.parsePacket();
-
     if (packet_size) {
         Udp.read(packet_buffer, MAX_BUFFER);
 

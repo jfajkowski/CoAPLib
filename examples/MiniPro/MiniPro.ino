@@ -3,54 +3,57 @@
 #include <RF24.h>
 #include <RadioLib.h>
 
-RF24 radio(7, 8);                     // nRF24L01(+) radio attached using Getting Started board
+RF24 radio(7, 8);                       // nRF24L01(+) radio
 
-RF24Network network(radio);           // Network uses that radio
+RF24Network network(radio);             // Network initialized with radio
 
-const uint16_t this_node = 01;        // Address of our node in Octal format
-const uint16_t other_node = 00;       // Address of the other node in Octal format
+const uint16_t this_node_id = 01;       // Address of our node in Octal format
+const uint16_t other_node_id = 00;      // Address of the other node in Octal format
+const uint16_t channel = 100;
 
-
-unsigned short lampValue;
-unsigned short speakerValue;
-unsigned long interval = 0; //ms
-unsigned long last_sent;
-bool runningFlag = false;
+unsigned short lampValue;               // Brightness of lamp, 255-0, where 0 is maximum brightness
+unsigned short speakerValue;            // Frequency of speaker, 0 means speaker is off
+unsigned long interval = 0;             // Speaker buzzing interval in milliseconds
+unsigned long last_sent;                // Last time the speaker buzzed
+bool runningFlag = false;               // Indicates if buzzer is working
 
 RadioMessage message;
 
 
 void setup() {
-    lampValue = 255;
-    speakerValue = 0;
+    lampValue = 255;                    // Set lamp value to minimum
+    speakerValue = 0;                   // Set speaker value to minimum
     radio.begin();
-    network.begin(/*channel*/ 100, /*node address*/ this_node);
+    network.begin(channel, this_node_id);
 
     pinMode(3, OUTPUT);
     pinMode(2, OUTPUT);
 
-    setLampBrightness(lampValue);
-    setSpeakerFrequency(speakerValue);
+    setLampBrightness(lampValue);       // Initialize lamp with min value
+    setSpeakerFrequency(speakerValue);  // Initialize speaker with min value
 
     Serial.begin(9600);
     Serial.println("Rise and shine...");
 }
 
 void loop() {
-    network.update();                          // Check the network regularly
+    network.update();                   // Check the network regularly
 
-    lampValue = analogRead(3);
+    lampValue = analogRead(3);          // Read current lamp value
     unsigned long now = millis();
 
+    // After every interval buzz the speaker
     if (runningFlag && now - last_sent >= interval) {
         last_sent = now;
         digitalWrite(2, digitalRead(2) ^ 1);
     }
 
-    while (network.available()) {     // Is there anything ready for us?
+    // Is there is anything ready to receive
+    while (network.available()) {
         RF24NetworkHeader header;
         network.read(header, &message, sizeof(message));
 
+        // Depending on action update, or just send current values
         if(message.resource == RADIO_LAMP){
             if(message.code == RADIO_PUT)
                 setLampBrightness(message.value);
@@ -64,6 +67,7 @@ void loop() {
     }
 }
 
+// Set lamp brightness using 0-1000 level of brightness range
 void setLampBrightness(unsigned short level){
     int tmp = (int) level/4;
     tmp = tmp - 250;
@@ -73,16 +77,18 @@ void setLampBrightness(unsigned short level){
     analogWrite(3, lampValue);
 }
 
+// Set speaker frequency
 void setSpeakerFrequency(unsigned short freq){
     speakerValue = freq;
 
-    if (speakerValue > 0){
+    if (speakerValue > 0) {
         runningFlag = true;
         interval = (1.0/speakerValue) * 1000;
     }
     else runningFlag = false;
 }
 
+// Convert 0-1000 value range to physical brightness
 unsigned short convert(unsigned short val){
     int tmp = (int) val;
     tmp = tmp - 255;
@@ -90,8 +96,9 @@ unsigned short convert(unsigned short val){
     return (unsigned short) tmp;
 }
 
+// Send Radio Message
 void send(unsigned short value){
     message.value = value;
-    RF24NetworkHeader header(/*to node*/ other_node);
+    RF24NetworkHeader header(other_node_id);
     network.write(header, &message, sizeof(message));
 }
