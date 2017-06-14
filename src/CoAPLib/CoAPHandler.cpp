@@ -46,6 +46,7 @@ void CoAPHandler::prepareSpeakerResource() {
     resources_.insert(uri_path, RADIO_SPEAKER);
 }
 
+/** Categorizes CoAP message to adequate category based on it's code (eg. GET, PUT) and calls suitable method **/
 void CoAPHandler::handleMessage(CoAPMessage &message) {
     DEBUG_PRINT_TIME();
     DEBUG_PRINTLN("RECEIVED");
@@ -62,6 +63,7 @@ void CoAPHandler::handleMessage(CoAPMessage &message) {
     }
 }
 
+/** Responds with RST message if message is CoAP Ping. **/
 void CoAPHandler::handlePing(const CoAPMessage &message) {
     if (message.getT() == TYPE_ACK) {
         PendingMessage pendingMessage = finalizePendingMessage((unsigned short) (ping_messages_sent - 1));
@@ -78,6 +80,7 @@ void CoAPHandler::handlePing(const CoAPMessage &message) {
     }
 }
 
+/** Parses options and prepares radio or CoAP message with proper options **/
 void CoAPHandler::handleRequest(const CoAPMessage &message) {
     CoAPMessage coapResponse;
     RadioMessage radioResponse;
@@ -163,9 +166,9 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
                 String s_value = toString(iterator->getValue());
                 unsigned short content_format_type = toUnsignedShort(s_value);
                 if(content_format_type == CONTENT_TEXT_PLAIN) {
-                    //TODO: Should do anything?
+                    // Message will have correct format
                 } else {
-                    //TODO: Bad request or what?
+                    // Message will be sent in text/plain format anyway
                 }
             }
             break;
@@ -186,6 +189,7 @@ void CoAPHandler::handleRequest(const CoAPMessage &message) {
         send(coapResponse);
 }
 
+/** Handles RadioMessage, gets value from it and creates CoAP response **/
 void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
     DEBUG_PRINT_TIME();
     DEBUG_PRINTLN("RECEIVED");
@@ -202,6 +206,7 @@ void CoAPHandler::handleMessage(RadioMessage &radioMessage) {
 
 }
 
+/** Creates adequate CoAP response, based on received message TYPE **/
 void CoAPHandler::createResponse(const CoAPMessage &message, CoAPMessage &response) {
     response.setToken(message.getToken());
 
@@ -219,6 +224,7 @@ void CoAPHandler::createResponse(const CoAPMessage &message, CoAPMessage &respon
         response.setCode(68); //if put then code 2.04 -changed
 }
 
+/** Creates reponse based on radio response **/
 void CoAPHandler::createResponse(const CoAPMessage &message, RadioMessage &response) {
     response.message_id = message.getMessageId();
     if (message.getCode() == CODE_GET) {

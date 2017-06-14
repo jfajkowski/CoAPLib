@@ -70,11 +70,14 @@ Array<T>::~Array() {
     delete[] array_begin_;
 }
 
+/** Adds given element at front of the array **/
 template <typename T>
 void Array<T>::pushFront(const T &value) {
     insert(value, 0);
 }
 
+/** Adds given element at the end of the array.
+ *  If capacity is too small elements will be reallocated to new, bigger array **/
 template <typename T>
 void Array<T>::pushBack(const T &value) {
     if (size_ == capacity_) {
@@ -84,15 +87,19 @@ void Array<T>::pushBack(const T &value) {
     ++size_;
 }
 
+/** Returns last element and deletes it from array **/
 template<typename T>
-const T Array<T>::popBack() { //TODO: add resizing when size is less than half of the capacity
+const T Array<T>::popBack() {
     T element = array_begin_[size_ - 1];
     --size_;
+    if(size_ < capacity_ - 1)
+        reserve(size_);
     return element;
 }
 
+/** Returns element at given index and deletes it from array **/
 template<typename T>
-const T Array<T>::pop(unsigned int index) { //TODO: add resizing when size is less than half of the capacity
+const T Array<T>::pop(unsigned int index) {
     T element = array_begin_[index];
     T* iterator1 = array_begin_ + index;
     T* iterator2 = array_begin_ + index + 1;
@@ -104,11 +111,14 @@ const T Array<T>::pop(unsigned int index) { //TODO: add resizing when size is le
         iterator2++;
     }
     --size_;
+    if(size_ < capacity_ - 1)
+        reserve(size_);
     return element;
 }
 
+/** Deletes element at given index **/
 template<typename T>
-void Array<T>::erase(unsigned int index) { //TODO: add resizing when size is less than half of the capacity
+void Array<T>::erase(unsigned int index) {
     T* iterator1 = array_begin_ + index;
     T* iterator2 = array_begin_ + index + 1;
     T* end = Array<T>::end();
@@ -119,8 +129,11 @@ void Array<T>::erase(unsigned int index) { //TODO: add resizing when size is les
         iterator2++;
     }
     --size_;
+    if(size_ < capacity_ - 1)
+        reserve(size_);
 }
 
+/** Inserts element after given index **/
 template <typename T>
 void Array<T>::insert(const T &value, unsigned int index) {
     unsigned int old_capacity = capacity_;
@@ -151,6 +164,7 @@ void Array<T>::insert(const T &value, unsigned int index) {
     array_begin_[index] = value;
 }
 
+/** Moves all elements to new array with given capacity **/
 template <typename T>
 void Array<T>::reserve(unsigned int new_capacity) {
     unsigned int capacity = new_capacity > capacity_ ?  capacity_ : new_capacity;
@@ -184,21 +198,25 @@ Array<T> &Array<T>::operator+=(const Array<T> &array) {
     return *this;
 }
 
+/** Returns number of valid elements in the array **/
 template <typename T>
 unsigned int Array<T>::size() const {
     return size_;
 }
 
+/** Returns the capacity of an array (max number of elements that will fit into array without resizing it) **/
 template <typename T>
 unsigned int Array<T>::capacity() const {
     return capacity_;
 }
 
+/** Returns pointer to the first element of the array **/
 template <typename T>
 T *Array<T>::begin() const {
     return array_begin_;
 }
 
+/** Returns pointer to the element after the last valid element of an array **/
 template <typename T>
 T *Array<T>::end() const {
     return &array_begin_[size_];
