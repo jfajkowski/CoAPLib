@@ -8,6 +8,9 @@
 #include "../Environment.h"
 #include "../RadioLib.h"
 
+/**
+ * Main class responsible for handling both CoAP and radio messages
+ */
 class CoAPHandler {
 private:
     struct PendingMessage {

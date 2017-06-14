@@ -7,6 +7,7 @@ template <typename T>
 class Array;
 typedef Array<unsigned char> ByteArray;
 
+/**This class manages size and memory taken by char array used in CoApMessage**/
 template <typename T>
 class Array {
 private:
@@ -45,12 +46,14 @@ public:
 template <typename T>
 Array<T>::Array() : Array(0) {}
 
+/**Creates array with reserved memory for given number of elements**/
 template <typename T>
 Array<T>::Array(unsigned int capacity) : capacity_(capacity), size_(0), array_begin_(nullptr) {
     if (capacity > 0)
         reserve(capacity);
 }
 
+/**Creates copy of another Array**/
 template <typename T>
 Array<T>::Array(const Array &array) {
     T* new_array_begin = new T[array.capacity_];
@@ -182,11 +185,13 @@ void Array<T>::reserve(unsigned int new_capacity) {
     capacity_ = new_capacity;
 }
 
+/** Returns element at given index**/
 template <typename T>
 const T &Array<T>::operator[](int index) const {
     return array_begin_[index];
 }
 
+/** Pushes element at the back and expands array if neccessary**/
 template <typename T>
 Array<T> &Array<T>::operator+=(const Array<T> &array) {
     reserve(size_ + array.size_);
@@ -221,7 +226,7 @@ template <typename T>
 T *Array<T>::end() const {
     return &array_begin_[size_];
 }
-
+/**Copies into array content of another array **/
 template <typename T>
 Array<T> &Array<T>::operator=(const Array<T> &array) {
     if(&array != this) {
@@ -234,12 +239,12 @@ Array<T> &Array<T>::operator=(const Array<T> &array) {
     }
     return *this;
 }
-
+/**Copies contetnt of Array into simple char array **/
 template <typename T>
 void Array<T>::serialize(unsigned char *cursor) const {
     memcpy(cursor, array_begin_, size_);
 }
-
+/**Copies content of char array into our Array **/
 template <typename T>
 void Array<T>::deserialize(unsigned char *cursor, unsigned int num) {
     reserve(num);

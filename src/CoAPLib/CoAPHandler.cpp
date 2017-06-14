@@ -1,5 +1,8 @@
 #include "CoAPHandler.h"
 
+/** Sets up CoAPHandler, binds callbacks used to process radio and internet input,
+ * defines both local and remote resources.
+ */
 CoAPHandler::CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageListener &radioMessageListener) :
         coapMessageListener_(&coapMessageListener),
         radioMessageListener_(&radioMessageListener),
@@ -11,6 +14,7 @@ CoAPHandler::CoAPHandler(CoAPMessageListener &coapMessageListener, RadioMessageL
     prepareTimedOutResource();
 }
 
+/** Creates "TimedOut" resource **/
 void CoAPHandler::prepareTimedOutResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
@@ -18,6 +22,7 @@ void CoAPHandler::prepareTimedOutResource() {
     resources_.insert(uri_path, nullptr);
 }
 
+/** Creates "Jitter" resource **/
 void CoAPHandler::prepareJitterResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
@@ -25,6 +30,7 @@ void CoAPHandler::prepareJitterResource() {
     resources_.insert(uri_path, nullptr);
 }
 
+/** Creates "Rtt" resource **/
 void CoAPHandler::prepareRttResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_LOCAL);
@@ -32,6 +38,7 @@ void CoAPHandler::prepareRttResource() {
     resources_.insert(uri_path, nullptr);
 }
 
+/** Creates "Lamp" resource and maps it with resource number used in communication through radio**/
 void CoAPHandler::prepareLampResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
@@ -39,6 +46,7 @@ void CoAPHandler::prepareLampResource() {
     resources_.insert(uri_path, new unsigned short(RADIO_LAMP));
 }
 
+/** Creates "Speker" resource and maps it with resource number used in communication through radio**/
 void CoAPHandler::prepareSpeakerResource() {
     Array<String> uri_path;
     uri_path.pushBack(RESOURCE_REMOTE);
@@ -236,7 +244,7 @@ void CoAPHandler::createResponse(const CoAPMessage &message, RadioMessage &respo
         response.code = RADIO_PUT;
     }
 }
-
+/** Prepares response with given error code and sends it to browser client**/
 void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short error_code) {
     CoAPMessage response;
 
@@ -253,7 +261,7 @@ void CoAPHandler::handleBadRequest(const CoAPMessage &message, unsigned short er
     send(response);
 }
 
-
+/** This callback tells CoApServer.ino to send given CoAPMessage**/
 void CoAPHandler::send(const CoAPMessage &message) {
     DEBUG_PRINT_TIME();
     DEBUG_PRINTLN("SENT");
@@ -263,6 +271,7 @@ void CoAPHandler::send(const CoAPMessage &message) {
         (*coapMessageListener_)(message);
 }
 
+/** This callback tells CoApServer.ino to send given RadioMessage**/
 void CoAPHandler::send(const RadioMessage &message) {
     DEBUG_PRINT_TIME();
     DEBUG_PRINTLN("SENT");
@@ -272,13 +281,14 @@ void CoAPHandler::send(const RadioMessage &message) {
         (*radioMessageListener_)(message);
 }
 
+/** Adds given message to list of pending request**/
 void CoAPHandler::addPendingMessage(const CoAPMessage &message) {
     pending_messages_.pushBack({message, millis()});
     DEBUG_PRINT("Added pending message. Array size: ");
     DEBUG_PRINTLN(pending_messages_.size());
     DEBUG_PRINTLN("");
 }
-
+/** Removes from pending reqyest message with given id**/
 CoAPHandler::PendingMessage CoAPHandler::finalizePendingMessage(const unsigned short message_id) {
     for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
         if(pending_messages_[i].coapMessage.getMessageId() == message_id)
@@ -288,6 +298,7 @@ CoAPHandler::PendingMessage CoAPHandler::finalizePendingMessage(const unsigned s
     // TODO WHAT IF NOT FOUND?
 }
 
+/** Deletes request that was not served and updates metric**/
 void CoAPHandler::deleteTimedOut() {
     unsigned long now = millis();
     for(unsigned int i = 0; i < pending_messages_.size(); ++i) {
@@ -303,10 +314,11 @@ void CoAPHandler::deleteTimedOut() {
     }
 }
 
+/** Puts given path into resource tree, along with mapping into radio interface notation**/
 void CoAPHandler::registerResource(const Array<String> &uri_path, unsigned short *value) {
     resources_.insert(uri_path, value);
 }
-
+/** Sends ping message to CoAP Client in order to calculate RTT
 void CoAPHandler::sendPing() {
     CoAPMessage message;
     message.setCode(CODE_EMPTY);
@@ -315,12 +327,14 @@ void CoAPHandler::sendPing() {
     addPendingMessage(message);
 }
 
+/** Updates metrics describing internet connection with CoAP Client**/
 void CoAPHandler::updateMetrics(unsigned short rtt) {
     updateRoundTripTimeMetric(rtt);
     updateJitterMetric(rtt);
     DEBUG_PRINTLN("");
 }
 
+/** Calculates RTT metric**/
 void CoAPHandler::updateRoundTripTimeMetric(unsigned short rtt) {
     if (mean_rtt == 0)
         mean_rtt = rtt;
@@ -333,6 +347,7 @@ void CoAPHandler::updateRoundTripTimeMetric(unsigned short rtt) {
     DEBUG_PRINTLN(mean_rtt);
 }
 
+/** Calculates Jitter metric**/
 void CoAPHandler::updateJitterMetric(unsigned short rtt) {
     last_jitter = rtt - mean_rtt;
 
@@ -340,6 +355,7 @@ void CoAPHandler::updateJitterMetric(unsigned short rtt) {
     DEBUG_PRINTLN(last_jitter);
 }
 
+/** Increments Timeout metric**/
 void CoAPHandler::updateTimeoutMetric() {
     ++timed_out;
 
@@ -348,10 +364,12 @@ void CoAPHandler::updateTimeoutMetric() {
     DEBUG_PRINTLN("");
 }
 
+/** Returns Timeout metric**/
 unsigned short CoAPHandler::getTimeout() const {
     return timeout_;
 }
 
+/** Converts unsigned short into ByteArray**/
 ByteArray CoAPHandler::toByteArray(unsigned short value) {
     ByteArray result(1);
     if (value > 255) {
@@ -364,11 +382,13 @@ ByteArray CoAPHandler::toByteArray(unsigned short value) {
     return result;
 }
 
+/**Creates ContetntFormat option with given id**/
 CoAPOption CoAPHandler::toContentFormat(unsigned short value) {
     CoAPOption result(OPTION_CONTENT_FORMAT, toByteArray(value));
     return result;
 }
 
+/** Converts string into ByteArray**/
 ByteArray CoAPHandler::toByteArray(const String &value) {
     ByteArray result(value.length());
     for (int i = 0; i < value.length(); ++i) {
@@ -377,10 +397,12 @@ ByteArray CoAPHandler::toByteArray(const String &value) {
     return result;
 }
 
+/** Converts ByteArray into unsigned short **/
 unsigned short CoAPHandler::toUnsignedShort(const String &value) {
     return (unsigned short) TO_INT(value);
 }
 
+/** Converts ByteArray into string**/
 String CoAPHandler::toString(const ByteArray &value) {
     String result;
     for(int i = 0; i < value.size(); ++i){
